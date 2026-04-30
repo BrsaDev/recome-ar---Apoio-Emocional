@@ -13,6 +13,7 @@ export type RoomGender = 'mixed' | 'men' | 'women';
 export interface Message {
   id: string;
   text: string;
+  audioUrl?: string; // Add this
   sender: 'user' | 'ai' | 'system';
   timestamp: number;
 }
