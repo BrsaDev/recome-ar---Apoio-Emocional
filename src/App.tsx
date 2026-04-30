@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { View, User, Mood } from './types';
+import { View, User, Mood, RoomGender } from './types';
 import Welcome from './pages/Welcome';
 import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
@@ -15,11 +15,13 @@ import Emergency from './pages/Emergency';
 import Profile from './pages/Profile';
 import VIP from './pages/VIP';
 import Shop from './pages/Shop';
+import LiveRoom from './pages/LiveRoom';
 import Navigation from './components/Navigation';
 
 export default function App() {
   const [view, setView] = useState<View>('welcome');
   const [user, setUser] = useState<User | null>(null);
+  const [activeRoom, setActiveRoom] = useState<{ name: string; gender: RoomGender } | null>(null);
 
   // Load user from localStorage on mount
   useEffect(() => {
@@ -45,6 +47,7 @@ export default function App() {
     const handlePopState = (event: PopStateEvent) => {
       if (event.state && event.state.view) {
         setView(event.state.view);
+        if (event.state.activeRoom) setActiveRoom(event.state.activeRoom);
       }
     };
 
@@ -52,10 +55,11 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const navigate = (newView: View) => {
-    if (newView !== view) {
-      window.history.pushState({ view: newView }, '', '');
+  const navigate = (newView: View, state?: any) => {
+    if (newView !== view || state) {
+      window.history.pushState({ view: newView, ...state }, '', '');
       setView(newView);
+      if (state?.activeRoom) setActiveRoom(state.activeRoom);
     }
   };
 
@@ -79,6 +83,8 @@ export default function App() {
         return <Chat user={user} navigate={navigate} />;
       case 'rooms':
         return <Rooms navigate={navigate} />;
+      case 'live-room':
+        return <LiveRoom user={user} navigate={navigate} roomName={activeRoom?.name || 'Sala'} gender={activeRoom?.gender || 'mixed'} />;
       case 'emergency':
         return <Emergency onClose={() => navigate('home')} />;
       case 'profile':
@@ -96,7 +102,7 @@ export default function App() {
     }
   };
 
-  const showNav = user && !['welcome', 'onboarding', 'emergency'].includes(view);
+  const showNav = user && !['welcome', 'onboarding', 'emergency', 'live-room'].includes(view);
 
   return (
     <div className="relative h-[100dvh] w-full overflow-hidden bg-brand-gray flex flex-col max-w-md mx-auto shadow-2xl">
