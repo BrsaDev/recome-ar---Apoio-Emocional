@@ -28,25 +28,43 @@ export default function App() {
       try {
         const parsed = JSON.parse(savedUser);
         setUser(parsed);
-        setView('home'); 
+        const initialView = 'home';
+        setView(initialView);
+        window.history.replaceState({ view: initialView }, '', '');
       } catch (e) {
         console.error('Failed to parse user', e);
+        window.history.replaceState({ view: 'welcome' }, '', '');
       }
+    } else {
+      window.history.replaceState({ view: 'welcome' }, '', '');
     }
   }, []);
 
-  const handleStartOnboarding = () => setView('onboarding');
+  // Sync state with History API
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state && event.state.view) {
+        setView(event.state.view);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigate = (newView: View) => {
+    if (newView !== view) {
+      window.history.pushState({ view: newView }, '', '');
+      setView(newView);
+    }
+  };
+
+  const handleStartOnboarding = () => navigate('onboarding');
   
   const handleCompleteOnboarding = (userData: User) => {
     setUser(userData);
     localStorage.setItem('recomecar_user', JSON.stringify(userData));
-    setView('home');
-  };
-
-  const navigate = (newView: View) => {
-    // If it's the emergency view, we don't want to change the "main" view state necessarily 
-    // unless it replaces it. For now, let's just switch.
-    setView(newView);
+    navigate('home');
   };
 
   const renderView = () => {
@@ -67,7 +85,7 @@ export default function App() {
         return <Profile user={user} navigate={navigate} onLogout={() => {
           localStorage.removeItem('recomecar_user');
           setUser(null);
-          setView('welcome');
+          navigate('welcome');
         }} />;
       case 'vip':
         return <VIP navigate={navigate} />;
@@ -81,8 +99,8 @@ export default function App() {
   const showNav = user && !['welcome', 'onboarding', 'emergency'].includes(view);
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-brand-gray flex flex-col max-w-md mx-auto shadow-2xl">
-      <main className="flex-1 relative overflow-hidden">
+    <div className="relative h-[100dvh] w-full overflow-hidden bg-brand-gray flex flex-col max-w-md mx-auto shadow-2xl">
+      <main className="flex-1 relative overflow-hidden flex flex-col">
         <AnimatePresence mode="wait">
           <motion.div
             key={view}

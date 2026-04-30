@@ -13,8 +13,12 @@
 }
 
 @layer base {
+  html, body, #root {
+    @apply h-[100dvh] w-full overflow-hidden;
+  }
+  
   body {
-    @apply font-sans antialiased bg-brand-gray text-brand-text overflow-x-hidden selection:bg-brand-green/30;
+    @apply font-sans antialiased bg-brand-gray text-brand-text selection:bg-brand-green/30 fixed inset-0;
     -webkit-tap-highlight-color: transparent;
   }
 }

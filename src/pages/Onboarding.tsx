@@ -29,8 +29,8 @@ export default function Onboarding({ onComplete }: Props) {
   };
 
   return (
-    <div className="h-full w-full flex flex-col p-8 bg-brand-white">
-      <div className="flex-1 mt-12">
+    <div className="h-full w-full flex flex-col bg-brand-white">
+      <div className="flex-1 mt-12 px-8 overflow-y-auto no-scrollbar">
         {step === 1 ? (
           <motion.div
             key="step1"
@@ -88,20 +88,22 @@ export default function Onboarding({ onComplete }: Props) {
         )}
       </div>
 
-      <motion.button
-        disabled={step === 1 ? !name.trim() : !mood}
-        onClick={handleNext}
-        className={cn(
-          "w-full h-16 rounded-2xl font-display font-medium text-lg flex items-center justify-center space-x-2 transition-all duration-300 shadow-lg",
-          (step === 1 ? name.trim() : mood)
-            ? "bg-brand-green text-white shadow-brand-green/20"
-            : "bg-gray-200 text-gray-400 shadow-none cursor-not-allowed"
-        )}
-        id="btn-onboarding-next"
-      >
-        <span>Continuar</span>
-        <ArrowRight size={20} />
-      </motion.button>
+      <div className="p-8 pt-0">
+        <motion.button
+          disabled={step === 1 ? !name.trim() : !mood}
+          onClick={handleNext}
+          className={cn(
+            "w-full h-16 rounded-2xl font-display font-medium text-lg flex items-center justify-center space-x-2 transition-all duration-300 shadow-lg",
+            (step === 1 ? name.trim() : mood)
+              ? "bg-brand-green text-white shadow-brand-green/20"
+              : "bg-gray-200 text-gray-400 shadow-none cursor-not-allowed"
+          )}
+          id="btn-onboarding-next"
+        >
+          <span>Continuar</span>
+          <ArrowRight size={20} />
+        </motion.button>
+      </div>
     </div>
   );
 }
