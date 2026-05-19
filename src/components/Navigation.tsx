@@ -12,7 +12,6 @@ export default function Navigation({ currentView, navigate }: Props) {
     { id: 'home', label: 'Home', icon: Home },
     { id: 'rooms', label: 'Salas', icon: Users },
     { id: 'forum', label: 'Fórum', icon: MessageSquare },
-    { id: 'chat', label: 'Conversar', icon: Heart },
     { id: 'profile', label: 'Perfil', icon: User },
   ] as const;
 

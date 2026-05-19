@@ -210,7 +210,7 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
       const otherMsg: Message = {
         id: (Date.now() + 1).toString(),
         text: responses[Math.floor(Math.random() * responses.length)],
-        sender: 'ai',
+        sender: 'user',
         senderName: speaker.name,
         timestamp: Date.now(),
       };

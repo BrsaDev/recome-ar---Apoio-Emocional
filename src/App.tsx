@@ -9,7 +9,6 @@ import { View, User, Mood, RoomGender } from './types';
 import Welcome from './pages/Welcome';
 import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
-import Chat from './pages/Chat';
 import Rooms from './pages/Rooms';
 import Emergency from './pages/Emergency';
 import Profile from './pages/Profile';
@@ -84,8 +83,6 @@ export default function App() {
         return <Onboarding onComplete={handleCompleteOnboarding} />;
       case 'home':
         return <Home user={user} navigate={navigate} />;
-      case 'chat':
-        return <Chat user={user} navigate={navigate} />;
       case 'rooms':
         return <Rooms navigate={navigate} />;
       case 'live-room':

@@ -6,7 +6,7 @@ export interface User {
   initialMood: Mood;
 }
 
-export type View = 'welcome' | 'onboarding' | 'home' | 'chat' | 'rooms' | 'live-room' | 'emergency' | 'vip' | 'shop' | 'profile' | 'forum' | 'topic-detail';
+export type View = 'welcome' | 'onboarding' | 'home' | 'rooms' | 'live-room' | 'emergency' | 'vip' | 'shop' | 'profile' | 'forum' | 'topic-detail';
 
 export type RoomGender = 'mixed' | 'men' | 'women';
 

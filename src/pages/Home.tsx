@@ -41,21 +41,6 @@ export default function Home({ user, navigate }: Props) {
               <p className="text-brand-text/60 text-sm">Exercícios rápidos de respiração.</p>
             </div>
           </motion.button>
-
-          <motion.button
-            whileTap={{ scale: 0.98 }}
-            onClick={() => navigate('chat')}
-            className="w-full bg-brand-blue/20 border-2 border-brand-blue/30 p-6 rounded-3xl flex items-center space-x-6 text-left transition-all"
-            id="btn-home-chat"
-          >
-            <div className="w-14 h-14 bg-blue-400 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-400/20">
-              <MessageCircle size={32} />
-            </div>
-            <div>
-              <h3 className="text-xl font-display font-semibold text-brand-text">Quero conversar</h3>
-              <p className="text-brand-text/60 text-sm">Um papo leve e acolhedor.</p>
-            </div>
-          </motion.button>
         </div>
 
         {/* Quick Access */}
@@ -82,17 +67,6 @@ export default function Home({ user, navigate }: Props) {
                 <Users size={24} />
               </div>
               <span className="font-medium text-sm text-brand-text">Salas ao vivo</span>
-            </button>
-
-            <button 
-              onClick={() => navigate('chat')}
-              className="bg-brand-white p-5 rounded-3xl shadow-sm border border-brand-blue/10 flex flex-col items-center text-center space-y-3"
-              id="btn-home-ai"
-            >
-              <div className="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-400">
-                <Sparkles size={24} />
-              </div>
-              <span className="font-medium text-sm text-brand-text">Falar com IA</span>
             </button>
           </div>
         </div>
