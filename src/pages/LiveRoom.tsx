@@ -116,35 +116,61 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
   ]);
   const [inputText, setInputText] = useState('');
   const [isMicActive, setIsMicActive] = useState(false);
-  const [participants, setParticipants] = useState([
-    { id: '1', name: 'Você', isSpeaking: false, isMe: true },
-    { id: '2', name: 'Ana', isSpeaking: true, isMe: false },
-    { id: '3', name: 'Lucas', isSpeaking: false, isMe: false },
-    { id: '4', name: 'Mari', isSpeaking: false, isMe: false },
-    { id: '5', name: 'Pedro', isSpeaking: false, isMe: false },
-    { id: '6', name: 'Carla', isSpeaking: false, isMe: false },
-  ]);
+  const [participants, setParticipants] = useState<{ id: string; name: string; isSpeaking: boolean; isMe: boolean }[]>([]);
+  const [isFirstInRoom, setIsFirstInRoom] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Simulação de entrada na sala com limite de 10 pessoas
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    const names = ['Ana', 'Pedro', 'Lucas', 'Mariana', 'Carla', 'Gabriel', 'Bia', 'João', 'Sofia'];
+    // Definimos aleatoriamente quantos já estão na sala (0 a 9)
+    const existingCount = Math.floor(Math.random() * 10);
+    
+    const initialParticipants = [
+      { id: 'me', name: 'Você', isSpeaking: false, isMe: true }
+    ];
+
+    if (existingCount === 0) {
+      setIsFirstInRoom(true);
+      setMessages(prev => [
+        ...prev,
+        {
+          id: 'incentive',
+          text: "🌿 **Você é o primeiro a chegar!**\n\nRespire fundo. Este espaço foi criado especialmente para você. Outras pessoas logo se juntarão a nós. Permaneça aqui, sinta o silêncio e, quando estiver pronto, pode começar a desabafar.",
+          sender: 'system',
+          timestamp: Date.now(),
+        }
+      ]);
+    } else {
+      // Adiciona participantes aleatórios até o limite de 9 + você
+      for (let i = 0; i < existingCount; i++) {
+        initialParticipants.push({
+          id: (i + 2).toString(),
+          name: names[i % names.length],
+          isSpeaking: false,
+          isMe: false
+        });
+      }
     }
-  }, [messages]);
+    
+    setParticipants(initialParticipants);
+  }, []);
 
   // Simulação de pessoas falando alternadamente
   useEffect(() => {
+    if (participants.length <= 1 && !isMicActive) return;
+
     const interval = setInterval(() => {
       setParticipants(prev => prev.map(p => {
         if (p.isMe) return { ...p, isSpeaking: isMicActive };
-        // Randomly make someone else speak
+        // Somente fala se houver mais pessoas e aleatoriamente
         if (Math.random() > 0.8) return { ...p, isSpeaking: !p.isSpeaking };
         return p;
       }));
     }, 3000);
     return () => clearInterval(interval);
-  }, [isMicActive]);
+  }, [isMicActive, participants.length]);
 
   const toggleMic = () => {
     setIsMicActive(!isMicActive);
@@ -166,7 +192,11 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
     setInputText('');
 
     setTimeout(() => {
+      if (participants.length <= 1) return; // Ninguém para responder se você estiver sozinho
+
       const activeSpeakers = participants.filter(p => !p.isMe);
+      if (activeSpeakers.length === 0) return;
+
       const speaker = activeSpeakers[Math.floor(Math.random() * activeSpeakers.length)];
       
       const responses = [
@@ -196,12 +226,18 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
           <button onClick={() => navigate('rooms')} className="p-2 -ml-2 text-gray-400">
             <ArrowLeft size={24} />
           </button>
-          <div>
-            <h3 className="font-display font-semibold text-brand-text leading-tight">{roomName}</h3>
-            <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
-              Conexão em tempo real
-            </p>
-          </div>
+            <div>
+              <h3 className="font-display font-semibold text-brand-text leading-tight">{roomName}</h3>
+              <div className="flex items-center space-x-2">
+                <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest leading-none">
+                  Conexão em tempo real
+                </p>
+                <span className="w-1 h-1 rounded-full bg-gray-300" />
+                <p className="text-[10px] text-brand-blue font-bold uppercase tracking-widest leading-none">
+                  {participants.length}/10 participantes
+                </p>
+              </div>
+            </div>
         </div>
         <button className="p-2 text-gray-400">
           <MoreHorizontal size={24} />

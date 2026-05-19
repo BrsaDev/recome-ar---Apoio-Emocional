@@ -6,7 +6,7 @@ export interface User {
   initialMood: Mood;
 }
 
-export type View = 'welcome' | 'onboarding' | 'home' | 'chat' | 'rooms' | 'live-room' | 'emergency' | 'vip' | 'shop' | 'profile';
+export type View = 'welcome' | 'onboarding' | 'home' | 'chat' | 'rooms' | 'live-room' | 'emergency' | 'vip' | 'shop' | 'profile' | 'forum' | 'topic-detail';
 
 export type RoomGender = 'mixed' | 'men' | 'women';
 
@@ -25,4 +25,23 @@ export interface Room {
   description: string;
   onlineCount: number;
   type: 'public' | 'vip';
+}
+
+export interface ForumPost {
+  id: string;
+  authorName: string;
+  content: string;
+  timestamp: number;
+  likes: number;
+}
+
+export interface ForumTopic {
+  id: string;
+  title: string;
+  category: string;
+  authorName: string;
+  lastUpdate: number;
+  repliesCount: number;
+  viewsCount: number;
+  posts: ForumPost[];
 }

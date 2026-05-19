@@ -1,4 +1,4 @@
-import { Home, Users, User, Heart } from 'lucide-react';
+import { Home, Users, User, Heart, MessageSquare } from 'lucide-react';
 import { View } from '../types';
 import { cn } from '../lib/utils';
 
@@ -11,6 +11,7 @@ export default function Navigation({ currentView, navigate }: Props) {
   const tabs = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'rooms', label: 'Salas', icon: Users },
+    { id: 'forum', label: 'Fórum', icon: MessageSquare },
     { id: 'chat', label: 'Conversar', icon: Heart },
     { id: 'profile', label: 'Perfil', icon: User },
   ] as const;

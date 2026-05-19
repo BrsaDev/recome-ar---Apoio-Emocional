@@ -16,12 +16,15 @@ import Profile from './pages/Profile';
 import VIP from './pages/VIP';
 import Shop from './pages/Shop';
 import LiveRoom from './pages/LiveRoom';
+import Forum from './pages/Forum';
+import TopicDetail from './pages/TopicDetail';
 import Navigation from './components/Navigation';
 
 export default function App() {
   const [view, setView] = useState<View>('welcome');
   const [user, setUser] = useState<User | null>(null);
   const [activeRoom, setActiveRoom] = useState<{ name: string; gender: RoomGender } | null>(null);
+  const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
 
   // Load user from localStorage on mount
   useEffect(() => {
@@ -48,6 +51,7 @@ export default function App() {
       if (event.state && event.state.view) {
         setView(event.state.view);
         if (event.state.activeRoom) setActiveRoom(event.state.activeRoom);
+        if (event.state.topicId) setSelectedTopicId(event.state.topicId);
       }
     };
 
@@ -60,6 +64,7 @@ export default function App() {
       window.history.pushState({ view: newView, ...state }, '', '');
       setView(newView);
       if (state?.activeRoom) setActiveRoom(state.activeRoom);
+      if (state?.topicId) setSelectedTopicId(state.topicId);
     }
   };
 
@@ -85,6 +90,10 @@ export default function App() {
         return <Rooms navigate={navigate} />;
       case 'live-room':
         return <LiveRoom user={user} navigate={navigate} roomName={activeRoom?.name || 'Sala'} gender={activeRoom?.gender || 'mixed'} />;
+      case 'forum':
+        return <Forum navigate={navigate} />;
+      case 'topic-detail':
+        return <TopicDetail navigate={navigate} topicId={selectedTopicId || ''} />;
       case 'emergency':
         return <Emergency onClose={() => navigate('home')} />;
       case 'profile':

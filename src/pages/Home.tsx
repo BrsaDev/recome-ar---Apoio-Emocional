@@ -63,6 +63,17 @@ export default function Home({ user, navigate }: Props) {
           <h3 className="text-lg font-display font-medium text-brand-text px-1">Outras formas de apoio</h3>
           <div className="grid grid-cols-2 gap-4">
             <button 
+              onClick={() => navigate('forum')}
+              className="bg-brand-white p-5 rounded-3xl shadow-sm border border-brand-blue/10 flex flex-col items-center text-center space-y-3"
+              id="btn-home-forum"
+            >
+              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-400">
+                <MessageCircle size={24} />
+              </div>
+              <span className="font-medium text-sm text-brand-text">Fórum</span>
+            </button>
+
+            <button 
               onClick={() => navigate('rooms')}
               className="bg-brand-white p-5 rounded-3xl shadow-sm border border-brand-blue/10 flex flex-col items-center text-center space-y-3"
               id="btn-home-rooms"
