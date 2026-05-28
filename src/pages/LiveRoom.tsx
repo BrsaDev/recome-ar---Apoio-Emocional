@@ -105,6 +105,8 @@ const AudioPlayer = ({ url }: { url: string }) => {
   );
 };
 
+import { getAvatarById } from '../data/avatars';
+
 export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -116,10 +118,16 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
   ]);
   const [inputText, setInputText] = useState('');
   const [isMicActive, setIsMicActive] = useState(false);
-  const [participants, setParticipants] = useState<{ id: string; name: string; isSpeaking: boolean; isMe: boolean }[]>([]);
+  const [participants, setParticipants] = useState<{ id: string; name: string; isSpeaking: boolean; isMe: boolean; avatarId: string }[]>([]);
   const [isFirstInRoom, setIsFirstInRoom] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   // Simulação de entrada na sala com limite de 10 pessoas
   useEffect(() => {
@@ -127,8 +135,13 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
     // Definimos aleatoriamente quantos já estão na sala (0 a 9)
     const existingCount = Math.floor(Math.random() * 10);
     
+    // Gêneros dos avatares para os nomes
+    const femaleNames = ['Ana', 'Mariana', 'Carla', 'Bia', 'Sofia'];
+    const femaleAvatars = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'];
+    const maleAvatars = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8'];
+    
     const initialParticipants = [
-      { id: 'me', name: 'Você', isSpeaking: false, isMe: true }
+      { id: 'me', name: 'Você', isSpeaking: false, isMe: true, avatarId: user?.avatarId || 'm1' }
     ];
 
     if (existingCount === 0) {
@@ -145,17 +158,24 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
     } else {
       // Adiciona participantes aleatórios até o limite de 9 + você
       for (let i = 0; i < existingCount; i++) {
+        const name = names[i % names.length];
+        const isFemale = femaleNames.includes(name);
+        const avList = isFemale ? femaleAvatars : maleAvatars;
+        const seedIndex = (name.charCodeAt(0) + i) % avList.length;
+        const avatarId = avList[seedIndex];
+
         initialParticipants.push({
           id: (i + 2).toString(),
-          name: names[i % names.length],
+          name,
           isSpeaking: false,
-          isMe: false
+          isMe: false,
+          avatarId
         });
       }
     }
     
     setParticipants(initialParticipants);
-  }, []);
+  }, [user?.avatarId]);
 
   // Simulação de pessoas falando alternadamente
   useEffect(() => {
@@ -218,6 +238,59 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
     }, 2000);
   };
 
+  const leftParticipants = participants.slice(0, Math.ceil(participants.length / 2));
+  const rightParticipants = participants.slice(Math.ceil(participants.length / 2));
+
+  const getSenderAvatarEmoji = (senderName?: string, senderType?: string) => {
+    if (senderType === 'user' || senderName === 'Você') {
+      const usrAvatarObj = getAvatarById(user?.avatarId || '');
+      return usrAvatarObj ? usrAvatarObj.emoji : '👋';
+    }
+    const foundPart = participants.find(p => p.name === senderName);
+    if (foundPart) {
+      const av = getAvatarById(foundPart.avatarId || '');
+      return av ? av.emoji : '👤';
+    }
+    return '👤';
+  };
+
+  const renderParticipant = (p: any) => {
+    const avatarObj = getAvatarById(p.avatarId || '');
+    const emoji = avatarObj ? avatarObj.emoji : p.name[0];
+    return (
+      <div key={p.id} className="flex flex-col items-center shrink-0 space-y-1 relative w-full px-1">
+        <div className={cn(
+          "w-11 h-11 rounded-full flex items-center justify-center text-xl bg-white border transition-all duration-300 relative",
+          p.isSpeaking 
+            ? "ring-4 ring-brand-blue/30 scale-105 border-brand-blue bg-blue-50 shadow-md" 
+            : "border-brand-blue/10 hover:border-brand-blue/35"
+        )}>
+          {emoji}
+          
+          {/* Speaking Indicator Dot */}
+          <AnimatePresence>
+            {p.isSpeaking && (
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-blue-500 rounded-full border border-brand-white flex items-center justify-center shadow"
+              >
+                <div className="w-1 h-1 bg-white rounded-full animate-ping" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+        <span className={cn(
+          "text-[9px] font-bold tracking-tight text-center truncate max-w-full leading-none",
+          p.isSpeaking ? "text-brand-blue" : "text-gray-400"
+        )}>
+          {p.name}
+        </span>
+      </div>
+    );
+  };
+
   return (
     <div className="h-full w-full flex flex-col bg-brand-white">
       {/* Header */}
@@ -226,102 +299,95 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
           <button onClick={() => navigate('rooms')} className="p-2 -ml-2 text-gray-400">
             <ArrowLeft size={24} />
           </button>
-            <div>
-              <h3 className="font-display font-semibold text-brand-text leading-tight">{roomName}</h3>
-              <div className="flex items-center space-x-2">
-                <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest leading-none">
-                  Conexão em tempo real
-                </p>
-                <span className="w-1 h-1 rounded-full bg-gray-300" />
-                <p className="text-[10px] text-brand-blue font-bold uppercase tracking-widest leading-none">
-                  {participants.length}/10 participantes
-                </p>
-              </div>
+          <div>
+            <h3 className="font-display font-semibold text-brand-text leading-tight">{roomName}</h3>
+            <div className="flex items-center space-x-2">
+              <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest leading-none">
+                Conexão em tempo real
+              </p>
+              <span className="w-1 h-1 rounded-full bg-gray-300" />
+              <p className="text-[10px] text-brand-blue font-bold uppercase tracking-widest leading-none">
+                {participants.length}/10 participantes
+              </p>
             </div>
+          </div>
         </div>
         <button className="p-2 text-gray-400">
           <MoreHorizontal size={24} />
         </button>
       </header>
 
-      {/* Participants List */}
-      <div className="bg-brand-gray/30 border-b border-brand-blue/5 py-4 shrink-0">
-        <div className="flex space-x-4 px-6 overflow-x-auto no-scrollbar">
-          {participants.map((p) => (
-            <div key={p.id} className="flex flex-col items-center shrink-0 space-y-1 relative">
-              <div className={cn(
-                "w-14 h-14 rounded-full flex items-center justify-center text-lg font-display font-bold transition-all duration-500 relative",
-                p.isSpeaking 
-                  ? "ring-4 ring-brand-blue/30 scale-105 bg-brand-blue text-white shadow-lg" 
-                  : "bg-white text-brand-blue border border-brand-blue/10"
-              )}>
-                {p.name[0]}
-                
-                {/* Speaking Indicator Dot */}
-                <AnimatePresence>
-                  {p.isSpeaking && (
-                    <motion.div
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full border-2 border-brand-white flex items-center justify-center"
-                    >
-                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-              <span className={cn(
-                "text-[10px] font-medium tracking-tight",
-                p.isSpeaking ? "text-brand-blue font-bold" : "text-gray-400"
-              )}>
-                {p.name}
-              </span>
-            </div>
-          ))}
+      {/* Main Row layout for virtual rooms side-by-side with chats */}
+      <div className="flex-1 flex overflow-hidden min-h-0 bg-brand-white">
+        
+        {/* Left column of participants */}
+        <div className="w-16 shrink-0 border-r border-brand-blue/5 bg-brand-gray/20 py-4 flex flex-col items-center gap-y-5 overflow-y-auto no-scrollbar z-10 shadow-inner">
+          {leftParticipants.map(renderParticipant)}
         </div>
-      </div>
 
-      {/* Chat Area */}
-      <div 
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto px-6 py-6 space-y-4 no-scrollbar bg-brand-white"
-      >
-        {messages.map((msg) => (
-          <div key={msg.id} className="flex flex-col space-y-1">
-            {msg.sender !== 'system' && (
-              <span className={cn(
-                "text-[10px] font-medium px-2 mb-0.5",
-                msg.sender === 'user' ? "text-right text-brand-green" : "text-left text-gray-400"
-              )}>
-                {msg.senderName}
-              </span>
-            )}
-            <motion.div
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={cn(
-                "flex w-full",
-                msg.sender === 'user' ? "justify-end" : "justify-start"
-              )}
-            >
-              <div className={cn(
-                "px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm transition-all overflow-hidden max-w-[75%]",
-                msg.sender === 'user' 
-                  ? "bg-brand-green text-white rounded-tr-none" 
-                  : msg.sender === 'system'
-                  ? "bg-brand-gray text-gray-400 text-[11px] text-center w-full rounded-none tracking-tight uppercase"
-                  : "bg-brand-gray text-brand-text rounded-tl-none border border-brand-blue/5"
-              )}>
-                <ReactMarkdown>{msg.text}</ReactMarkdown>
+        {/* Chat view area */}
+        <div 
+          ref={scrollRef}
+          className="flex-1 overflow-y-auto px-4 py-6 space-y-4 no-scrollbar bg-brand-white"
+        >
+          {messages.map((msg) => {
+            const isSystem = msg.sender === 'system';
+            return (
+              <div key={msg.id} className="flex flex-col space-y-1">
+                {!isSystem && (
+                  <span className={cn(
+                    "text-[10px] font-semibold flex items-center gap-1.5 px-2 mb-0.5 tracking-tight",
+                    msg.sender === 'user' ? "justify-end text-brand-green" : "justify-start text-gray-400"
+                  )}>
+                    <span className="text-sm leading-none">{getSenderAvatarEmoji(msg.senderName, msg.sender)}</span>
+                    {msg.senderName}
+                  </span>
+                )}
+                <motion.div
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={cn(
+                    "flex w-full",
+                    msg.sender === 'user' ? "justify-end" : "justify-start"
+                  )}
+                >
+                  <div className={cn(
+                    "px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm transition-all overflow-hidden max-w-[85%]",
+                    msg.sender === 'user' 
+                      ? "bg-brand-green text-white rounded-tr-none" 
+                      : msg.sender === 'system'
+                      ? "bg-brand-gray text-gray-400 text-[11px] text-center w-full rounded-2xl py-3 border border-brand-blue/5 tracking-tight uppercase"
+                      : "bg-brand-gray text-brand-text rounded-tl-none border border-brand-blue/5"
+                  )}>
+                    <ReactMarkdown>{msg.text}</ReactMarkdown>
+                  </div>
+                </motion.div>
               </div>
-            </motion.div>
-          </div>
-        ))}
+            );
+          })}
+        </div>
+
+        {/* Right column of participants */}
+        <div className="w-16 shrink-0 border-l border-brand-blue/5 bg-brand-gray/20 py-4 flex flex-col items-center gap-y-5 overflow-y-auto no-scrollbar z-10 shadow-inner">
+          {rightParticipants.map(renderParticipant)}
+          
+          {/* Fill the remainder space to suggest a 10 room limits */}
+          {participants.length < 10 && (
+            Array.from({ length: 5 - rightParticipants.length }).map((_, idx) => (
+              <div key={`empty-${idx}`} className="flex flex-col items-center shrink-0 space-y-1 w-full opacity-35">
+                <div className="w-11 h-11 rounded-full border border-dashed border-gray-300 flex items-center justify-center text-sm text-gray-300">
+                  👤
+                </div>
+                <span className="text-[9px] text-gray-300/80 font-light scale-90">Livre</span>
+              </div>
+            ))
+          )}
+        </div>
+
       </div>
 
       {/* Footer / Input */}
-      <footer className="p-6 bg-brand-white border-t border-brand-blue/10">
+      <footer className="p-6 bg-brand-white border-t border-brand-blue/10 shrink-0">
         <div className="flex items-center space-x-3">
           <div className="flex-1 bg-brand-gray rounded-2xl flex items-center px-4 py-1 min-h-[48px]">
             <input
@@ -331,6 +397,7 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(inputText)}
               placeholder="Escreva algo para o grupo..."
               className="flex-1 bg-transparent border-none outline-none text-brand-text text-sm"
+              id="input-text-room"
             />
           </div>
           

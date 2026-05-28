@@ -94,11 +94,21 @@ export default function App() {
       case 'emergency':
         return <Emergency onClose={() => navigate('home')} />;
       case 'profile':
-        return <Profile user={user} navigate={navigate} onLogout={() => {
-          localStorage.removeItem('recomecar_user');
-          setUser(null);
-          navigate('welcome');
-        }} />;
+        return (
+          <Profile 
+            user={user} 
+            navigate={navigate} 
+            onLogout={() => {
+              localStorage.removeItem('recomecar_user');
+              setUser(null);
+              navigate('welcome');
+            }} 
+            onUpdateUser={(updated) => {
+              setUser(updated);
+              localStorage.setItem('recomecar_user', JSON.stringify(updated));
+            }}
+          />
+        );
       case 'vip':
         return <VIP navigate={navigate} />;
       case 'shop':

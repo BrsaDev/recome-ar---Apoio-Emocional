@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { User, Mood } from '../types';
 import { cn } from '../lib/utils';
 import { ArrowRight } from 'lucide-react';
+import { AVATARS } from '../data/avatars';
 
 interface Props {
   onComplete: (user: User) => void;
@@ -24,7 +25,9 @@ export default function Onboarding({ onComplete }: Props) {
     if (step === 1 && name.trim()) {
       setStep(2);
     } else if (step === 2 && mood) {
-      onComplete({ name, initialMood: mood });
+      // Escolher avatar aleatório por padrão
+      const randomAvatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
+      onComplete({ name, initialMood: mood, avatarId: randomAvatar.id });
     }
   };
 

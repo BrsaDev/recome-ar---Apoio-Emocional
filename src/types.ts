@@ -4,6 +4,7 @@ export interface User {
   name: string;
   age?: string;
   initialMood: Mood;
+  avatarId?: string;
 }
 
 export type View = 'welcome' | 'onboarding' | 'home' | 'rooms' | 'live-room' | 'emergency' | 'vip' | 'shop' | 'profile' | 'forum' | 'topic-detail';

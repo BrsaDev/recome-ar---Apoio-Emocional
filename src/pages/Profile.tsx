@@ -1,27 +1,58 @@
+import { useState } from 'react';
 import { User, View } from '../types';
-import { LogOut, Settings, Shield, Award, LayoutGrid, ArrowRight } from 'lucide-react';
+import { LogOut, Settings, Shield, Award, LayoutGrid, ArrowRight, Edit3 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { getAvatarById } from '../data/avatars';
+import AvatarModal from '../components/AvatarModal';
 
 interface Props {
   user: User | null;
   navigate: (view: View) => void;
   onLogout: () => void;
+  onUpdateUser?: (updated: User) => void;
 }
 
-export default function Profile({ user, navigate, onLogout }: Props) {
+export default function Profile({ user, navigate, onLogout, onUpdateUser }: Props) {
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+
+  const avatar = getAvatarById(user?.avatarId || '');
+
+  const handleSelectAvatar = (selectedAvatar: any) => {
+    if (user && onUpdateUser) {
+      onUpdateUser({
+        ...user,
+        avatarId: selectedAvatar.id
+      });
+    }
+  };
+
   return (
     <div className="h-full w-full flex flex-col bg-brand-gray overflow-y-auto no-scrollbar">
       <div className="bg-brand-white px-6 pt-16 pb-10 rounded-b-[3rem] shadow-sm">
         <div className="flex flex-col items-center space-y-4">
-          <div className="w-24 h-24 rounded-full bg-brand-blue/20 flex items-center justify-center border-4 border-white shadow-xl overflow-hidden">
-             <span className="text-4xl">👋</span>
-          </div>
+          <button 
+            onClick={() => setIsAvatarModalOpen(true)}
+            className="w-24 h-24 rounded-full bg-brand-blue/10 flex items-center justify-center border-4 border-white shadow-xl overflow-hidden relative group active:scale-95 transition-all outline-none"
+            title="Escolher avatar"
+          >
+             <span className="text-4xl">{avatar?.emoji || '👋'}</span>
+             <div className="absolute inset-0 bg-brand-blue/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+               <Edit3 size={18} className="text-white" />
+             </div>
+          </button>
           <div className="text-center">
             <h2 className="text-2xl font-display font-semibold text-brand-text">{user?.name || 'Viajante'}</h2>
             <p className="text-gray-400 text-sm italic">Cuidando de si mesmo um dia de cada vez.</p>
+            <button 
+              onClick={() => setIsAvatarModalOpen(true)}
+              className="mt-2 text-xs text-brand-blue font-bold tracking-tight hover:underline focus:outline-none"
+            >
+              Alterar avatar
+            </button>
           </div>
         </div>
       </div>
+
 
       <div className="p-6 space-y-6">
         <div className="space-y-3">
@@ -70,6 +101,13 @@ export default function Profile({ user, navigate, onLogout }: Props) {
       <div className="px-6 pb-6 text-center">
         <p className="text-[10px] text-gray-400 font-light uppercase tracking-[0.2em]">Recomeçar App v1.0.0</p>
       </div>
+
+      <AvatarModal
+        isOpen={isAvatarModalOpen}
+        onClose={() => setIsAvatarModalOpen(false)}
+        selectedId={user?.avatarId}
+        onSelect={handleSelectAvatar}
+      />
     </div>
   );
 }
