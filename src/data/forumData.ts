@@ -17,7 +17,8 @@ export const INITIAL_FORUM_TOPICS: ForumTopic[] = [
         authorAvatarId: 'f1',
         content: 'Ontem tive uma crise no meio do mercado e fiquei muito assustada. Alguém tem dicas de como se acalmar nessas horas? O que vocês fazem quando sentem que vão perder o controle?',
         timestamp: Date.now() - 1000 * 60 * 60,
-        likes: 5
+        likes: 5,
+        reactions: { like: 2, support: 3 }
       },
       {
         id: 'p1_2',
@@ -25,7 +26,8 @@ export const INITIAL_FORUM_TOPICS: ForumTopic[] = [
         authorAvatarId: 'm5', // Executivo / Médico
         content: 'Olá Ana! Sinto muito que tenha passado por isso. Uma técnica excelente é o **5-4-3-2-1**: identifique 5 coisas que vê, 4 que pode tocar, 3 que ouve, 2 que sente o cheiro e 1 que pode sentir o gosto. Isso ajuda o cérebro a voltar para o presente.',
         timestamp: Date.now() - 1000 * 60 * 30,
-        likes: 12
+        likes: 12,
+        reactions: { like: 7, heart: 4, smile: 1 }
       },
       {
         id: 'p1_3',
@@ -33,7 +35,8 @@ export const INITIAL_FORUM_TOPICS: ForumTopic[] = [
         authorAvatarId: 'f6', // Cuidadora
         content: 'Pra mim o que ajuda muito é levar sempre uma garrafinha de água gelada. O choque térmico me ajuda a "acordar" da crise.',
         timestamp: Date.now() - 1000 * 60 * 10,
-        likes: 3
+        likes: 3,
+        reactions: { like: 2, support: 1 }
       }
     ]
   },

@@ -1,10 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
 import { ForumTopic, ForumPost, View, User } from '../types';
-import { ArrowLeft, Send, ThumbsUp, MoreVertical, Share2 } from 'lucide-react';
+import { ArrowLeft, Send, MoreVertical, Share2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '../lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { getAvatarById } from '../data/avatars';
+
+const REACTION_OPTIONS = [
+  { type: 'like', emoji: '👍', label: 'Joinha' },
+  { type: 'heart', emoji: '❤️', label: 'Coração' },
+  { type: 'smile', emoji: '😊', label: 'Sorriso' },
+  { type: 'sad', emoji: '😢', label: 'Triste' },
+  { type: 'support', emoji: '🤗', label: 'Apoio' },
+] as const;
 
 interface Props {
   user: User | null;
@@ -16,6 +24,7 @@ interface Props {
 
 export default function TopicDetail({ user, navigate, topicId, topics, onUpdateTopics }: Props) {
   const [replyText, setReplyText] = useState('');
+  const [openPickerPostId, setOpenPickerPostId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const topic = topics.find(t => t.id === topicId) || topics[0];
@@ -88,14 +97,34 @@ export default function TopicDetail({ user, navigate, topicId, topics, onUpdateT
     }, 120);
   };
 
-  const handleLikePost = (postId: string) => {
+  const handleReactToPost = (postId: string, reactionType: 'like' | 'heart' | 'smile' | 'sad' | 'support') => {
     const updatedTopics = topics.map(t => {
       if (t.id === topic.id) {
         return {
           ...t,
           posts: t.posts.map(p => {
             if (p.id === postId) {
-              return { ...p, likes: p.likes + 1 };
+              const currentReactions = p.reactions || {
+                like: p.likes || 0,
+                heart: 0,
+                smile: 0,
+                sad: 0,
+                support: 0
+              };
+              
+              const updatedReactions = {
+                ...currentReactions,
+                [reactionType]: (currentReactions[reactionType] ?? 0) + 1
+              };
+
+              // Sum all reactions for total count
+              const newTotalLikes = Object.values(updatedReactions).reduce((sum, count) => sum + (count || 0), 0);
+
+              return {
+                ...p,
+                reactions: updatedReactions,
+                likes: newTotalLikes
+              };
             }
             return p;
           })
@@ -141,6 +170,13 @@ export default function TopicDetail({ user, navigate, topicId, topics, onUpdateT
         {topic.posts.map((post, index) => {
           const avatar = getAvatarById(post.authorAvatarId || '');
           const isCurrentUser = post.authorName === user?.name || post.authorName === 'Você';
+          const postReactions = post.reactions || {
+            like: post.likes || 0,
+            heart: 0,
+            smile: 0,
+            sad: 0,
+            support: 0
+          };
           
           return (
             <motion.div
@@ -172,19 +208,69 @@ export default function TopicDetail({ user, navigate, topicId, topics, onUpdateT
                     </p>
                   </div>
                 </div>
-                
-                <button 
-                  onClick={() => handleLikePost(post.id)}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-brand-gray text-gray-500 active:scale-95 transition-all outline-none"
-                  title="Gostei"
-                >
-                  <ThumbsUp size={13} className={post.likes > 0 ? "text-brand-blue fill-brand-blue/20" : "text-gray-400"} />
-                  <span className="text-xs font-bold text-gray-500">{post.likes}</span>
-                </button>
               </div>
 
               <div className="prose prose-sm max-w-none text-brand-text leading-relaxed pl-1 text-[13.5px]">
                 <ReactMarkdown>{post.content}</ReactMarkdown>
+              </div>
+
+              {/* Reactions Bar at the bottom of the content */}
+              <div className="flex items-center justify-start pl-1 pt-1">
+                <div className="flex items-center space-x-1.5 relative flex-wrap gap-y-1">
+                  {/* List active ones first */}
+                  {(Object.keys(postReactions) as Array<keyof typeof postReactions>).map((type) => {
+                    const option = REACTION_OPTIONS.find((o) => o.type === type);
+                    const count = postReactions[type] ?? 0;
+                    if (count === 0 || !option) return null;
+                    return (
+                      <button
+                        key={type}
+                        onClick={() => handleReactToPost(post.id, type)}
+                        className="inline-flex items-center bg-brand-gray/80 hover:bg-brand-gray border border-brand-blue/5 px-2 py-0.5 rounded-full text-xs transition-transform active:scale-95 text-gray-600 font-medium shadow-xs"
+                        title={option.label}
+                      >
+                        <span className="text-xs leading-none">{option.emoji}</span>
+                        <span className="text-[10px] text-gray-500 font-bold ml-1">{count}</span>
+                      </button>
+                    );
+                  })}
+
+                  {/* Add Picker Button */}
+                  <div className="relative">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenPickerPostId(openPickerPostId === post.id ? null : post.id);
+                      }}
+                      className={cn(
+                        "w-6 h-6 rounded-full bg-brand-gray hover:bg-brand-gray/80 flex items-center justify-center text-[10px] text-gray-500 border border-brand-blue/5 active:scale-95 transition-all outline-none",
+                        openPickerPostId === post.id && "bg-brand-blue/10 border-brand-blue/20 text-brand-blue font-semibold scale-105"
+                      )}
+                      title="Adicionar reação"
+                    >
+                      <span>+☺</span>
+                    </button>
+
+                    {/* Popover Bubble of Choices */}
+                    {openPickerPostId === post.id && (
+                      <div className="absolute left-0 bottom-full mb-2 bg-brand-white border border-brand-blue/10 rounded-2xl shadow-xl p-1 flex items-center space-x-1 z-30 animate-in fade-in slide-in-from-bottom-1 duration-100">
+                        {REACTION_OPTIONS.map((option) => (
+                          <button
+                            key={option.type}
+                            onClick={() => {
+                              handleReactToPost(post.id, option.type);
+                              setOpenPickerPostId(null);
+                            }}
+                            className="w-7 h-7 rounded-lg hover:bg-brand-gray active:scale-90 transition-transform flex items-center justify-center text-sm outline-none"
+                            title={option.label}
+                          >
+                            {option.emoji}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </motion.div>
           );

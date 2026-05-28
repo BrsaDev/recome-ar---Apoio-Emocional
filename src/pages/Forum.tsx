@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ForumTopic, ForumPost, View, User } from '../types';
-import { MessageSquare, Eye, Plus, Search, ChevronRight, X } from 'lucide-react';
+import { MessageSquare, Eye, Plus, Search, ChevronRight, X, ThumbsUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { getAvatarById } from '../data/avatars';
@@ -113,6 +113,7 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
         ) : (
           filteredTopics.map((topic, index) => {
             const authorAvatar = getAvatarById(topic.authorAvatarId || 'm1');
+            const totalLikes = topic.posts ? topic.posts.reduce((sum, post) => sum + (post.likes || 0), 0) : 0;
             return (
               <motion.div
                 key={topic.id}
@@ -146,6 +147,10 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
                     <div className="flex items-center space-x-1 bg-brand-gray px-2 py-1 rounded-lg">
                       <Eye size={13} className="text-orange-400" />
                       <span className="text-xs font-bold text-gray-500">{topic.viewsCount}</span>
+                    </div>
+                    <div className="flex items-center space-x-1 bg-brand-gray px-2 py-1 rounded-lg">
+                      <ThumbsUp size={13} className="text-brand-green" />
+                      <span className="text-xs font-bold text-gray-500">{totalLikes}</span>
                     </div>
                   </div>
                   

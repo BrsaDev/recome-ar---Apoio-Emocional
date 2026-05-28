@@ -35,6 +35,13 @@ export interface ForumPost {
   content: string;
   timestamp: number;
   likes: number;
+  reactions?: {
+    like?: number;
+    heart?: number;
+    smile?: number;
+    sad?: number;
+    support?: number;
+  };
 }
 
 export interface ForumTopic {
