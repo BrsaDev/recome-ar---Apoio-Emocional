@@ -102,7 +102,7 @@ export default function App() {
       case 'home':
         return <Home user={user} navigate={navigate} />;
       case 'rooms':
-        return <Rooms navigate={navigate} />;
+        return <Rooms user={user} navigate={navigate} />;
       case 'live-room':
         return <LiveRoom user={user} navigate={navigate} roomName={activeRoom?.name || 'Sala'} gender={activeRoom?.gender || 'mixed'} />;
       case 'forum':
@@ -143,7 +143,16 @@ export default function App() {
           />
         );
       case 'vip':
-        return <VIP navigate={navigate} />;
+        return (
+          <VIP 
+            user={user} 
+            navigate={navigate} 
+            onUpdateUser={(updated) => {
+              setUser(updated);
+              localStorage.setItem('recomecar_user', JSON.stringify(updated));
+            }}
+          />
+        );
       case 'shop':
         return <Shop navigate={navigate} />;
       default:

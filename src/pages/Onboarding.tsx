@@ -27,7 +27,7 @@ export default function Onboarding({ onComplete }: Props) {
     } else if (step === 2 && mood) {
       // Escolher avatar aleatório por padrão
       const randomAvatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
-      onComplete({ name, initialMood: mood, avatarId: randomAvatar.id });
+      onComplete({ name, initialMood: mood, avatarId: randomAvatar.id, plan: 'free' });
     }
   };
 

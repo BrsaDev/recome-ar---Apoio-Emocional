@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { View } from '../types';
+import { View, User } from '../types';
 import { ArrowLeft, Check, X, Sparkles, AlertCircle, HelpCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface Props {
+  user: User | null;
   navigate: (view: View) => void;
+  onUpdateUser: (updated: User) => void;
 }
 
 const TIER_DETAILS = [
@@ -52,13 +54,19 @@ const TIER_DETAILS = [
   }
 ];
 
-export default function VIP({ navigate }: Props) {
-  const [selectedPlan, setSelectedPlan] = useState<string>('vip');
+export default function VIP({ user, navigate, onUpdateUser }: Props) {
+  const [selectedPlan, setSelectedPlan] = useState<string>(user?.plan || 'vip');
   const [activeTab, setActiveTab] = useState<'cards' | 'table'>('cards');
   const [successAnimationPlan, setSuccessAnimationPlan] = useState<string | null>(null);
 
-  const handleSubscribe = (planId: string) => {
-    setSuccessAnimationPlan(planId);
+  const handleSubscribe = (planKey: 'free' | 'basic' | 'vip' | 'premium', planName: string) => {
+    setSuccessAnimationPlan(planName);
+    if (user && onUpdateUser) {
+      onUpdateUser({
+        ...user,
+        plan: planKey
+      });
+    }
     setTimeout(() => {
       setSuccessAnimationPlan(null);
     }, 4000);
@@ -250,7 +258,7 @@ export default function VIP({ navigate }: Props) {
                             animate={{ opacity: 1 }}
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleSubscribe(plan.name);
+                              handleSubscribe(plan.id as any, plan.name);
                             }}
                             className={cn(
                               "w-full text-white py-3.5 mt-2 rounded-2xl text-xs font-bold font-display shadow-md active:scale-95 transition-all outline-none",
@@ -356,14 +364,14 @@ export default function VIP({ navigate }: Props) {
             {/* Quick CTAs for each column below table */}
             <div className="grid grid-cols-2 gap-3">
               <button
-                onClick={() => handleSubscribe('VIP')}
+                onClick={() => handleSubscribe('vip', 'VIP')}
                 className="py-3 px-4 rounded-xl bg-blue-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center"
               >
                 <span>Assinar VIP</span>
                 <span className="text-[8.5px] font-light opacity-80">R$ 5,99 (10 dias)</span>
               </button>
               <button
-                onClick={() => handleSubscribe('Premium')}
+                onClick={() => handleSubscribe('premium', 'PREMIUM')}
                 className="py-3 px-4 rounded-xl bg-purple-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center"
               >
                 <span>Assinar PREMIUM</span>

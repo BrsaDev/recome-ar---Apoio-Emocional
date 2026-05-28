@@ -5,6 +5,7 @@ export interface User {
   age?: string;
   initialMood: Mood;
   avatarId?: string;
+  plan?: 'free' | 'basic' | 'vip' | 'premium';
 }
 
 export type View = 'welcome' | 'onboarding' | 'home' | 'rooms' | 'live-room' | 'emergency' | 'vip' | 'shop' | 'profile' | 'forum' | 'topic-detail';
