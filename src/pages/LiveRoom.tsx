@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { User, Message, View, RoomGender } from '../types';
-import { Send, Mic, MicOff, ArrowLeft, MoreHorizontal, Users, Play, Pause } from 'lucide-react';
+import { Send, Mic, MicOff, ArrowLeft, MoreHorizontal, Users, Play, Pause, ShieldAlert, Flag } from 'lucide-react';
 import { cn } from '../lib/utils';
 import ReactMarkdown from 'react-markdown';
 
@@ -107,6 +107,21 @@ const AudioPlayer = ({ url }: { url: string }) => {
 
 import { getAvatarById } from '../data/avatars';
 
+const OFFENSIVE_WORDS = [
+  'merda', 'porra', 'caralho', 'filho da puta', 'filho de puta', 'fdp',
+  'bosta', 'otario', 'otário', 'babaca', 'puto', 'arrombado', 'viado',
+  'corno', 'pqp', 'idiota', 'imbecil', 'palavrao', 'palavrão', 'safado', 'baderneiro'
+];
+
+function hasOffensiveContent(text: string): boolean {
+  const normalized = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return OFFENSIVE_WORDS.some(word => {
+    const wordNormalized = word.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const regex = new RegExp(`\\b${wordNormalized}\\b`, 'i');
+    return regex.test(normalized) || normalized.includes(wordNormalized);
+  });
+}
+
 export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -120,6 +135,10 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
   const [isMicActive, setIsMicActive] = useState(false);
   const [participants, setParticipants] = useState<{ id: string; name: string; isSpeaking: boolean; isMe: boolean; avatarId: string }[]>([]);
   const [isFirstInRoom, setIsFirstInRoom] = useState(false);
+  const [offensiveWarning, setOffensiveWarning] = useState<string | null>(null);
+  const [selectedParticipant, setSelectedParticipant] = useState<any | null>(null);
+  const [reports, setReports] = useState<Record<string, string[]>>({});
+  const [reportToast, setReportToast] = useState<string | null>(null);
   
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -200,6 +219,12 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
   const handleSendMessage = (text: string) => {
     if (!text.trim()) return;
 
+    if (hasOffensiveContent(text)) {
+      setOffensiveWarning("Mensagem sinalizada pelo sistema de moderação.");
+      setInputText('');
+      return;
+    }
+
     const userMsg: Message = {
       id: Date.now().toString(),
       text,
@@ -238,6 +263,38 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
     }, 2000);
   };
 
+  const handleConfirmReport = (p: any) => {
+    const currentReports = reports[p.id] || [];
+    if (currentReports.includes('me')) {
+      setReportToast(`Você já denunciou ${p.name}.`);
+      setTimeout(() => setReportToast(null), 3000);
+      setSelectedParticipant(null);
+      return;
+    }
+
+    // Para simular ativamente a mecânica de ban com 3 denúncias, adicionamos o seu voto + outros 2 virtuais
+    const updatedReports = [...currentReports, 'me', 'other1', 'other2'];
+    setReports(prev => ({ ...prev, [p.id]: updatedReports }));
+    
+    // Remove o participante da lista
+    setParticipants(prev => prev.filter(participant => participant.id !== p.id));
+    
+    // Adiciona uma mensagem de sistema/segurança no chat demonstrando o banimento automático
+    const banMsg: Message = {
+      id: `ban-${Date.now()}`,
+      text: `📢 **[Segurança]** *${p.name} foi removido(a) da sala automaticamente após receber 3 denúncias por comportamento baderneiro.*`,
+      sender: 'system',
+      timestamp: Date.now()
+    };
+    
+    setMessages(prev => [...prev, banMsg]);
+    
+    setReportToast(`Denúncia de baderna processada! ${p.name} foi banido(a) da sala.`);
+    setTimeout(() => setReportToast(null), 4000);
+    
+    setSelectedParticipant(null);
+  };
+
   const leftParticipants = participants.slice(0, Math.ceil(participants.length / 2));
   const rightParticipants = participants.slice(Math.ceil(participants.length / 2));
 
@@ -258,7 +315,11 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
     const avatarObj = getAvatarById(p.avatarId || '');
     const emoji = avatarObj ? avatarObj.emoji : p.name[0];
     return (
-      <div key={p.id} className="flex flex-col items-center shrink-0 space-y-1 relative w-full px-1">
+      <button 
+        key={p.id} 
+        onClick={() => setSelectedParticipant(p)}
+        className="flex flex-col items-center shrink-0 space-y-1 relative w-full px-1 cursor-pointer active:scale-95 transition-transform outline-none"
+      >
         <div className={cn(
           "w-11 h-11 rounded-full flex items-center justify-center text-xl bg-white border transition-all duration-300 relative",
           p.isSpeaking 
@@ -287,7 +348,7 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
         )}>
           {p.name}
         </span>
-      </div>
+      </button>
     );
   };
 
@@ -449,6 +510,128 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
           </motion.div>
         )}
       </footer>
+
+      {/* Toast de Confirmação de Denúncias */}
+      <AnimatePresence>
+        {reportToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -40 }}
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-brand-text text-white px-5 py-3 rounded-2xl shadow-xl text-xs font-bold flex items-center space-x-2 border border-white/10"
+          >
+            <span>🚨</span>
+            <span>{reportToast}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Alerta de Bloqueio Preventivo (Moderação de Termos Ofensivos) */}
+      <AnimatePresence>
+        {offensiveWarning && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-6">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-brand-white rounded-[2.5rem] p-8 max-w-sm w-full border border-red-100 shadow-2xl flex flex-col items-center text-center space-y-5"
+            >
+              <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center text-red-500 shadow-sm animate-bounce">
+                <ShieldAlert size={28} />
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-display font-bold text-red-600 text-lg">Bloqueio Preventivo</h4>
+                <p className="text-xs text-brand-text/70 font-light leading-relaxed">
+                  Para manter o Recomeçar um ambiente acolhedor, seguro e livre de agressões, mensagens contendo palavras ofensivas e de baixo calão foram desativadas de forma preventiva.
+                </p>
+                <div className="bg-red-50/50 p-3 rounded-xl border border-red-100/50 text-[10px] text-red-700 font-semibold uppercase tracking-wider">
+                  Sua mensagem não foi enviada
+                </div>
+              </div>
+              <button
+                onClick={() => setOffensiveWarning(null)}
+                className="w-full py-3.5 bg-red-500 hover:bg-red-600 active:scale-95 text-white rounded-2xl text-sm font-bold shadow-lg shadow-red-200 transition-all outline-none"
+              >
+                Compreendendo as Regras
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Drawer de Perfil & Função Denunciar Baderneiro */}
+      <AnimatePresence>
+        {selectedParticipant && (
+          <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/60 backdrop-blur-xs p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedParticipant(null)}
+              className="absolute inset-0"
+            />
+            
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="relative bg-brand-white w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center space-y-5 z-10"
+            >
+              <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-2" />
+              
+              <div className="text-center space-y-2 mt-2 w-full">
+                <div className="w-20 h-20 rounded-full bg-brand-gray/55 flex items-center justify-center text-5xl mx-auto border-2 border-brand-blue/5 shadow-inner">
+                  {getAvatarById(selectedParticipant.avatarId)?.emoji || '👤'}
+                </div>
+                <h4 className="font-display font-bold text-brand-text text-xl">{selectedParticipant.name}</h4>
+                <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">
+                  {selectedParticipant.isMe ? 'Seu Perfil' : 'Participante Ativo'}
+                </p>
+              </div>
+
+              {!selectedParticipant.isMe && (
+                <div className="w-full pt-2 border-t border-brand-blue/5 space-y-4">
+                  <div className="bg-brand-gray/80 p-3.5 rounded-2xl text-center">
+                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Status Atual</p>
+                    <p className="text-xs font-bold text-gray-600 mt-1">
+                      {selectedParticipant.isSpeaking ? '🗣️ Compartilhando desabafo ao vivo' : '💤 Ouvindo em silêncio'}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => handleConfirmReport(selectedParticipant)}
+                    className="w-full py-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-2xl text-sm font-bold shadow-xs active:scale-95 transition-all outline-none flex items-center justify-center space-x-2 border border-red-100"
+                  >
+                    <Flag size={16} className="fill-red-50" />
+                    <span>Denunciar por Baderna</span>
+                  </button>
+                  
+                  <p className="text-[10px] text-gray-400 font-light text-center px-4 leading-relaxed font-sans">
+                    Sinalize desrespeito ou perturbação. 3 denúncias de participantes removem o baderneiro e restauram o silêncio respeitoso.
+                  </p>
+                </div>
+              )}
+
+              {selectedParticipant.isMe && (
+                <div className="w-full space-y-3">
+                  <div className="bg-brand-gray p-4 rounded-2xl text-center">
+                    <p className="text-xs text-gray-500 leading-normal font-light">
+                      Você está em uma sessão segura de apoio mútuo. Sinta-se à vontade para compartilhar áudio ou interagir pelo texto!
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedParticipant(null)}
+                    className="w-full py-3.5 bg-brand-gray text-brand-text font-bold rounded-2xl text-sm active:scale-95 transition-all outline-none"
+                  >
+                    Voltar para Conversa
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
