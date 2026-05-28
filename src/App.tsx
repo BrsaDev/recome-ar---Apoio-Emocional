@@ -18,12 +18,30 @@ import LiveRoom from './pages/LiveRoom';
 import Forum from './pages/Forum';
 import TopicDetail from './pages/TopicDetail';
 import Navigation from './components/Navigation';
+import { ForumTopic } from './types';
+import { INITIAL_FORUM_TOPICS } from './data/forumData';
 
 export default function App() {
   const [view, setView] = useState<View>('welcome');
   const [user, setUser] = useState<User | null>(null);
   const [activeRoom, setActiveRoom] = useState<{ name: string; gender: RoomGender } | null>(null);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
+  const [forumTopics, setForumTopics] = useState<ForumTopic[]>(() => {
+    const saved = localStorage.getItem('recomecar_forum_topics');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to parse saved forum topics', e);
+      }
+    }
+    return INITIAL_FORUM_TOPICS;
+  });
+
+  const handleUpdateForumTopics = (updated: ForumTopic[]) => {
+    setForumTopics(updated);
+    localStorage.setItem('recomecar_forum_topics', JSON.stringify(updated));
+  };
 
   // Load user from localStorage on mount
   useEffect(() => {
@@ -88,9 +106,24 @@ export default function App() {
       case 'live-room':
         return <LiveRoom user={user} navigate={navigate} roomName={activeRoom?.name || 'Sala'} gender={activeRoom?.gender || 'mixed'} />;
       case 'forum':
-        return <Forum navigate={navigate} />;
+        return (
+          <Forum 
+            user={user} 
+            navigate={navigate} 
+            topics={forumTopics} 
+            onUpdateTopics={handleUpdateForumTopics} 
+          />
+        );
       case 'topic-detail':
-        return <TopicDetail navigate={navigate} topicId={selectedTopicId || ''} />;
+        return (
+          <TopicDetail 
+            user={user} 
+            navigate={navigate} 
+            topicId={selectedTopicId || ''} 
+            topics={forumTopics} 
+            onUpdateTopics={handleUpdateForumTopics} 
+          />
+        );
       case 'emergency':
         return <Emergency onClose={() => navigate('home')} />;
       case 'profile':

@@ -31,6 +31,7 @@ export interface Room {
 export interface ForumPost {
   id: string;
   authorName: string;
+  authorAvatarId?: string;
   content: string;
   timestamp: number;
   likes: number;
@@ -41,6 +42,7 @@ export interface ForumTopic {
   title: string;
   category: string;
   authorName: string;
+  authorAvatarId?: string;
   lastUpdate: number;
   repliesCount: number;
   viewsCount: number;

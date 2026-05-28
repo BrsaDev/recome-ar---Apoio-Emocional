@@ -1,7 +1,8 @@
 import { motion } from 'motion/react';
 import { User, View } from '../types';
-import { Heart, MessageCircle, Users, Wind, AlertCircle, Sparkles } from 'lucide-react';
+import { Heart, MessageCircle, Users, Wind, AlertCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { getAvatarById } from '../data/avatars';
 
 interface Props {
   user: User | null;
@@ -10,18 +11,31 @@ interface Props {
 
 export default function Home({ user, navigate }: Props) {
   const greeting = user ? `Oi, ${user.name}.` : 'Olá.';
+  const userAvatarObj = getAvatarById(user?.avatarId || '');
 
   return (
     <div className="h-full w-full overflow-y-auto no-scrollbar pb-10">
       <div className="bg-gradient-to-b from-brand-blue/30 to-brand-gray px-6 pt-16 pb-8">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="space-y-1"
-        >
-          <h2 className="text-3xl font-display font-semibold text-brand-text">{greeting}</h2>
-          <p className="text-gray-500 font-light text-lg">Estou aqui com você agora.</p>
-        </motion.div>
+        <div className="flex items-center justify-between">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="space-y-1"
+          >
+            <h2 className="text-3xl font-display font-semibold text-brand-text">{greeting}</h2>
+            <p className="text-gray-500 font-light text-lg">Estou aqui com você agora.</p>
+          </motion.div>
+          {user && (
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('profile')}
+              className="w-12 h-12 rounded-full bg-brand-white border border-brand-blue/10 flex items-center justify-center text-2xl shadow-sm active:scale-95 transition-all outline-none"
+              title="Ver Perfil"
+            >
+              {userAvatarObj?.emoji || '👋'}
+            </motion.button>
+          )}
+        </div>
       </div>
 
       <div className="px-6 space-y-8">

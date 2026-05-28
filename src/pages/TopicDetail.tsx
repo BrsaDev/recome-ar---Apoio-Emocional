@@ -1,69 +1,81 @@
 import { useState, useRef, useEffect } from 'react';
-import { ForumTopic, ForumPost, View } from '../types';
+import { ForumTopic, ForumPost, View, User } from '../types';
 import { ArrowLeft, Send, ThumbsUp, MoreVertical, Share2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '../lib/utils';
 import ReactMarkdown from 'react-markdown';
-
-const MOCK_TOPIC_DETAIL: ForumTopic = {
-  id: '1',
-  title: 'Como lidar com crises de ansiedade repentinas?',
-  category: 'Ansiedade',
-  authorName: 'Ana Clara',
-  lastUpdate: Date.now(),
-  repliesCount: 2,
-  viewsCount: 156,
-  posts: [
-    {
-      id: 'p1',
-      authorName: 'Ana Clara',
-      content: 'Ontem tive uma crise no meio do mercado e fiquei muito assustada. Alguém tem dicas de como se acalmar nessas horas? O que vocês fazem quando sentem que vão perder o controle?',
-      timestamp: Date.now() - 1000 * 60 * 60,
-      likes: 5
-    },
-    {
-      id: 'p2',
-      authorName: 'Dr. Ricardo',
-      content: 'Olá Ana! Sinto muito que tenha passado por isso. Uma técnica excelente é o **5-4-3-2-1**: identifique 5 coisas que vê, 4 que pode tocar, 3 que ouve, 2 que sente o cheiro e 1 que pode sentir o gosto. Isso ajuda o cérebro a voltar para o presente.',
-      timestamp: Date.now() - 1000 * 60 * 30,
-      likes: 12
-    },
-    {
-      id: 'p3',
-      authorName: 'Maria Helena',
-      content: 'Pra mim o que ajuda muito é levar sempre uma garrafinha de água gelada. O choque térmico me ajuda a "acordar" da crise.',
-      timestamp: Date.now() - 1000 * 60 * 10,
-      likes: 3
-    }
-  ]
-};
+import { getAvatarById } from '../data/avatars';
 
 interface Props {
+  user: User | null;
   navigate: (view: View) => void;
   topicId: string;
+  topics: ForumTopic[];
+  onUpdateTopics: (updatedTopics: ForumTopic[]) => void;
 }
 
-export default function TopicDetail({ navigate, topicId }: Props) {
-  const [topic, setTopic] = useState<ForumTopic>(MOCK_TOPIC_DETAIL);
+export default function TopicDetail({ user, navigate, topicId, topics, onUpdateTopics }: Props) {
   const [replyText, setReplyText] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const topic = topics.find(t => t.id === topicId) || topics[0];
+
+  // Increment views count on load
+  useEffect(() => {
+    if (topic) {
+      const updatedTopics = topics.map(t => {
+        if (t.id === topic.id) {
+          return {
+            ...t,
+            viewsCount: t.viewsCount + 1
+          };
+        }
+        return t;
+      });
+      // Silent update for view counts
+      // To prevent component endless re-renders, update on mount
+      localStorage.setItem('recomecar_forum_topics', JSON.stringify(updatedTopics));
+    }
+  }, [topicId]);
+
+  if (!topic) {
+    return (
+      <div className="flex flex-col h-full bg-brand-white items-center justify-center p-6 text-center space-y-4">
+        <span className="text-4xl">⚠️</span>
+        <h4 className="font-display font-semibold text-brand-text">Tópico não encontrado</h4>
+        <button onClick={() => navigate('forum')} className="text-brand-blue font-bold flex items-center space-x-1">
+          <ArrowLeft size={16} />
+          <span>Voltar para fórum</span>
+        </button>
+      </div>
+    );
+  }
 
   const handleSendReply = () => {
     if (!replyText.trim()) return;
     
     const newPost: ForumPost = {
       id: Date.now().toString(),
-      authorName: 'Você',
-      content: replyText,
+      authorName: user?.name || 'Viajante',
+      authorAvatarId: user?.avatarId || 'm1',
+      content: replyText.trim(),
       timestamp: Date.now(),
       likes: 0
     };
 
-    setTopic(prev => ({
-      ...prev,
-      posts: [...prev.posts, newPost],
-      repliesCount: prev.repliesCount + 1
-    }));
+    const updatedTopics = topics.map(t => {
+      if (t.id === topic.id) {
+        return {
+          ...t,
+          repliesCount: t.repliesCount + 1,
+          lastUpdate: Date.now(),
+          posts: [...t.posts, newPost]
+        };
+      }
+      return t;
+    });
+
+    onUpdateTopics(updatedTopics);
     setReplyText('');
     
     setTimeout(() => {
@@ -73,19 +85,37 @@ export default function TopicDetail({ navigate, topicId }: Props) {
           behavior: 'smooth'
         });
       }
-    }, 100);
+    }, 120);
+  };
+
+  const handleLikePost = (postId: string) => {
+    const updatedTopics = topics.map(t => {
+      if (t.id === topic.id) {
+        return {
+          ...t,
+          posts: t.posts.map(p => {
+            if (p.id === postId) {
+              return { ...p, likes: p.likes + 1 };
+            }
+            return p;
+          })
+        };
+      }
+      return t;
+    });
+    onUpdateTopics(updatedTopics);
   };
 
   return (
-    <div className="flex flex-col h-full bg-brand-white">
+    <div className="flex flex-col h-full bg-brand-white relative">
       {/* Header */}
       <header className="h-20 bg-brand-white border-b border-brand-blue/10 px-6 flex items-center justify-between z-10 shrink-0">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 min-w-0 flex-1">
           <button onClick={() => navigate('forum')} className="p-2 -ml-2 text-gray-400 active:scale-90 transition-transform">
             <ArrowLeft size={24} />
           </button>
-          <div>
-            <h3 className="font-display font-semibold text-brand-text leading-tight truncate max-w-[200px]">
+          <div className="min-w-0 flex-1">
+            <h3 className="font-display font-semibold text-brand-text leading-tight truncate">
               {topic.title}
             </h3>
             <p className="text-[10px] text-brand-blue font-bold uppercase tracking-widest leading-none mt-1">
@@ -93,7 +123,7 @@ export default function TopicDetail({ navigate, topicId }: Props) {
             </p>
           </div>
         </div>
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center space-x-1 shrink-0 ml-2">
           <button className="p-2 text-gray-400">
             <Share2 size={20} />
           </button>
@@ -106,48 +136,65 @@ export default function TopicDetail({ navigate, topicId }: Props) {
       {/* Content */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-6 py-6 space-y-8 no-scrollbar"
+        className="flex-1 overflow-y-auto px-6 py-6 space-y-8 no-scrollbar pb-24"
       >
-        {topic.posts.map((post, index) => (
-          <motion.div
-            key={post.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className={cn(
-              "flex flex-col space-y-3",
-              index !== 0 && "pt-6 border-t border-brand-blue/5"
-            )}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-full bg-brand-blue/10 flex items-center justify-center text-brand-blue font-bold text-xs uppercase">
-                  {post.authorName[0]}
+        {topic.posts.map((post, index) => {
+          const avatar = getAvatarById(post.authorAvatarId || '');
+          const isCurrentUser = post.authorName === user?.name || post.authorName === 'Você';
+          
+          return (
+            <motion.div
+              key={post.id}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className={cn(
+                "flex flex-col space-y-3",
+                index !== 0 && "pt-6 border-t border-brand-blue/5"
+              )}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className={cn(
+                    "w-9 h-9 rounded-full flex items-center justify-center text-sm shadow-xs border",
+                    isCurrentUser 
+                      ? "bg-brand-green/10 border-brand-green/20" 
+                      : "bg-brand-gray border-brand-blue/5"
+                  )}>
+                    {avatar?.emoji || post.authorName[0]}
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-bold text-brand-text leading-none flex items-center gap-1.5">
+                      {isCurrentUser ? `${post.authorName} (Você)` : post.authorName}
+                    </h5>
+                    <p className="text-[10px] text-gray-400 font-medium mt-1">
+                      {new Date(post.timestamp).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-bold text-brand-text leading-none">{post.authorName}</p>
-                  <p className="text-[10px] text-gray-400 font-medium mt-1">
-                    {new Date(post.timestamp).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
-                  </p>
-                </div>
+                
+                <button 
+                  onClick={() => handleLikePost(post.id)}
+                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-brand-gray text-gray-500 active:scale-95 transition-all outline-none"
+                  title="Gostei"
+                >
+                  <ThumbsUp size={13} className={post.likes > 0 ? "text-brand-blue fill-brand-blue/20" : "text-gray-400"} />
+                  <span className="text-xs font-bold text-gray-500">{post.likes}</span>
+                </button>
               </div>
-              <button className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-brand-gray text-gray-500 active:scale-95 transition-all">
-                <ThumbsUp size={14} className={post.likes > 10 ? "text-brand-green fill-brand-green" : ""} />
-                <span className="text-xs font-bold">{post.likes}</span>
-              </button>
-            </div>
 
-            <div className="prose prose-sm max-w-none text-brand-text leading-relaxed pl-1">
-              <ReactMarkdown>{post.content}</ReactMarkdown>
-            </div>
-          </motion.div>
-        ))}
+              <div className="prose prose-sm max-w-none text-brand-text leading-relaxed pl-1 text-[13.5px]">
+                <ReactMarkdown>{post.content}</ReactMarkdown>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Input */}
-      <footer className="p-6 bg-brand-white border-t border-brand-blue/10">
+      <footer className="p-6 bg-brand-white border-t border-brand-blue/10 shrink-0">
         <div className="flex items-end space-x-3">
-          <div className="flex-1 bg-brand-gray rounded-2xl flex flex-col px-4 py-2 min-h-[48px]">
+          <div className="flex-1 bg-brand-gray rounded-2xl flex flex-col px-4 py-2 min-h-[48px] justify-center">
             <textarea
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
@@ -159,17 +206,25 @@ export default function TopicDetail({ navigate, topicId }: Props) {
                 target.style.height = 'auto';
                 target.style.height = target.scrollHeight + 'px';
               }}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSendReply();
+                }
+              }}
             />
           </div>
           <button
             onClick={handleSendReply}
             disabled={!replyText.trim()}
             className={cn(
-              "w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all",
-              replyText.trim() ? "bg-brand-blue text-white" : "bg-gray-100 text-gray-400 outline-none"
+              "w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all outline-none shrink-0",
+              replyText.trim() 
+                ? "bg-brand-blue text-white shadow-brand-blue/20" 
+                : "bg-gray-100 text-gray-400"
             )}
           >
-            <Send size={20} />
+            <Send size={18} />
           </button>
         </div>
       </footer>
