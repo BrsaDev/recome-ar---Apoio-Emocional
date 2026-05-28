@@ -85,28 +85,6 @@ export default function Home({ user, navigate }: Props) {
           </div>
         </div>
 
-        {/* Audio Section */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-display font-medium text-brand-text px-1">Áudios calmantes</h3>
-          <div className="flex space-x-4 overflow-x-auto no-scrollbar -mx-2 px-2">
-            {[
-              { time: '1 min', label: 'Alívio Rápido', color: 'bg-green-100 text-green-700' },
-              { time: '3 min', label: 'Paz Interior', color: 'bg-blue-100 text-blue-700' },
-              { time: '5 min', label: 'Sono Profundo', color: 'bg-purple-100 text-purple-700' },
-            ].map((audio, idx) => (
-              <button
-                key={idx}
-                className={cn("min-w-[140px] p-5 rounded-3xl flex flex-col items-start space-y-2 border border-transparent active:scale-95 transition-all shadow-sm bg-brand-white")}
-              >
-                <div className={cn("px-2 py-1 rounded-lg text-[10px] font-bold uppercase", audio.color)}>
-                  {audio.time}
-                </div>
-                <span className="font-medium text-brand-text">{audio.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* SOS Button */}
         <motion.button
           whileTap={{ scale: 0.95 }}
