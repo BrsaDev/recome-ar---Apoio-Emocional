@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { ForumTopic, ForumPost, View, User } from '../types';
-import { ArrowLeft, Send, MoreVertical, Share2 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { ArrowLeft, Send, MoreVertical, Share2, ShieldAlert } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { getAvatarById } from '../data/avatars';
+import { hasOffensiveContent } from '../lib/moderation';
 
 const REACTION_OPTIONS = [
   { type: 'like', emoji: '👍', label: 'Joinha' },
@@ -25,6 +26,7 @@ interface Props {
 export default function TopicDetail({ user, navigate, topicId, topics, onUpdateTopics }: Props) {
   const [replyText, setReplyText] = useState('');
   const [openPickerPostId, setOpenPickerPostId] = useState<string | null>(null);
+  const [offensiveWarning, setOffensiveWarning] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const topic = topics.find(t => t.id === topicId) || topics[0];
@@ -62,6 +64,12 @@ export default function TopicDetail({ user, navigate, topicId, topics, onUpdateT
 
   const handleSendReply = () => {
     if (!replyText.trim()) return;
+    
+    if (hasOffensiveContent(replyText)) {
+      setOffensiveWarning("Mensagem sinalizada pelo sistema de moderação.");
+      setReplyText('');
+      return;
+    }
     
     const newPost: ForumPost = {
       id: Date.now().toString(),
@@ -314,6 +322,39 @@ export default function TopicDetail({ user, navigate, topicId, topics, onUpdateT
           </button>
         </div>
       </footer>
+
+      {/* Alerta de Bloqueio Preventivo */}
+      <AnimatePresence>
+        {offensiveWarning && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-6">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-brand-white rounded-[2.5rem] p-8 max-w-sm w-full border border-red-100 shadow-2xl flex flex-col items-center text-center space-y-5"
+            >
+              <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center text-red-500 shadow-sm animate-bounce">
+                <ShieldAlert size={28} />
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-display font-bold text-red-600 text-lg">Bloqueio Preventivo</h4>
+                <p className="text-xs text-brand-text/70 font-light leading-relaxed">
+                  Para manter a comunidade um ambiente acolhedor, seguro e livre de agressões, comentários contendo palavras ofensivas e de baixo calão foram desativados de forma preventiva.
+                </p>
+                <div className="bg-red-50/50 p-3 rounded-xl border border-red-100/50 text-[10px] text-red-700 font-semibold uppercase tracking-wider">
+                  Seu comentário não foi enviado
+                </div>
+              </div>
+              <button
+                onClick={() => setOffensiveWarning(null)}
+                className="w-full py-3.5 bg-red-500 hover:bg-red-600 active:scale-95 text-white rounded-2xl text-sm font-bold shadow-lg shadow-red-200 transition-all outline-none"
+              >
+                Compreendendo as Regras
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

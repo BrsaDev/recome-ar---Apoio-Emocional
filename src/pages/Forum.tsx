@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { ForumTopic, ForumPost, View, User } from '../types';
-import { MessageSquare, Eye, Plus, Search, ChevronRight, X, ThumbsUp } from 'lucide-react';
+import { MessageSquare, Eye, Plus, Search, ChevronRight, X, ThumbsUp, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { getAvatarById } from '../data/avatars';
+import { hasOffensiveContent } from '../lib/moderation';
 
 const CATEGORIES = ['Tudos', 'Ansiedade', 'Solidão', 'Recomeço', 'Relacionamento'];
 const SUBMITTABLE_CATEGORIES = ['Ansiedade', 'Solidão', 'Recomeço', 'Relacionamento'];
@@ -24,6 +25,7 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
   const [newTitle, setNewTitle] = useState('');
   const [newCategory, setNewCategory] = useState('Ansiedade');
   const [newContent, setNewContent] = useState('');
+  const [offensiveWarning, setOffensiveWarning] = useState<string | null>(null);
 
   const filteredTopics = topics.filter(topic => {
     const matchesCategory = selectedCategory === 'Tudos' || topic.category === selectedCategory;
@@ -34,6 +36,11 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
   const handleCreateTopic = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newContent.trim()) return;
+
+    if (hasOffensiveContent(newTitle) || hasOffensiveContent(newContent)) {
+      setOffensiveWarning("Conteúdo sinalizado pelo sistema de moderação.");
+      return;
+    }
 
     const newTopicId = (topics.length + 1).toString();
     const newTopicPost: ForumPost = {
@@ -285,6 +292,39 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Alerta de Bloqueio Preventivo */}
+      <AnimatePresence>
+        {offensiveWarning && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-6">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-brand-white rounded-[2.5rem] p-8 max-w-sm w-full border border-red-100 shadow-2xl flex flex-col items-center text-center space-y-5"
+            >
+              <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center text-red-500 shadow-sm animate-bounce">
+                <ShieldAlert size={28} />
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-display font-bold text-red-600 text-lg">Bloqueio Preventivo</h4>
+                <p className="text-xs text-brand-text/70 font-light leading-relaxed">
+                  Para manter a comunidade um ambiente acolhedor, seguro e livre de agressões, tópicos contendo palavras ofensivas e de baixo calão foram desativados de forma preventiva.
+                </p>
+                <div className="bg-red-50/50 p-3 rounded-xl border border-red-100/50 text-[10px] text-red-700 font-semibold uppercase tracking-wider">
+                  Seu tópico não foi criado
+                </div>
+              </div>
+              <button
+                onClick={() => setOffensiveWarning(null)}
+                className="w-full py-3.5 bg-red-500 hover:bg-red-600 active:scale-95 text-white rounded-2xl text-sm font-bold shadow-lg shadow-red-200 transition-all outline-none"
+              >
+                Compreendendo as Regras
+              </button>
             </motion.div>
           </div>
         )}

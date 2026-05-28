@@ -106,21 +106,7 @@ const AudioPlayer = ({ url }: { url: string }) => {
 };
 
 import { getAvatarById } from '../data/avatars';
-
-const OFFENSIVE_WORDS = [
-  'merda', 'porra', 'caralho', 'filho da puta', 'filho de puta', 'fdp',
-  'bosta', 'otario', 'otário', 'babaca', 'puto', 'arrombado', 'viado',
-  'corno', 'pqp', 'idiota', 'imbecil', 'palavrao', 'palavrão', 'safado', 'baderneiro'
-];
-
-function hasOffensiveContent(text: string): boolean {
-  const normalized = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  return OFFENSIVE_WORDS.some(word => {
-    const wordNormalized = word.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    const regex = new RegExp(`\\b${wordNormalized}\\b`, 'i');
-    return regex.test(normalized) || normalized.includes(wordNormalized);
-  });
-}
+import { hasOffensiveContent } from '../lib/moderation';
 
 export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
   const [messages, setMessages] = useState<Message[]>([
