@@ -196,6 +196,9 @@ export default function TermsModal({ user, onAccept }: Props) {
           </label>
 
           {/* Action button */}
+          <p className="text-[9.5px] text-gray-400 text-center leading-normal mb-1">
+            Garantimos o tratamento seguro do seu perfil. Seus direitos de acesso e revogação estão previstos em nossa Política de Privacidade.
+          </p>
           <button
             onClick={handleAccept}
             disabled={!isButtonEnabled}

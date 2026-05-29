@@ -18,7 +18,7 @@ export interface User {
   termsVersion?: string;
 }
 
-export type View = 'welcome' | 'onboarding' | 'home' | 'rooms' | 'live-room' | 'emergency' | 'vip' | 'shop' | 'profile' | 'forum' | 'topic-detail';
+export type View = 'welcome' | 'onboarding' | 'home' | 'rooms' | 'live-room' | 'emergency' | 'vip' | 'shop' | 'profile' | 'forum' | 'topic-detail' | 'privacy-policy' | 'support';
 
 export type RoomGender = 'mixed' | 'men' | 'women';
 
@@ -40,6 +40,7 @@ export interface Room {
   capacity?: number; // Maximum capacity (e.g. 10)
   invitedAngels?: string[]; // IDs of invited SupportAngels
   invitedBy?: string; // Creator's name
+  isPremiumRoom?: boolean; // Creator is Premium
 }
 
 export interface ForumPost {

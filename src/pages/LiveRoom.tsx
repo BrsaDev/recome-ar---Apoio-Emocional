@@ -490,6 +490,14 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
         </div>
       </header>
 
+      {/* Aviso de Privacidade e Segurança Discreto */}
+      <div className="bg-amber-50/90 border-b border-amber-100 px-6 py-2 flex items-center shrink-0 z-10" id="chat-privacy-warning-banner">
+        <ShieldAlert size={14} className="text-amber-600 shrink-0 mr-2" />
+        <span className="text-[10px] text-amber-800/90 font-medium leading-normal">
+          <strong className="font-semibold text-amber-900">Aviso:</strong> Por segurança, nunca envie dados sensíveis como senhas, CPF, endereço ou dados de conta bancária.
+        </span>
+      </div>
+
       {/* Main Row layout for virtual rooms side-by-side with chats */}
       <div className="flex-1 flex overflow-hidden min-h-0 bg-brand-white">
         

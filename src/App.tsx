@@ -22,9 +22,13 @@ import { ForumTopic } from './types';
 import { INITIAL_FORUM_TOPICS } from './data/forumData';
 import TermsModal from './components/TermsModal';
 import { apiService } from './services/api';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Support from './pages/Support';
 
 export default function App() {
   const [view, setView] = useState<View>('welcome');
+  const [privacyPolicyFrom, setPrivacyPolicyFrom] = useState<View>('welcome');
+  const [supportFrom, setSupportFrom] = useState<View>('profile');
   const [user, setUser] = useState<User | null>(null);
   const [activeRoom, setActiveRoom] = useState<{ name: string; gender: RoomGender; invitedAngels?: string[] } | null>(null);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
@@ -80,6 +84,12 @@ export default function App() {
 
   const navigate = (newView: View, state?: any) => {
     if (newView !== view || state) {
+      if (newView === 'privacy-policy' && view !== 'privacy-policy') {
+        setPrivacyPolicyFrom(view);
+      }
+      if (newView === 'support' && view !== 'support') {
+        setSupportFrom(view);
+      }
       window.history.pushState({ view: newView, ...state }, '', '');
       setView(newView);
       if (state?.activeRoom) setActiveRoom(state.activeRoom);
@@ -98,7 +108,7 @@ export default function App() {
   const renderView = () => {
     switch (view) {
       case 'welcome':
-        return <Welcome onStart={handleStartOnboarding} />;
+        return <Welcome onStart={handleStartOnboarding} onViewPrivacy={() => navigate('privacy-policy')} />;
       case 'onboarding':
         return <Onboarding onComplete={handleCompleteOnboarding} />;
       case 'home':
@@ -172,12 +182,16 @@ export default function App() {
         );
       case 'shop':
         return <Shop navigate={navigate} />;
+      case 'privacy-policy':
+        return <PrivacyPolicy navigate={navigate} fromView={privacyPolicyFrom} />;
+      case 'support':
+        return <Support navigate={navigate} fromView={supportFrom} />;
       default:
         return <Home user={user} navigate={navigate} />;
     }
   };
 
-  const showNav = user && !['welcome', 'onboarding', 'emergency', 'live-room'].includes(view);
+  const showNav = user && !['welcome', 'onboarding', 'emergency', 'live-room', 'privacy-policy', 'support'].includes(view);
 
   return (
     <div className="relative h-[100dvh] w-full overflow-hidden bg-brand-gray flex flex-col max-w-md mx-auto shadow-2xl">

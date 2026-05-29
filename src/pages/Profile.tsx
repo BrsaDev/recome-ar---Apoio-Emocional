@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { User, View } from '../types';
-import { LogOut, Settings, Shield, Award, LayoutGrid, ArrowRight, Edit3, Heart, X, Search } from 'lucide-react';
+import { LogOut, Settings, Shield, Award, LayoutGrid, ArrowRight, Edit3, Heart, X, Search, LifeBuoy } from 'lucide-react';
 import { motion } from 'motion/react';
 import { getAvatarById } from '../data/avatars';
 import AvatarModal from '../components/AvatarModal';
@@ -178,12 +178,21 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser }: Prop
                 </div>
                 <ArrowRight size={18} className="text-gray-300" />
              </button>
-             <button className="w-full px-6 py-5 flex items-center justify-between active:bg-gray-50 transition-all">
+             <button className="w-full px-6 py-5 flex items-center justify-between border-b border-gray-50 active:bg-gray-50 transition-all">
                 <div className="flex items-center space-x-4">
                    <div className="w-10 h-10 rounded-xl bg-brand-green/10 flex items-center justify-center text-brand-green">
                       <Shield size={22} />
                    </div>
                    <span className="font-medium text-brand-text">Configurações de Privacidade</span>
+                </div>
+                <ArrowRight size={18} className="text-gray-300" />
+             </button>
+             <button onClick={() => navigate('support')} className="w-full px-6 py-5 flex items-center justify-between active:bg-gray-50 transition-all" id="btn-profile-support">
+                <div className="flex items-center space-x-4">
+                   <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
+                      <LifeBuoy size={22} />
+                   </div>
+                   <span className="font-medium text-brand-text">Suporte & Central de Ajuda</span>
                 </div>
                 <ArrowRight size={18} className="text-gray-300" />
              </button>
@@ -227,13 +236,22 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser }: Prop
                   <span className="text-emerald-750 font-bold">Ativo & Auditado ✔</span>
                 </div>
 
-                <button
-                  onClick={() => setIsShowingLegalText(!isShowingLegalText)}
-                  className="w-full mt-2 py-2.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-[10px] font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center space-x-1 outline-none"
-                  id="btn-toggle-terms"
-                >
-                  <span>{isShowingLegalText ? 'Esconder Termo Completo ▲' : 'Consultar Termo Completo ▼'}</span>
-                </button>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <button
+                    onClick={() => setIsShowingLegalText(!isShowingLegalText)}
+                    className="py-2.5 bg-brand-gray hover:bg-brand-gray/70 text-gray-700 text-[10.5px] font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center space-x-1 outline-none"
+                    id="btn-toggle-terms"
+                  >
+                    <span>{isShowingLegalText ? 'Esconder Termo ▲' : 'Ler Termo Rápido ▼'}</span>
+                  </button>
+                  <button
+                    onClick={() => navigate('privacy-policy')}
+                    className="py-2.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-[10.5px] font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center space-x-1 outline-none"
+                    id="btn-go-privacy-policy"
+                  >
+                    <span>Políticas / LGPD ↗</span>
+                  </button>
+                </div>
 
                 {isShowingLegalText && (
                   <motion.div
