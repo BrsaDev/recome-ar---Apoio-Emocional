@@ -21,6 +21,7 @@ import Navigation from './components/Navigation';
 import { ForumTopic } from './types';
 import { INITIAL_FORUM_TOPICS } from './data/forumData';
 import TermsModal from './components/TermsModal';
+import { apiService } from './services/api';
 
 export default function App() {
   const [view, setView] = useState<View>('welcome');
@@ -211,6 +212,14 @@ export default function App() {
             };
             setUser(updated);
             localStorage.setItem('recomecar_user', JSON.stringify(updated));
+            
+            // Background api synchronizations
+            apiService.profile.acceptTerms(user.name, acceptedAt, version).catch(err => {
+              console.warn('[API Sync] Terms registration failed (Expected in sandbox mode):', err);
+            });
+            apiService.profile.sync(updated).catch(err => {
+              console.warn('[API Sync] Profile sync failed (Expected in sandbox mode):', err);
+            });
           }}
         />
       )}
