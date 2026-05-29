@@ -1,11 +1,21 @@
 export type Mood = 'triste' | 'ansioso' | 'confuso' | 'sozinho';
 
+export interface SupportAngel {
+  id: string;
+  name: string;
+  avatarId: string;
+}
+
 export interface User {
   name: string;
   age?: string;
   initialMood: Mood;
   avatarId?: string;
   plan?: 'free' | 'basic' | 'vip' | 'premium';
+  supportAngels?: SupportAngel[];
+  termsAccepted?: boolean;
+  termsAcceptedAt?: string;
+  termsVersion?: string;
 }
 
 export type View = 'welcome' | 'onboarding' | 'home' | 'rooms' | 'live-room' | 'emergency' | 'vip' | 'shop' | 'profile' | 'forum' | 'topic-detail';
@@ -27,6 +37,9 @@ export interface Room {
   description: string;
   onlineCount: number;
   type: 'public' | 'vip';
+  capacity?: number; // Maximum capacity (e.g. 10)
+  invitedAngels?: string[]; // IDs of invited SupportAngels
+  invitedBy?: string; // Creator's name
 }
 
 export interface ForumPost {

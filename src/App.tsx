@@ -20,11 +20,12 @@ import TopicDetail from './pages/TopicDetail';
 import Navigation from './components/Navigation';
 import { ForumTopic } from './types';
 import { INITIAL_FORUM_TOPICS } from './data/forumData';
+import TermsModal from './components/TermsModal';
 
 export default function App() {
   const [view, setView] = useState<View>('welcome');
   const [user, setUser] = useState<User | null>(null);
-  const [activeRoom, setActiveRoom] = useState<{ name: string; gender: RoomGender } | null>(null);
+  const [activeRoom, setActiveRoom] = useState<{ name: string; gender: RoomGender; invitedAngels?: string[] } | null>(null);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
   const [forumTopics, setForumTopics] = useState<ForumTopic[]>(() => {
     const saved = localStorage.getItem('recomecar_forum_topics');
@@ -104,7 +105,18 @@ export default function App() {
       case 'rooms':
         return <Rooms user={user} navigate={navigate} />;
       case 'live-room':
-        return <LiveRoom user={user} navigate={navigate} roomName={activeRoom?.name || 'Sala'} gender={activeRoom?.gender || 'mixed'} />;
+        return (
+          <LiveRoom 
+            user={user} 
+            navigate={navigate} 
+            roomName={activeRoom?.name || 'Sala'} 
+            gender={activeRoom?.gender || 'mixed'} 
+            onUpdateUser={(updated) => {
+              setUser(updated);
+              localStorage.setItem('recomecar_user', JSON.stringify(updated));
+            }}
+          />
+        );
       case 'forum':
         return (
           <Forum 
@@ -122,6 +134,10 @@ export default function App() {
             topicId={selectedTopicId || ''} 
             topics={forumTopics} 
             onUpdateTopics={handleUpdateForumTopics} 
+            onUpdateUser={(updated) => {
+              setUser(updated);
+              localStorage.setItem('recomecar_user', JSON.stringify(updated));
+            }}
           />
         );
       case 'emergency':
@@ -181,6 +197,22 @@ export default function App() {
 
       {showNav && (
         <Navigation currentView={view} navigate={navigate} />
+      )}
+
+      {user && !user.termsAccepted && (
+        <TermsModal
+          user={user}
+          onAccept={(acceptedAt, version) => {
+            const updated = {
+              ...user,
+              termsAccepted: true,
+              termsAcceptedAt: acceptedAt,
+              termsVersion: version
+            };
+            setUser(updated);
+            localStorage.setItem('recomecar_user', JSON.stringify(updated));
+          }}
+        />
       )}
     </div>
   );

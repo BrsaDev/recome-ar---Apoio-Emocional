@@ -21,12 +21,14 @@ interface Props {
   topicId: string;
   topics: ForumTopic[];
   onUpdateTopics: (updatedTopics: ForumTopic[]) => void;
+  onUpdateUser?: (updatedUser: User) => void;
 }
 
-export default function TopicDetail({ user, navigate, topicId, topics, onUpdateTopics }: Props) {
+export default function TopicDetail({ user, navigate, topicId, topics, onUpdateTopics, onUpdateUser }: Props) {
   const [replyText, setReplyText] = useState('');
   const [openPickerPostId, setOpenPickerPostId] = useState<string | null>(null);
   const [offensiveWarning, setOffensiveWarning] = useState<string | null>(null);
+  const [selectedMember, setSelectedMember] = useState<{ id: string; name: string; avatarId: string } | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const topic = topics.find(t => t.id === topicId) || topics[0];
@@ -198,24 +200,45 @@ export default function TopicDetail({ user, navigate, topicId, topics, onUpdateT
               )}
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => {
+                    if (!isCurrentUser) {
+                      setSelectedMember({
+                        id: post.id,
+                        name: post.authorName,
+                        avatarId: post.authorAvatarId || 'm1'
+                      });
+                    }
+                  }}
+                  disabled={isCurrentUser}
+                  className={cn(
+                    "flex items-center space-x-3 text-left outline-none transition-transform",
+                    !isCurrentUser && "cursor-pointer active:scale-98 group"
+                  )}
+                >
                   <div className={cn(
-                    "w-9 h-9 rounded-full flex items-center justify-center text-sm shadow-xs border",
+                    "w-9 h-9 rounded-full flex items-center justify-center text-sm shadow-xs border transition-colors",
                     isCurrentUser 
                       ? "bg-brand-green/10 border-brand-green/20" 
-                      : "bg-brand-gray border-brand-blue/5"
+                      : "bg-brand-gray border-brand-blue/5 group-hover:border-purple-300"
                   )}>
                     {avatar?.emoji || post.authorName[0]}
                   </div>
                   <div>
-                    <h5 className="text-sm font-bold text-brand-text leading-none flex items-center gap-1.5">
+                    <h5 className={cn(
+                      "text-sm font-bold text-brand-text leading-none flex items-center gap-1.5 transition-colors",
+                      !isCurrentUser && "group-hover:text-purple-600"
+                    )}>
                       {isCurrentUser ? `${post.authorName} (Você)` : post.authorName}
+                      {!isCurrentUser && user?.supportAngels?.some(a => a.name === post.authorName) && (
+                        <span className="text-[10px]" title="Anjo de Apoio">👼</span>
+                      )}
                     </h5>
                     <p className="text-[10px] text-gray-400 font-medium mt-1">
                       {new Date(post.timestamp).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
                     </p>
                   </div>
-                </div>
+                </button>
               </div>
 
               <div className="prose prose-sm max-w-none text-brand-text leading-relaxed pl-1 text-[13.5px]">
@@ -351,6 +374,86 @@ export default function TopicDetail({ user, navigate, topicId, topics, onUpdateT
               >
                 Compreendendo as Regras
               </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Drawer de Perfil no Fórum */}
+      <AnimatePresence>
+        {selectedMember && (
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-xs p-4 overflow-hidden">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedMember(null)}
+              className="absolute inset-0"
+            />
+            
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="relative bg-brand-white w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center space-y-5 z-10"
+            >
+              <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-2" />
+              
+              <div className="text-center space-y-2 mt-2 w-full">
+                <div className="w-20 h-20 rounded-full bg-brand-gray/55 flex items-center justify-center text-5xl mx-auto border-2 border-brand-blue/5 shadow-inner animate-pulse">
+                  {getAvatarById(selectedMember.avatarId)?.emoji || '👤'}
+                </div>
+                <h4 className="font-display font-bold text-brand-text text-xl">{selectedMember.name}</h4>
+                <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">
+                  Membro Acolhedor
+                </p>
+              </div>
+
+              <div className="w-full pt-2 border-t border-brand-blue/5 space-y-3.5">
+                <button
+                  onClick={() => {
+                    if (!user || !onUpdateUser) return;
+                    const currentAngels = user.supportAngels || [];
+                    const exists = currentAngels.some(a => a.name === selectedMember.name);
+                    
+                    let updatedAngels;
+                    if (exists) {
+                      updatedAngels = currentAngels.filter(a => a.name !== selectedMember.name);
+                    } else {
+                      updatedAngels = [
+                        ...currentAngels,
+                        {
+                          id: Date.now().toString(),
+                          name: selectedMember.name,
+                          avatarId: selectedMember.avatarId
+                        }
+                      ];
+                    }
+                    
+                    onUpdateUser({
+                      ...user,
+                      supportAngels: updatedAngels
+                    });
+                    setSelectedMember(null);
+                  }}
+                  className={cn(
+                    "w-full py-4 rounded-2xl text-xs font-bold shadow-xs active:scale-95 transition-all outline-none flex items-center justify-center space-x-2 border",
+                    user?.supportAngels?.some(a => a.name === selectedMember.name)
+                      ? "bg-purple-50 text-purple-600 border-purple-200"
+                      : "bg-purple-600 text-white border-transparent hover:bg-purple-700 shadow-md shadow-purple-100"
+                  )}
+                >
+                  <span>👼 {user?.supportAngels?.some(a => a.name === selectedMember.name) ? 'Remover dos Anjos de Apoio' : 'Tornar Anjo de Apoio'}</span>
+                </button>
+
+                <button
+                  onClick={() => setSelectedMember(null)}
+                  className="w-full py-3 bg-brand-gray text-gray-500 rounded-2xl text-xs font-bold hover:bg-gray-200 active:scale-95 transition-all outline-none"
+                >
+                  Voltar para o fórum
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

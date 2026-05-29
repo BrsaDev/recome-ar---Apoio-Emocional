@@ -4,6 +4,7 @@ import { View, Room, RoomGender, User as UserType } from '../types';
 import { ArrowLeft, Users, Shield, Crown, User, UserCheck, Plus, Sparkles, Lock, X, Globe } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { hasOffensiveContent } from '../lib/moderation';
+import { getAvatarById } from '../data/avatars';
 
 interface Props {
   user: UserType | null;
@@ -40,6 +41,7 @@ export default function Rooms({ user, navigate }: Props) {
   const [newRoomDesc, setNewRoomDesc] = useState('');
   const [newRoomType, setNewRoomType] = useState<'public' | 'vip'>('public');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [invitedAngels, setInvitedAngels] = useState<string[]>([]);
 
   const handleSelectRoom = (room: Room) => {
     if (room.type === 'vip') {
@@ -51,7 +53,13 @@ export default function Rooms({ user, navigate }: Props) {
 
   const handleEnterRoom = (gender: RoomGender) => {
     if (selectedRoom) {
-        navigate('live-room', { activeRoom: { name: selectedRoom.name, gender } });
+        navigate('live-room', { 
+          activeRoom: { 
+            name: selectedRoom.name, 
+            gender,
+            invitedAngels: selectedRoom.invitedAngels
+          } 
+        });
     }
   };
 
@@ -84,8 +92,11 @@ export default function Rooms({ user, navigate }: Props) {
       id: Date.now().toString(),
       name: nameTrimmed,
       description: descTrimmed,
-      onlineCount: Math.floor(Math.random() * 8) + 1,
-      type: newRoomType
+      onlineCount: 1 + invitedAngels.length,
+      type: newRoomType,
+      capacity: 10,
+      invitedBy: user?.name,
+      invitedAngels: invitedAngels
     };
 
     const updated = [...rooms, newRoom];
@@ -96,6 +107,7 @@ export default function Rooms({ user, navigate }: Props) {
     setNewRoomName('');
     setNewRoomDesc('');
     setNewRoomType('public');
+    setInvitedAngels([]);
     setIsCreateOpen(false);
   };
 
@@ -376,6 +388,55 @@ export default function Rooms({ user, navigate }: Props) {
                     </button>
                   </div>
                 </div>
+
+                {/* Seleção de Anjos de Apoio para convidar na criação (Recurso Premium) */}
+                {user?.plan === 'premium' && (user.supportAngels || []).length > 0 && (
+                  <div className="space-y-2 border-t border-brand-blue/5 pt-3.5">
+                    <label className="text-[11px] uppercase font-bold text-gray-400 tracking-wider block">
+                      Convidar Anjos da sua Lista (Opcional)
+                    </label>
+                    <p className="text-[10px] text-gray-400 font-light leading-normal">
+                      Eles entrarão automaticamente na sala para te amparar quando você entrar.
+                    </p>
+                    <div className="max-h-36 overflow-y-auto space-y-1.5 mt-2 pr-1 no-scrollbar">
+                      {(user.supportAngels || []).map((angel) => {
+                        const isSelected = invitedAngels.includes(angel.name);
+                        return (
+                          <button
+                            key={angel.id}
+                            type="button"
+                            onClick={() => {
+                              if (isSelected) {
+                                setInvitedAngels(prev => prev.filter(name => name !== angel.name));
+                              } else {
+                                if (invitedAngels.length >= 9) {
+                                  setErrorMsg("Limite máximo de 9 convites adicionais atingido para respeitar a capacidade de 10 pessoas na sala.");
+                                  setTimeout(() => setErrorMsg(null), 5000);
+                                  return;
+                                }
+                                setInvitedAngels(prev => [...prev, angel.name]);
+                              }
+                            }}
+                            className={cn(
+                              "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left border text-xs font-bold transition-all",
+                              isSelected 
+                                ? "bg-purple-50 border-purple-200 text-purple-700" 
+                                : "bg-brand-gray border-transparent text-gray-600 hover:bg-brand-gray-dark/25"
+                            )}
+                          >
+                            <span className="flex items-center space-x-2.5">
+                              <span className="text-base">{getAvatarById(angel.avatarId || 'f1')?.emoji}</span>
+                              <span>{angel.name}</span>
+                            </span>
+                            <span className="text-[9px] uppercase tracking-wider font-extrabold text-purple-600">
+                              {isSelected ? '✓ Selecionado' : '+ Adicionar'}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 <button
                   type="submit"

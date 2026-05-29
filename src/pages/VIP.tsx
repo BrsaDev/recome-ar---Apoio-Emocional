@@ -39,8 +39,7 @@ const TIER_DETAILS = [
     originalPrice: 'R$ 9,99',
     badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
     headerBg: 'from-blue-500/5 to-blue-500/10',
-    buttonStyle: 'bg-blue-600 hover:bg-blue-700 shadow-blue-100',
-    isPopular: true,
+    buttonStyle: 'bg-blue-600 hover:bg-blue-700 shadow-sky-100',
   },
   {
     id: 'premium',
@@ -51,11 +50,12 @@ const TIER_DETAILS = [
     badgeColor: 'bg-purple-50 text-purple-700 border-purple-200',
     headerBg: 'from-purple-500/5 to-purple-500/10',
     buttonStyle: 'bg-purple-600 hover:bg-purple-700 shadow-purple-100',
+    isPopular: true,
   }
 ];
 
 export default function VIP({ user, navigate, onUpdateUser }: Props) {
-  const [selectedPlan, setSelectedPlan] = useState<string>(user?.plan || 'vip');
+  const [selectedPlan, setSelectedPlan] = useState<string>(user?.plan || 'premium');
   const [activeTab, setActiveTab] = useState<'cards' | 'table'>('cards');
   const [successAnimationPlan, setSuccessAnimationPlan] = useState<string | null>(null);
 
@@ -362,17 +362,31 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
             </div>
 
             {/* Quick CTAs for each column below table */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                onClick={() => handleSubscribe('free', 'Grátis')}
+                className="py-2.5 px-3 rounded-xl bg-emerald-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center"
+              >
+                <span>Ativar Grátis</span>
+                <span className="text-[8.5px] font-light opacity-80">R$ 0,00 (Sempre)</span>
+              </button>
+              <button
+                onClick={() => handleSubscribe('basic', 'Básico')}
+                className="py-2.5 px-3 rounded-xl bg-sky-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center"
+              >
+                <span>Assinar Básico</span>
+                <span className="text-[8.5px] font-light opacity-80">R$ 0,99 (24 horas)</span>
+              </button>
               <button
                 onClick={() => handleSubscribe('vip', 'VIP')}
-                className="py-3 px-4 rounded-xl bg-blue-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center"
+                className="py-2.5 px-3 rounded-xl bg-blue-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center"
               >
                 <span>Assinar VIP</span>
                 <span className="text-[8.5px] font-light opacity-80">R$ 5,99 (10 dias)</span>
               </button>
               <button
                 onClick={() => handleSubscribe('premium', 'PREMIUM')}
-                className="py-3 px-4 rounded-xl bg-purple-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center"
+                className="py-2.5 px-3 rounded-xl bg-purple-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center"
               >
                 <span>Assinar PREMIUM</span>
                 <span className="text-[8.5px] font-light opacity-80">R$ 14,99 (30 dias)</span>

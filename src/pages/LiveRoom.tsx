@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { User, Message, View, RoomGender } from '../types';
-import { Send, Mic, MicOff, ArrowLeft, MoreHorizontal, Users, Play, Pause, ShieldAlert, Flag } from 'lucide-react';
+import { Send, Mic, MicOff, ArrowLeft, MoreHorizontal, Users, Play, Pause, ShieldAlert, Flag, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 import ReactMarkdown from 'react-markdown';
 
@@ -10,6 +10,8 @@ interface Props {
   navigate: (view: View) => void;
   roomName: string;
   gender: RoomGender;
+  invitedAngels?: string[];
+  onUpdateUser?: (updated: User) => void;
 }
 
 const AudioPlayer = ({ url }: { url: string }) => {
@@ -108,7 +110,7 @@ const AudioPlayer = ({ url }: { url: string }) => {
 import { getAvatarById } from '../data/avatars';
 import { hasOffensiveContent } from '../lib/moderation';
 
-export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
+export default function LiveRoom({ user, navigate, roomName, gender, invitedAngels, onUpdateUser }: Props) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -126,6 +128,11 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
   const [reports, setReports] = useState<Record<string, string[]>>({});
   const [reportToast, setReportToast] = useState<string | null>(null);
   
+  // Custom states for Support Angels invites
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [inviteSuccessMsg, setInviteSuccessMsg] = useState<string | null>(null);
+  const [inviteErrorMsg, setInviteErrorMsg] = useState<string | null>(null);
+  
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -138,7 +145,10 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
   useEffect(() => {
     const names = ['Ana', 'Pedro', 'Lucas', 'Mariana', 'Carla', 'Gabriel', 'Bia', 'João', 'Sofia'];
     // Definimos aleatoriamente quantos já estão na sala (0 a 9)
-    const existingCount = Math.floor(Math.random() * 10);
+    // Se houver anjos convidados pré-definidos, reduzimos o pool aleatório para preservar o limite máximo de 10 participantes
+    const numInvited = (invitedAngels || []).length;
+    const maxRandom = Math.max(0, 9 - numInvited);
+    const existingCount = Math.min(maxRandom, Math.floor(Math.random() * (maxRandom + 1)));
     
     // Gêneros dos avatares para os nomes
     const femaleNames = ['Ana', 'Mariana', 'Carla', 'Bia', 'Sofia'];
@@ -149,7 +159,31 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
       { id: 'me', name: 'Você', isSpeaking: false, isMe: true, avatarId: user?.avatarId || 'm1' }
     ];
 
-    if (existingCount === 0) {
+    // Adiciona os Anjos de Apoio convidados logo após "Você" na lista de membros
+    const invitedMessages: Message[] = [];
+    if (invitedAngels && invitedAngels.length > 0) {
+      invitedAngels.forEach((angelName, index) => {
+        const matchedAngel = user?.supportAngels?.find(a => a.name === angelName);
+        const avatarId = matchedAngel?.avatarId || femaleAvatars[index % femaleAvatars.length];
+        
+        initialParticipants.push({
+          id: `invited-pre-${index}`,
+          name: angelName,
+          isSpeaking: false,
+          isMe: false,
+          avatarId: avatarId
+        });
+
+        invitedMessages.push({
+          id: `invite-arrival-${index}-${Date.now()}`,
+          text: `👼 **[Anjo]** *${angelName} aceitou seu convite prévio e acabou de entrar na sala para apoiar você.*`,
+          sender: 'system',
+          timestamp: Date.now() + index * 50
+        });
+      });
+    }
+
+    if (existingCount === 0 && numInvited === 0) {
       setIsFirstInRoom(true);
       setMessages(prev => [
         ...prev,
@@ -164,6 +198,9 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
       // Adiciona participantes aleatórios até o limite de 9 + você
       for (let i = 0; i < existingCount; i++) {
         const name = names[i % names.length];
+        // Evita duplicar nomes convidados
+        if (invitedAngels && invitedAngels.includes(name)) continue;
+
         const isFemale = femaleNames.includes(name);
         const avList = isFemale ? femaleAvatars : maleAvatars;
         const seedIndex = (name.charCodeAt(0) + i) % avList.length;
@@ -177,10 +214,14 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
           avatarId
         });
       }
+
+      if (invitedMessages.length > 0) {
+        setMessages(prev => [...prev, ...invitedMessages]);
+      }
     }
     
     setParticipants(initialParticipants);
-  }, [user?.avatarId]);
+  }, [user?.avatarId, invitedAngels]);
 
   // Simulação de pessoas falando alternadamente
   useEffect(() => {
@@ -281,6 +322,76 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
     setSelectedParticipant(null);
   };
 
+  const handleToggleAngel = () => {
+    if (!user || !onUpdateUser || !selectedParticipant) return;
+    const currentAngels = user.supportAngels || [];
+    const exists = currentAngels.some(a => a.name === selectedParticipant.name);
+    
+    let updatedAngels;
+    if (exists) {
+      updatedAngels = currentAngels.filter(a => a.name !== selectedParticipant.name);
+      setReportToast(`Removido(a) dos seus Anjos de Apoio.`);
+    } else {
+      updatedAngels = [
+        ...currentAngels,
+        {
+          id: selectedParticipant.id || Date.now().toString(),
+          name: selectedParticipant.name,
+          avatarId: selectedParticipant.avatarId
+        }
+      ];
+      setReportToast(`👼 Maravilha! ${selectedParticipant.name} agora é seu Anjo de Apoio.`);
+    }
+    
+    onUpdateUser({
+      ...user,
+      supportAngels: updatedAngels
+    });
+    
+    setTimeout(() => setReportToast(null), 4500);
+  };
+
+  const handleInviteAngel = (angel: any) => {
+    // Check limit of 10 people
+    if (participants.length >= 10) {
+      setInviteErrorMsg("Limite de 10 participantes atingido nesta sala. Não é possível enviar novos convites.");
+      setTimeout(() => setInviteErrorMsg(null), 5000);
+      return;
+    }
+
+    if (participants.some(p => p.name === angel.name)) {
+      setInviteErrorMsg(`${angel.name} já faz parte desta conversa ativa.`);
+      setTimeout(() => setInviteErrorMsg(null), 4000);
+      return;
+    }
+
+    // Add to participants list
+    setParticipants(prev => [
+      ...prev,
+      {
+        id: angel.id || Date.now().toString(),
+        name: angel.name,
+        isSpeaking: false,
+        isMe: false,
+        avatarId: angel.avatarId
+      }
+    ]);
+
+    setInviteSuccessMsg(`Convite entregue para ${angel.name}!`);
+    setTimeout(() => setInviteSuccessMsg(null), 3000);
+
+    // Dynamic message from system showing that support angel has joined
+    setTimeout(() => {
+      const inviteAnnounce: Message = {
+        id: `invite-msg-${Date.now()}`,
+        text: `👼 **[Anjo]** *${angel.name} aceitou seu chamado espiritual e acabou de entrar na sala para apoiar você.*`,
+        sender: 'system',
+        timestamp: Date.now()
+      };
+      setMessages(messagesPrev => [...messagesPrev, inviteAnnounce]);
+    }, 1500);
+  };
+
   const leftParticipants = participants.slice(0, Math.ceil(participants.length / 2));
   const rightParticipants = participants.slice(Math.ceil(participants.length / 2));
 
@@ -359,9 +470,24 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
             </div>
           </div>
         </div>
-        <button className="p-2 text-gray-400">
-          <MoreHorizontal size={24} />
-        </button>
+        <div className="flex items-center space-x-1.5 shrink-0">
+          {user?.supportAngels && user.supportAngels.length > 0 && (
+            <button
+              onClick={() => {
+                setInviteErrorMsg(null);
+                setInviteSuccessMsg(null);
+                setIsInviteModalOpen(true);
+              }}
+              className="py-1.5 px-3 rounded-full bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-100 active:scale-95 text-[10px] font-bold font-display flex items-center space-x-1 transition-all"
+              title="Convidar Anjo de Apoio"
+            >
+              <span>👼 Convidar</span>
+            </button>
+          )}
+          <button className="p-2 text-gray-400">
+            <MoreHorizontal size={24} />
+          </button>
+        </div>
       </header>
 
       {/* Main Row layout for virtual rooms side-by-side with chats */}
@@ -577,7 +703,7 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
               </div>
 
               {!selectedParticipant.isMe && (
-                <div className="w-full pt-2 border-t border-brand-blue/5 space-y-4">
+                <div className="w-full pt-2 border-t border-brand-blue/5 space-y-3.5">
                   <div className="bg-brand-gray/80 p-3.5 rounded-2xl text-center">
                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Status Atual</p>
                     <p className="text-xs font-bold text-gray-600 mt-1">
@@ -585,16 +711,30 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
                     </p>
                   </div>
 
-                  <button
-                    onClick={() => handleConfirmReport(selectedParticipant)}
-                    className="w-full py-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-2xl text-sm font-bold shadow-xs active:scale-95 transition-all outline-none flex items-center justify-center space-x-2 border border-red-100"
-                  >
-                    <Flag size={16} className="fill-red-50" />
-                    <span>Denunciar por Baderna</span>
-                  </button>
+                  <div className="grid grid-cols-1 gap-2.5">
+                    <button
+                      onClick={handleToggleAngel}
+                      className={cn(
+                        "w-full py-4 rounded-2xl text-sm font-bold shadow-xs active:scale-95 transition-all outline-none flex items-center justify-center space-x-2 border",
+                        user?.supportAngels?.some(a => a.name === selectedParticipant.name)
+                          ? "bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100"
+                          : "bg-purple-600 text-white border-transparent hover:bg-purple-700 shadow-md shadow-purple-100"
+                      )}
+                    >
+                      <span>👼 {user?.supportAngels?.some(a => a.name === selectedParticipant.name) ? 'Remover dos Anjos' : 'Tornar Anjo de Apoio'}</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleConfirmReport(selectedParticipant)}
+                      className="w-full py-3.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-2xl text-xs font-bold active:scale-95 transition-all outline-none flex items-center justify-center space-x-2 border border-red-100"
+                    >
+                      <Flag size={14} className="fill-red-50" />
+                      <span>Denunciar por Baderna</span>
+                    </button>
+                  </div>
                   
-                  <p className="text-[10px] text-gray-400 font-light text-center px-4 leading-relaxed font-sans">
-                    Sinalize desrespeito ou perturbação. 3 denúncias de participantes removem o baderneiro e restauram o silêncio respeitoso.
+                  <p className="text-[9px] text-gray-400 font-light text-center px-4 leading-relaxed font-sans mt-1">
+                    Anjos de Apoio facilitam interações e convites para salas privadas. Sinalize baderneiros para restaurar a ordem na comunidade.
                   </p>
                 </div>
               )}
@@ -614,6 +754,97 @@ export default function LiveRoom({ user, navigate, roomName, gender }: Props) {
                   </button>
                 </div>
               )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal de Convite de Anjo de Apoio */}
+      <AnimatePresence>
+        {isInviteModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-6">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-brand-white rounded-[2.5rem] p-6 max-w-sm w-full border border-purple-100 shadow-2xl flex flex-col space-y-4"
+            >
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-2 text-purple-600">
+                  <span>👼</span>
+                  <h4 className="font-display font-medium text-brand-text text-base">Enviar Convite para Sala</h4>
+                </div>
+                <button 
+                  onClick={() => setIsInviteModalOpen(false)}
+                  className="p-1 rounded-full text-gray-400 hover:bg-brand-gray hover:text-gray-600"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {inviteErrorMsg && (
+                <div className="p-3 bg-red-50 text-red-600 rounded-2xl text-xs font-semibold border border-red-100 text-center animate-bounce">
+                  ⚠️ {inviteErrorMsg}
+                </div>
+              )}
+
+              {inviteSuccessMsg && (
+                <div className="p-3 bg-emerald-50 text-emerald-700 rounded-2xl text-xs font-semibold border border-emerald-100 text-center">
+                  ✅ {inviteSuccessMsg}
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-[10px] text-gray-400 font-bold uppercase tracking-wider px-1">
+                  <span>Seus Anjos de Apoio</span>
+                  <span>{participants.length}/10 Vagas</span>
+                </div>
+
+                <div className="max-h-56 overflow-y-auto no-scrollbar space-y-2 mt-2">
+                  {(user?.supportAngels || []).length === 0 ? (
+                    <p className="text-xs text-gray-500 font-light text-center py-6">
+                      Você ainda não marcou nenhum membro de confiança como Anjo de Apoio.
+                    </p>
+                  ) : (
+                    (user?.supportAngels || []).map((angel) => {
+                      const isAlreadyIn = participants.some(p => p.name === angel.name);
+                      return (
+                        <div 
+                          key={angel.id}
+                          className="flex items-center justify-between bg-brand-gray/50 px-4 py-2.5 rounded-2xl border border-brand-blue/5"
+                        >
+                          <div className="flex items-center space-x-3.5">
+                            <span className="text-lg">{getAvatarById(angel.avatarId || '')?.emoji || '👤'}</span>
+                            <span className="text-xs font-bold text-brand-text leading-none">{angel.name}</span>
+                          </div>
+
+                          <button
+                            disabled={isAlreadyIn || participants.length >= 10}
+                            onClick={() => handleInviteAngel(angel)}
+                            className={cn(
+                              "px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all",
+                              isAlreadyIn 
+                                ? "bg-gray-100 text-gray-400" 
+                                : participants.length >= 10
+                                ? "bg-red-50 text-red-400"
+                                : "bg-purple-600 text-white hover:bg-purple-700 active:scale-95 shadow-sm"
+                            )}
+                          >
+                            {isAlreadyIn ? 'Na Sala' : participants.length >= 10 ? 'Lotado' : 'Convidar'}
+                          </button>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+
+              <button
+                onClick={() => setIsInviteModalOpen(false)}
+                className="w-full py-3 bg-brand-gray text-gray-600 hover:bg-gray-200 text-xs font-semibold rounded-2xl active:scale-95 transition-all text-center"
+              >
+                Voltar para conversa
+              </button>
             </motion.div>
           </div>
         )}
