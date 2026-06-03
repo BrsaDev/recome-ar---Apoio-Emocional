@@ -59,6 +59,17 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
   const [activeTab, setActiveTab] = useState<'cards' | 'table'>('cards');
   const [successAnimationPlan, setSuccessAnimationPlan] = useState<string | null>(null);
 
+  const userCount = (() => {
+    const saved = localStorage.getItem('recomecar_user_count');
+    if (saved) {
+      const parsed = parseInt(saved, 10);
+      if (!isNaN(parsed)) return parsed;
+    }
+    return 498;
+  })();
+
+  const isLimitReached = userCount >= 500;
+
   const handleSubscribe = (planKey: 'free' | 'basic' | 'vip' | 'premium', planName: string) => {
     setSuccessAnimationPlan(planName);
     if (user && onUpdateUser) {
@@ -122,6 +133,10 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
             <div className="grid grid-cols-1 gap-4">
               {TIER_DETAILS.map((plan) => {
                 const isSelected = selectedPlan === plan.id;
+                const displayPrice = plan.id === 'basic' && !isLimitReached ? 'R$ 0,00' : plan.price;
+                const displayOriginalPrice = plan.id === 'basic' && !isLimitReached ? 'R$ 0,99' : plan.originalPrice;
+                const displayBadgeColor = plan.id === 'basic' && !isLimitReached ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : plan.badgeColor;
+
                 return (
                   <motion.div
                     key={plan.id}
@@ -143,7 +158,7 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                     <div className="flex justify-between items-start">
                       <div className="space-y-1">
                         <div className="flex items-center space-x-1.5">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${plan.badgeColor}`}>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${displayBadgeColor}`}>
                             {plan.name}
                           </span>
                           <span className="text-[11px] text-gray-400 font-medium font-mono">
@@ -156,13 +171,13 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                       </div>
 
                       <div className="text-right">
-                        {plan.originalPrice && (
+                        {displayOriginalPrice && (
                           <div className="text-xs text-gray-400 line-through leading-none">
-                            {plan.originalPrice}
+                            {displayOriginalPrice}
                           </div>
                         )}
                         <div className="text-lg font-display font-extrabold text-brand-text">
-                          {plan.price}
+                          {displayPrice}
                         </div>
                       </div>
                     </div>
@@ -348,7 +363,7 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                 <div className="grid grid-cols-5 py-4 px-3 items-center text-center bg-brand-gray/30 font-display">
                   <span className="text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Valor</span>
                   <div className="font-bold text-emerald-800 text-[10px]">Grátis</div>
-                  <div className="font-bold text-sky-800 text-[10px]">0,99</div>
+                  <div className="font-bold text-sky-800 text-[10px]">{isLimitReached ? 'R$ 0,99' : 'R$ 0,00'}</div>
                   <div className="text-[10px] flex flex-col justify-center">
                     <span className="text-[8px] text-gray-400 line-through">R$9,99</span>
                     <span className="font-bold text-blue-800">R$5,99</span>
@@ -375,7 +390,9 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                 className="py-2.5 px-3 rounded-xl bg-sky-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center"
               >
                 <span>Assinar Básico</span>
-                <span className="text-[8.5px] font-light opacity-80">R$ 0,99 (24 horas)</span>
+                <span className="text-[8.5px] font-light opacity-80">
+                  {isLimitReached ? 'R$ 0,99 (24 horas)' : 'Grátis (Promo de Abertura)'}
+                </span>
               </button>
               <button
                 onClick={() => handleSubscribe('vip', 'VIP')}

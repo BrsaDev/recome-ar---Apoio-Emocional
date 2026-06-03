@@ -50,6 +50,7 @@ export interface ForumPost {
   content: string;
   timestamp: number;
   likes: number;
+  isDeleted?: boolean; // Indicates if the post has been soft-deleted
   reactions?: {
     like?: number;
     heart?: number;
@@ -69,4 +70,5 @@ export interface ForumTopic {
   repliesCount: number;
   viewsCount: number;
   posts: ForumPost[];
+  scheduledDeletionTime?: number; // Time when this topic is scheduled for deletion
 }

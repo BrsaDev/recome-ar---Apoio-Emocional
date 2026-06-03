@@ -17,14 +17,15 @@ const REACTION_OPTIONS = [
 
 interface Props {
   user: User | null;
-  navigate: (view: View) => void;
+  navigate: (view: View, state?: any) => void;
   topicId: string;
+  postId?: string | null;
   topics: ForumTopic[];
   onUpdateTopics: (updatedTopics: ForumTopic[]) => void;
   onUpdateUser?: (updatedUser: User) => void;
 }
 
-export default function TopicDetail({ user, navigate, topicId, topics, onUpdateTopics, onUpdateUser }: Props) {
+export default function TopicDetail({ user, navigate, topicId, postId, topics, onUpdateTopics, onUpdateUser }: Props) {
   const [replyText, setReplyText] = useState('');
   const [openPickerPostId, setOpenPickerPostId] = useState<string | null>(null);
   const [offensiveWarning, setOffensiveWarning] = useState<string | null>(null);
@@ -32,6 +33,28 @@ export default function TopicDetail({ user, navigate, topicId, topics, onUpdateT
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const topic = topics.find(t => t.id === topicId) || topics[0];
+
+  // Scroll exactly to comment if a postId is passed (e.g. from Profile dashboard comments page)
+  useEffect(() => {
+    if (postId && topic) {
+      const timer = setTimeout(() => {
+        const element = document.getElementById(`post-${postId}`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // Apply a gentle pulse background highlight to guide user attention
+          element.classList.add('bg-brand-blue/5', 'ring-2', 'ring-brand-blue/15', 'scale-[1.01]', 'shadow-xs');
+          
+          const removeTimer = setTimeout(() => {
+            element.classList.remove('bg-brand-blue/5', 'ring-2', 'ring-brand-blue/15', 'scale-[1.01]', 'shadow-xs');
+          }, 2500);
+          
+          return () => clearTimeout(removeTimer);
+        }
+      }, 400); // 400ms provides enough space for page transition and rendering to complete smoothly
+      return () => clearTimeout(timer);
+    }
+  }, [postId, topicId, topic]);
 
   // Increment views count on load
   useEffect(() => {
@@ -172,6 +195,18 @@ export default function TopicDetail({ user, navigate, topicId, topics, onUpdateT
         </div>
       </header>
 
+      {topic.scheduledDeletionTime && (
+        <div className="bg-amber-50 border-b border-amber-100 px-6 py-3 flex items-start space-x-2.5 shrink-0 z-10 animate-in fade-in slide-in-from-top-1" id="topic-scheduled-deletion-banner">
+          <span className="text-amber-500 shrink-0 text-base">⚠️</span>
+          <div className="flex-1">
+            <span className="text-xs font-bold text-amber-950 block leading-tight">Exclusão Agendada pelo Autor</span>
+            <p className="text-[10px] text-amber-800 leading-normal mt-0.5 font-light">
+              Este tópico e todas as suas respostas estão agendados para expiração permanente em 24 horas a pedido do autor. O envio de novos comentários foi suspenso.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Content */}
       <div 
         ref={scrollRef}
@@ -191,11 +226,12 @@ export default function TopicDetail({ user, navigate, topicId, topics, onUpdateT
           return (
             <motion.div
               key={post.id}
+              id={`post-${post.id}`}
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
               className={cn(
-                "flex flex-col space-y-3",
+                "flex flex-col space-y-3 transition-all duration-500 rounded-2xl p-3.5 -m-3.5",
                 index !== 0 && "pt-6 border-t border-brand-blue/5"
               )}
             >
@@ -242,109 +278,128 @@ export default function TopicDetail({ user, navigate, topicId, topics, onUpdateT
               </div>
 
               <div className="prose prose-sm max-w-none text-brand-text leading-relaxed pl-1 text-[13.5px]">
-                <ReactMarkdown>{post.content}</ReactMarkdown>
+                {post.isDeleted ? (
+                  <span className="text-gray-400 italic text-[11.5px] leading-normal bg-brand-gray px-3.5 py-2.5 rounded-2xl border border-brand-blue/5 block w-full">
+                    🚫 Este comentário foi removido pelo autor.
+                  </span>
+                ) : (
+                  <ReactMarkdown>{post.content}</ReactMarkdown>
+                )}
               </div>
 
               {/* Reactions Bar at the bottom of the content */}
-              <div className="flex items-center justify-start pl-1 pt-1">
-                <div className="flex items-center space-x-1.5 relative flex-wrap gap-y-1">
-                  {/* List active ones first */}
-                  {(Object.keys(postReactions) as Array<keyof typeof postReactions>).map((type) => {
-                    const option = REACTION_OPTIONS.find((o) => o.type === type);
-                    const count = postReactions[type] ?? 0;
-                    if (count === 0 || !option) return null;
-                    return (
+              {!post.isDeleted && (
+                <div className="flex items-center justify-start pl-1 pt-1">
+                  <div className="flex items-center space-x-1.5 relative flex-wrap gap-y-1">
+                    {/* List active ones first */}
+                    {(Object.keys(postReactions) as Array<keyof typeof postReactions>).map((type) => {
+                      const option = REACTION_OPTIONS.find((o) => o.type === type);
+                      const count = postReactions[type] ?? 0;
+                      if (count === 0 || !option) return null;
+                      return (
+                        <button
+                          key={type}
+                          onClick={() => handleReactToPost(post.id, type)}
+                          className="inline-flex items-center bg-brand-gray/80 hover:bg-brand-gray border border-brand-blue/5 px-2 py-0.5 rounded-full text-xs transition-transform active:scale-95 text-gray-600 font-medium shadow-xs"
+                          title={option.label}
+                        >
+                          <span className="text-xs leading-none">{option.emoji}</span>
+                          <span className="text-[10px] text-gray-500 font-bold ml-1">{count}</span>
+                        </button>
+                      );
+                    })}
+
+                    {/* Add Picker Button */}
+                    <div className="relative">
                       <button
-                        key={type}
-                        onClick={() => handleReactToPost(post.id, type)}
-                        className="inline-flex items-center bg-brand-gray/80 hover:bg-brand-gray border border-brand-blue/5 px-2 py-0.5 rounded-full text-xs transition-transform active:scale-95 text-gray-600 font-medium shadow-xs"
-                        title={option.label}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenPickerPostId(openPickerPostId === post.id ? null : post.id);
+                        }}
+                        className={cn(
+                          "w-6 h-6 rounded-full bg-brand-gray hover:bg-brand-gray/80 flex items-center justify-center text-[10px] text-gray-500 border border-brand-blue/5 active:scale-95 transition-all outline-none",
+                          openPickerPostId === post.id && "bg-brand-blue/10 border-brand-blue/20 text-brand-blue font-semibold scale-105"
+                        )}
+                        title="Adicionar reação"
                       >
-                        <span className="text-xs leading-none">{option.emoji}</span>
-                        <span className="text-[10px] text-gray-500 font-bold ml-1">{count}</span>
+                        <span>+☺</span>
                       </button>
-                    );
-                  })}
 
-                  {/* Add Picker Button */}
-                  <div className="relative">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenPickerPostId(openPickerPostId === post.id ? null : post.id);
-                      }}
-                      className={cn(
-                        "w-6 h-6 rounded-full bg-brand-gray hover:bg-brand-gray/80 flex items-center justify-center text-[10px] text-gray-500 border border-brand-blue/5 active:scale-95 transition-all outline-none",
-                        openPickerPostId === post.id && "bg-brand-blue/10 border-brand-blue/20 text-brand-blue font-semibold scale-105"
+                      {/* Popover Bubble of Choices */}
+                      {openPickerPostId === post.id && (
+                        <div className="absolute left-0 bottom-full mb-2 bg-brand-white border border-brand-blue/10 rounded-2xl shadow-xl p-1 flex items-center space-x-1 z-30 animate-in fade-in slide-in-from-bottom-1 duration-100">
+                          {REACTION_OPTIONS.map((option) => (
+                            <button
+                              key={option.type}
+                              onClick={() => {
+                                handleReactToPost(post.id, option.type);
+                                setOpenPickerPostId(null);
+                              }}
+                              className="w-7 h-7 rounded-lg hover:bg-brand-gray active:scale-90 transition-transform flex items-center justify-center text-sm outline-none"
+                              title={option.label}
+                            >
+                              {option.emoji}
+                            </button>
+                          ))}
+                        </div>
                       )}
-                      title="Adicionar reação"
-                    >
-                      <span>+☺</span>
-                    </button>
-
-                    {/* Popover Bubble of Choices */}
-                    {openPickerPostId === post.id && (
-                      <div className="absolute left-0 bottom-full mb-2 bg-brand-white border border-brand-blue/10 rounded-2xl shadow-xl p-1 flex items-center space-x-1 z-30 animate-in fade-in slide-in-from-bottom-1 duration-100">
-                        {REACTION_OPTIONS.map((option) => (
-                          <button
-                            key={option.type}
-                            onClick={() => {
-                              handleReactToPost(post.id, option.type);
-                              setOpenPickerPostId(null);
-                            }}
-                            className="w-7 h-7 rounded-lg hover:bg-brand-gray active:scale-90 transition-transform flex items-center justify-center text-sm outline-none"
-                            title={option.label}
-                          >
-                            {option.emoji}
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </motion.div>
           );
         })}
       </div>
 
       {/* Input */}
-      <footer className="p-6 bg-brand-white border-t border-brand-blue/10 shrink-0">
-        <div className="flex items-end space-x-3">
-          <div className="flex-1 bg-brand-gray rounded-2xl flex flex-col px-4 py-2 min-h-[48px] justify-center">
-            <textarea
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              placeholder="Adicionar um comentário..."
-              className="w-full bg-transparent border-none outline-none text-brand-text text-sm py-1 resize-none max-h-32 min-h-[24px]"
-              rows={1}
-              onInput={(e) => {
-                const target = e.target as HTMLTextAreaElement;
-                target.style.height = 'auto';
-                target.style.height = target.scrollHeight + 'px';
-              }}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSendReply();
-                }
-              }}
-            />
+      {topic.scheduledDeletionTime ? (
+        <footer className="p-6 bg-amber-50/25 border-t border-amber-100/60 shrink-0 text-center space-y-1">
+          <p className="text-xs text-amber-805 font-bold flex items-center justify-center gap-1.5">
+            🔒 Novos comentários suspensos
+          </p>
+          <p className="text-[10px] text-amber-600 font-light">
+            Este tópico foi agendado para exclusão pelo autor e está em modo de apenas leitura.
+          </p>
+        </footer>
+      ) : (
+        <footer className="p-6 bg-brand-white border-t border-brand-blue/10 shrink-0">
+          <div className="flex items-end space-x-3">
+            <div className="flex-1 bg-brand-gray rounded-2xl flex flex-col px-4 py-2 min-h-[48px] justify-center">
+              <textarea
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                placeholder="Adicionar um comentário..."
+                className="w-full bg-transparent border-none outline-none text-brand-text text-sm py-1 resize-none max-h-32 min-h-[24px]"
+                rows={1}
+                onInput={(e) => {
+                  const target = e.target as HTMLTextAreaElement;
+                  target.style.height = 'auto';
+                  target.style.height = target.scrollHeight + 'px';
+                }}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendReply();
+                  }
+                }}
+              />
+            </div>
+            <button
+              onClick={handleSendReply}
+              disabled={!replyText.trim()}
+              className={cn(
+                "w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all outline-none shrink-0",
+                replyText.trim() 
+                  ? "bg-brand-blue text-white shadow-brand-blue/20" 
+                  : "bg-gray-100 text-gray-400"
+              )}
+            >
+              <Send size={18} />
+            </button>
           </div>
-          <button
-            onClick={handleSendReply}
-            disabled={!replyText.trim()}
-            className={cn(
-              "w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all outline-none shrink-0",
-              replyText.trim() 
-                ? "bg-brand-blue text-white shadow-brand-blue/20" 
-                : "bg-gray-100 text-gray-400"
-            )}
-          >
-            <Send size={18} />
-          </button>
-        </div>
-      </footer>
+        </footer>
+      )}
 
       {/* Alerta de Bloqueio Preventivo */}
       <AnimatePresence>

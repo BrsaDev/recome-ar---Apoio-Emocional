@@ -24,14 +24,32 @@ import TermsModal from './components/TermsModal';
 import { apiService } from './services/api';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Support from './pages/Support';
+import WelcomePromoModal from './components/WelcomePromoModal';
 
 export default function App() {
   const [view, setView] = useState<View>('welcome');
   const [privacyPolicyFrom, setPrivacyPolicyFrom] = useState<View>('welcome');
   const [supportFrom, setSupportFrom] = useState<View>('profile');
   const [user, setUser] = useState<User | null>(null);
+  
+  // Track mock user signups for the welcome limit gift
+  const [userCount, setUserCount] = useState<number>(() => {
+    const saved = localStorage.getItem('recomecar_user_count');
+    if (saved) {
+      const parsed = parseInt(saved, 10);
+      if (!isNaN(parsed)) return parsed;
+    }
+    localStorage.setItem('recomecar_user_count', '498');
+    return 498;
+  });
+
+  const [showPromoModal, setShowPromoModal] = useState<boolean>(() => {
+    const hasSeen = localStorage.getItem('recomecar_has_seen_promo');
+    return hasSeen !== 'true';
+  });
   const [activeRoom, setActiveRoom] = useState<{ name: string; gender: RoomGender; invitedAngels?: string[] } | null>(null);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [forumTopics, setForumTopics] = useState<ForumTopic[]>(() => {
     const saved = localStorage.getItem('recomecar_forum_topics');
     if (saved) {
@@ -75,6 +93,7 @@ export default function App() {
         setView(event.state.view);
         if (event.state.activeRoom) setActiveRoom(event.state.activeRoom);
         if (event.state.topicId) setSelectedTopicId(event.state.topicId);
+        if (event.state.postId) setSelectedPostId(event.state.postId);
       }
     };
 
@@ -94,6 +113,7 @@ export default function App() {
       setView(newView);
       if (state?.activeRoom) setActiveRoom(state.activeRoom);
       if (state?.topicId) setSelectedTopicId(state.topicId);
+      setSelectedPostId(state?.postId || null);
     }
   };
 
@@ -143,6 +163,7 @@ export default function App() {
             user={user} 
             navigate={navigate} 
             topicId={selectedTopicId || ''} 
+            postId={selectedPostId}
             topics={forumTopics} 
             onUpdateTopics={handleUpdateForumTopics} 
             onUpdateUser={(updated) => {
@@ -158,6 +179,8 @@ export default function App() {
           <Profile 
             user={user} 
             navigate={navigate} 
+            topics={forumTopics}
+            onUpdateTopics={handleUpdateForumTopics}
             onLogout={() => {
               localStorage.removeItem('recomecar_user');
               setUser(null);
@@ -234,6 +257,25 @@ export default function App() {
             apiService.profile.sync(updated).catch(err => {
               console.warn('[API Sync] Profile sync failed (Expected in sandbox mode):', err);
             });
+          }}
+        />
+      )}
+
+      {user && showPromoModal && !['welcome', 'onboarding'].includes(view) && (
+        <WelcomePromoModal
+          user={user}
+          onUpdateUser={(updated) => {
+            setUser(updated);
+            localStorage.setItem('recomecar_user', JSON.stringify(updated));
+          }}
+          userCount={userCount}
+          onUpdateUserCount={(newCount) => {
+            setUserCount(newCount);
+            localStorage.setItem('recomecar_user_count', String(newCount));
+          }}
+          onClose={() => {
+            setShowPromoModal(false);
+            localStorage.setItem('recomecar_has_seen_promo', 'true');
           }}
         />
       )}
