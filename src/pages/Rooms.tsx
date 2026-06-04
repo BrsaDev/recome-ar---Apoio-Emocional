@@ -543,13 +543,13 @@ export default function Rooms({ user, navigate }: Props) {
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="w-full py-4 px-3 bg-emerald-50 rounded-2xl border border-emerald-100 flex flex-col items-center space-y-2"
+                  className="w-full py-4 px-3 bg-purple-50 rounded-2xl border border-purple-100 flex flex-col items-center space-y-2"
                 >
                   <span className="text-[20px]">✅</span>
-                  <span className="text-xs font-bold text-emerald-800 text-center uppercase tracking-wide">
+                  <span className="text-xs font-bold text-purple-850 text-center uppercase tracking-wide">
                     Permissão Concedida!
                   </span>
-                  <p className="text-[10px] text-emerald-600/90 font-light text-center leading-normal">
+                  <p className="text-[10px] text-purple-600/90 font-light text-center leading-normal">
                     O criador da sala liberou sua entrada com sucesso.
                   </p>
                 </motion.div>
@@ -569,7 +569,7 @@ export default function Rooms({ user, navigate }: Props) {
                 {permissionStatus === 'success' && (
                   <button
                     onClick={handleEnterApprovedRoom}
-                    className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-2xl text-xs font-bold shadow-lg shadow-emerald-100 transition-all outline-none"
+                    className="w-full py-4 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white rounded-2xl text-xs font-bold shadow-lg shadow-purple-100 transition-all outline-none"
                     id="btn-confirm-premium-enter"
                   >
                     Entrar na Sala agora

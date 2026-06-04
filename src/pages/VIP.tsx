@@ -17,9 +17,9 @@ const TIER_DETAILS = [
     duration: 'Para sempre',
     price: 'R$ 0,00',
     originalPrice: null,
-    badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    headerBg: 'from-emerald-500/5 to-emerald-500/10',
-    buttonStyle: 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-100',
+    badgeColor: 'bg-indigo-50/60 text-indigo-600 border-indigo-150',
+    headerBg: 'from-indigo-500/5 to-indigo-500/10',
+    buttonStyle: 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-100',
   },
   {
     id: 'basic',
@@ -27,9 +27,9 @@ const TIER_DETAILS = [
     duration: '24 horas',
     price: 'R$ 0,99',
     originalPrice: null,
-    badgeColor: 'bg-sky-50 text-sky-700 border-sky-200',
-    headerBg: 'from-sky-500/5 to-sky-500/10',
-    buttonStyle: 'bg-sky-600 hover:bg-sky-700 shadow-sky-100',
+    badgeColor: 'bg-purple-50 text-purple-700 border-purple-200',
+    headerBg: 'from-purple-500/5 to-purple-500/10',
+    buttonStyle: 'bg-purple-600 hover:bg-purple-700 shadow-purple-100',
   },
   {
     id: 'vip',
@@ -37,9 +37,9 @@ const TIER_DETAILS = [
     duration: '10 dias',
     price: 'R$ 5,99',
     originalPrice: 'R$ 9,99',
-    badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
-    headerBg: 'from-blue-500/5 to-blue-500/10',
-    buttonStyle: 'bg-blue-600 hover:bg-blue-700 shadow-sky-100',
+    badgeColor: 'bg-violet-50 text-violet-700 border-violet-200',
+    headerBg: 'from-violet-500/5 to-violet-500/10',
+    buttonStyle: 'bg-violet-600 hover:bg-violet-700 shadow-violet-100',
   },
   {
     id: 'premium',
@@ -194,11 +194,11 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                           {plan.id === 'free' && (
                             <>
                               <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
-                                <Check size={14} className="text-emerald-500 shrink-0" />
+                                <Check size={14} className="text-indigo-500 shrink-0" />
                                 <span>Salas temáticas (5 minutos a cada 24 horas)</span>
                               </div>
                               <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
-                                <Check size={14} className="text-emerald-500 shrink-0" />
+                                <Check size={14} className="text-indigo-500 shrink-0" />
                                 <span>Mensagens motivacionais diárias</span>
                               </div>
                               <div className="flex items-center space-x-2 text-xs opacity-40 font-light line-through">
@@ -211,19 +211,19 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                           {plan.id === 'basic' && (
                             <>
                               <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
-                                <Check size={14} className="text-sky-500 shrink-0" />
+                                <Check size={14} className="text-purple-500 shrink-0" />
                                 <span>Salas temáticas sem limite de tempo</span>
                               </div>
                               <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
-                                <Check size={14} className="text-sky-500 shrink-0" />
+                                <Check size={14} className="text-purple-500 shrink-0" />
                                 <span>Mensagens motivacionais ilimitadas</span>
                               </div>
                               <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
-                                <Check size={14} className="text-sky-500 shrink-0" />
+                                <Check size={14} className="text-purple-500 shrink-0" />
                                 <span>Fórum integrado</span>
                               </div>
                               <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
-                                <Check size={14} className="text-sky-500 shrink-0" />
+                                <Check size={14} className="text-purple-500 shrink-0" />
                                 <span>Pode receber convite para Sala VIP</span>
                               </div>
                             </>
@@ -232,15 +232,15 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                           {plan.id === 'vip' && (
                             <>
                               <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
-                                <Check size={14} className="text-blue-500 shrink-0" />
+                                <Check size={14} className="text-violet-500 shrink-0" />
                                 <span>Salas temáticas ilimitadas</span>
                               </div>
                               <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
-                                <Check size={14} className="text-blue-500 shrink-0" />
+                                <Check size={14} className="text-violet-500 shrink-0" />
                                 <span>Acesso ao Fórum completo</span>
                               </div>
                               <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
-                                <Check size={14} className="text-blue-500 shrink-0" />
+                                <Check size={14} className="text-violet-500 shrink-0" />
                                 <span>Pode receber convites para Sala VIP</span>
                               </div>
                               <div className="flex items-center space-x-2 text-xs opacity-40 font-light line-through">
@@ -253,15 +253,15 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                           {plan.id === 'premium' && (
                             <>
                               <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
-                                <Check size={14} className="text-purple-500 shrink-0" />
+                                <Check size={14} className="text-brand-green shrink-0" />
                                 <span>Tudo liberado 24h por 30 dias</span>
                               </div>
                               <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
-                                <Check size={14} className="text-purple-500 shrink-0" />
+                                <Check size={14} className="text-brand-green shrink-0" />
                                 <span>Acesso total ao Fórum e Salas VIP</span>
                               </div>
                               <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
-                                <Check size={14} className="text-purple-500 shrink-0" />
+                                <Check size={14} className="text-brand-green shrink-0" />
                                 <span>Permissão para criar suas próprias salas</span>
                               </div>
                             </>
@@ -304,10 +304,10 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
             <div className="bg-brand-white border border-brand-blue/10 rounded-[2rem] overflow-hidden shadow-sm">
               <div className="grid grid-cols-5 bg-brand-gray border-b border-brand-blue/5 text-[9px] font-bold text-gray-500 uppercase tracking-wider py-4 px-3 text-center">
                 <span className="text-left font-display">Recurso</span>
-                <span className="text-emerald-700">Grátis</span>
-                <span className="text-sky-700">Básico</span>
-                <span className="text-blue-700">VIP</span>
-                <span className="text-purple-700">Premium</span>
+                <span className="text-indigo-600">Grátis</span>
+                <span className="text-purple-600">Básico</span>
+                <span className="text-violet-600">VIP</span>
+                <span className="text-brand-green">Premium</span>
               </div>
 
               {/* Rows */}
@@ -315,39 +315,39 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                 {/* Row 1 */}
                 <div className="grid grid-cols-5 py-3.5 px-3 items-center text-center">
                   <span className="text-left text-[11px] font-semibold text-gray-700">Salas temáticas</span>
-                  <div className="flex justify-center text-[8.5px] leading-tight text-emerald-800 font-semibold max-w-full px-1">
+                  <div className="flex justify-center text-[8.5px] leading-tight text-indigo-700 font-semibold max-w-full px-1">
                     5 min a cada 24h*
                   </div>
-                  <div className="flex justify-center text-sky-700 font-bold">sim</div>
-                  <div className="flex justify-center text-blue-700 font-bold">sim</div>
-                  <div className="flex justify-center text-purple-700 font-bold">sim</div>
+                  <div className="flex justify-center text-purple-600 font-bold">sim</div>
+                  <div className="flex justify-center text-violet-600 font-bold">sim</div>
+                  <div className="flex justify-center text-brand-green font-bold">sim</div>
                 </div>
 
                 {/* Row 2 */}
                 <div className="grid grid-cols-5 py-3.5 px-3 items-center text-center">
                   <span className="text-left text-[11px] font-semibold text-gray-700">Mensagens motivacionais</span>
-                  <div className="flex justify-center text-emerald-700 font-bold">sim</div>
-                  <div className="flex justify-center text-sky-700 font-bold">sim</div>
-                  <div className="flex justify-center text-blue-700 font-bold">sim</div>
-                  <div className="flex justify-center text-purple-700 font-bold">sim</div>
+                  <div className="flex justify-center text-indigo-600 font-bold">sim</div>
+                  <div className="flex justify-center text-purple-600 font-bold">sim</div>
+                  <div className="flex justify-center text-violet-600 font-bold">sim</div>
+                  <div className="flex justify-center text-brand-green font-bold">sim</div>
                 </div>
 
                 {/* Row 3 */}
                 <div className="grid grid-cols-5 py-3.5 px-3 items-center text-center">
                   <span className="text-left text-[11px] font-semibold text-gray-700">Fórum</span>
                   <div className="flex justify-center text-red-400 font-bold">não</div>
-                  <div className="flex justify-center text-sky-700 font-bold">sim</div>
-                  <div className="flex justify-center text-blue-700 font-bold">sim</div>
-                  <div className="flex justify-center text-purple-700 font-bold">sim</div>
+                  <div className="flex justify-center text-purple-600 font-bold">sim</div>
+                  <div className="flex justify-center text-violet-600 font-bold">sim</div>
+                  <div className="flex justify-center text-brand-green font-bold">sim</div>
                 </div>
 
                 {/* Row 4 */}
                 <div className="grid grid-cols-5 py-3.5 px-3 items-center text-center text-brand-text">
                   <span className="text-left text-[11px] font-semibold text-gray-700">Sala VIP</span>
                   <div className="flex justify-center text-red-400 font-bold">não</div>
-                  <div className="flex justify-center text-sky-700 font-bold">sim**</div>
-                  <div className="flex justify-center text-blue-700 font-bold">sim**</div>
-                  <div className="flex justify-center text-purple-700 font-bold">sim</div>
+                  <div className="flex justify-center text-purple-600 font-bold">sim**</div>
+                  <div className="flex justify-center text-violet-600 font-bold">sim**</div>
+                  <div className="flex justify-center text-brand-green font-bold">sim</div>
                 </div>
 
                 {/* Row 5 */}
@@ -356,21 +356,21 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                   <div className="flex justify-center text-red-400 font-bold">não</div>
                   <div className="flex justify-center text-red-400 font-bold">não</div>
                   <div className="flex justify-center text-red-400 font-bold">não</div>
-                  <div className="flex justify-center text-purple-700 font-bold">sim</div>
+                  <div className="flex justify-center text-brand-green font-bold">sim</div>
                 </div>
 
                 {/* Row 6 / Price */}
                 <div className="grid grid-cols-5 py-4 px-3 items-center text-center bg-brand-gray/30 font-display">
                   <span className="text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Valor</span>
-                  <div className="font-bold text-emerald-800 text-[10px]">Grátis</div>
-                  <div className="font-bold text-sky-800 text-[10px]">{isLimitReached ? 'R$ 0,99' : 'R$ 0,00'}</div>
+                  <div className="font-bold text-indigo-700 text-[10px]">Grátis</div>
+                  <div className="font-bold text-purple-700 text-[10px]">{isLimitReached ? 'R$ 0,99' : 'R$ 0,00'}</div>
                   <div className="text-[10px] flex flex-col justify-center">
                     <span className="text-[8px] text-gray-400 line-through">R$9,99</span>
-                    <span className="font-bold text-blue-800">R$5,99</span>
+                    <span className="font-bold text-violet-750">R$5,99</span>
                   </div>
                   <div className="text-[10px] flex flex-col justify-center">
                     <span className="text-[8px] text-gray-400 line-through">R$29,99</span>
-                    <span className="font-bold text-purple-800">R$14,99</span>
+                    <span className="font-bold text-brand-green">R$14,99</span>
                   </div>
                 </div>
               </div>
@@ -380,14 +380,14 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
             <div className="grid grid-cols-2 gap-2.5">
               <button
                 onClick={() => handleSubscribe('free', 'Grátis')}
-                className="py-2.5 px-3 rounded-xl bg-emerald-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center"
+                className="py-2.5 px-3 rounded-xl bg-indigo-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
               >
                 <span>Ativar Grátis</span>
                 <span className="text-[8.5px] font-light opacity-80">R$ 0,00 (Sempre)</span>
               </button>
               <button
                 onClick={() => handleSubscribe('basic', 'Básico')}
-                className="py-2.5 px-3 rounded-xl bg-sky-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center"
+                className="py-2.5 px-3 rounded-xl bg-purple-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
               >
                 <span>Assinar Básico</span>
                 <span className="text-[8.5px] font-light opacity-80">
@@ -396,14 +396,14 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
               </button>
               <button
                 onClick={() => handleSubscribe('vip', 'VIP')}
-                className="py-2.5 px-3 rounded-xl bg-blue-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center"
+                className="py-2.5 px-3 rounded-xl bg-violet-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
               >
                 <span>Assinar VIP</span>
                 <span className="text-[8.5px] font-light opacity-80">R$ 5,99 (10 dias)</span>
               </button>
               <button
                 onClick={() => handleSubscribe('premium', 'PREMIUM')}
-                className="py-2.5 px-3 rounded-xl bg-purple-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center"
+                className="py-2.5 px-3 rounded-xl bg-brand-green active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
               >
                 <span>Assinar PREMIUM</span>
                 <span className="text-[8.5px] font-light opacity-80">R$ 14,99 (30 dias)</span>
