@@ -7,11 +7,12 @@ import { AVATARS } from '../data/avatars';
 
 interface Props {
   onComplete: (user: User) => void;
+  initialName?: string;
 }
 
-export default function Onboarding({ onComplete }: Props) {
+export default function Onboarding({ onComplete, initialName = '' }: Props) {
   const [step, setStep] = useState(1);
-  const [name, setName] = useState('');
+  const [name, setName] = useState(initialName);
   const [mood, setMood] = useState<Mood | null>(null);
 
   const moods: { id: Mood; label: string; emoji: string }[] = [

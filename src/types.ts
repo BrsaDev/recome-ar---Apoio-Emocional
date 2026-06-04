@@ -9,16 +9,18 @@ export interface SupportAngel {
 export interface User {
   name: string;
   age?: string;
-  initialMood: Mood;
+  initialMood?: Mood;
   avatarId?: string;
   plan?: 'free' | 'basic' | 'vip' | 'premium';
   supportAngels?: SupportAngel[];
   termsAccepted?: boolean;
   termsAcceptedAt?: string;
   termsVersion?: string;
+  email?: string;
+  authProvider?: 'google' | 'email';
 }
 
-export type View = 'welcome' | 'onboarding' | 'home' | 'rooms' | 'live-room' | 'emergency' | 'vip' | 'shop' | 'profile' | 'forum' | 'topic-detail' | 'privacy-policy' | 'support';
+export type View = 'welcome' | 'login' | 'onboarding' | 'home' | 'rooms' | 'live-room' | 'emergency' | 'vip' | 'shop' | 'profile' | 'forum' | 'topic-detail' | 'privacy-policy' | 'support';
 
 export type RoomGender = 'mixed' | 'men' | 'women';
 

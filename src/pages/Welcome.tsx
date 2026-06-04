@@ -3,10 +3,11 @@ import logoImg from '../assets/images/fapem_logo_1780580927891.png';
 
 interface Props {
   onStart: () => void;
+  onLogin: () => void;
   onViewPrivacy?: () => void;
 }
 
-export default function Welcome({ onStart, onViewPrivacy }: Props) {
+export default function Welcome({ onStart, onLogin, onViewPrivacy }: Props) {
   return (
     <div className="h-full w-full flex flex-col items-center justify-between p-10 bg-gradient-to-b from-brand-green/20 via-brand-blue/20 to-brand-white">
       <div className="flex-1 flex flex-col items-center justify-center space-y-6 text-center">
@@ -68,10 +69,22 @@ export default function Welcome({ onStart, onViewPrivacy }: Props) {
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2 }}
           onClick={onStart}
-          className="w-full h-16 bg-brand-green text-white rounded-2xl font-display font-medium text-lg shadow-lg shadow-brand-green/20 transition-all"
+          className="w-full h-15 bg-brand-green text-white rounded-2xl font-display font-medium text-base shadow-lg shadow-brand-green/20 transition-all"
           id="btn-welcome-start"
         >
           Começar jornada
+        </motion.button>
+
+        <motion.button
+          whileTap={{ scale: 0.98 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.3 }}
+          onClick={onLogin}
+          className="w-full h-12 mt-2.5 bg-white hover:bg-neutral-50 text-brand-text/80 rounded-2xl font-display font-semibold text-xs border border-brand-blue/15 shadow-3xs transition-all outline-none"
+          id="btn-welcome-login"
+        >
+          Já tenho uma conta? Entrar
         </motion.button>
 
         {onViewPrivacy && (

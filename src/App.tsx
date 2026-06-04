@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { View, User, Mood, RoomGender } from './types';
 import Welcome from './pages/Welcome';
+import Login from './pages/Login';
 import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
 import Rooms from './pages/Rooms';
@@ -117,20 +118,41 @@ export default function App() {
     }
   };
 
-  const handleStartOnboarding = () => navigate('onboarding');
+  const handleStartOnboarding = () => navigate('login', { isSignUp: true });
   
   const handleCompleteOnboarding = (userData: User) => {
-    setUser(userData);
-    localStorage.setItem('recomecar_user', JSON.stringify(userData));
+    const updated = {
+      ...user,
+      ...userData,
+    };
+    setUser(updated);
+    localStorage.setItem('recomecar_user', JSON.stringify(updated));
     navigate('home');
   };
 
   const renderView = () => {
     switch (view) {
       case 'welcome':
-        return <Welcome onStart={handleStartOnboarding} onViewPrivacy={() => navigate('privacy-policy')} />;
+        return <Welcome onStart={handleStartOnboarding} onLogin={() => navigate('login', { isSignUp: false })} onViewPrivacy={() => navigate('privacy-policy')} />;
+      case 'login':
+        return (
+          <Login
+            initialIsSignUp={window.history.state?.isSignUp || false}
+            onComplete={(userData, isNew) => {
+              setUser(userData);
+              localStorage.setItem('recomecar_user', JSON.stringify(userData));
+              
+              if (isNew) {
+                navigate('onboarding');
+              } else {
+                navigate('home');
+              }
+            }}
+            onBack={() => navigate('welcome')}
+          />
+        );
       case 'onboarding':
-        return <Onboarding onComplete={handleCompleteOnboarding} />;
+        return <Onboarding onComplete={handleCompleteOnboarding} initialName={user?.name || ''} />;
       case 'home':
         return <Home user={user} navigate={navigate} />;
       case 'rooms':
@@ -214,7 +236,7 @@ export default function App() {
     }
   };
 
-  const showNav = user && !['welcome', 'onboarding', 'emergency', 'live-room', 'privacy-policy', 'support'].includes(view);
+  const showNav = user && !['welcome', 'login', 'onboarding', 'emergency', 'live-room', 'privacy-policy', 'support'].includes(view);
 
   return (
     <div className="relative h-[100dvh] w-full overflow-hidden bg-brand-gray flex flex-col max-w-md mx-auto shadow-2xl">
