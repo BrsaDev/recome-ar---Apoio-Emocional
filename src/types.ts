@@ -20,7 +20,7 @@ export interface User {
   authProvider?: 'google' | 'email';
 }
 
-export type View = 'welcome' | 'login' | 'onboarding' | 'home' | 'rooms' | 'live-room' | 'emergency' | 'vip' | 'shop' | 'profile' | 'forum' | 'topic-detail' | 'privacy-policy' | 'support';
+export type View = 'welcome' | 'login' | 'onboarding' | 'home' | 'rooms' | 'live-room' | 'emergency' | 'vip' | 'shop' | 'profile' | 'forum' | 'topic-detail' | 'privacy-policy' | 'support' | 'admin';
 
 export type RoomGender = 'mixed' | 'men' | 'women';
 

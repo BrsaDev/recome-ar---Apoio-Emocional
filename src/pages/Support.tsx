@@ -75,6 +75,17 @@ export default function Support({ navigate, fromView = 'profile' }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [ticketList, setTicketList] = useState<SupportTicket[]>([]);
+  const [adminClicks, setAdminClicks] = useState(0);
+
+  const handleAdminClick = () => {
+    const next = adminClicks + 1;
+    if (next >= 5) {
+      setAdminClicks(0);
+      navigate('admin');
+    } else {
+      setAdminClicks(next);
+    }
+  };
 
   // Load existing tickets
   useEffect(() => {
@@ -156,9 +167,13 @@ export default function Support({ navigate, fromView = 'profile' }: Props) {
             Canal de Ouvidoria Integrado
           </p>
         </div>
-        <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600">
+        <button
+          onClick={handleAdminClick}
+          className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 cursor-pointer active:scale-90 transition-all select-none outline-none"
+          title="Atendimento e Suporte"
+        >
           <LifeBuoy size={16} className="animate-spin-slow" />
-        </div>
+        </button>
       </div>
 
       {/* Main Scroll Content */}

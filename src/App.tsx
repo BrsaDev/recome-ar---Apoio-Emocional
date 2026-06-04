@@ -25,6 +25,7 @@ import TermsModal from './components/TermsModal';
 import { apiService } from './services/api';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Support from './pages/Support';
+import Admin from './pages/Admin';
 import WelcomePromoModal from './components/WelcomePromoModal';
 
 export default function App() {
@@ -231,12 +232,20 @@ export default function App() {
         return <PrivacyPolicy navigate={navigate} fromView={privacyPolicyFrom} />;
       case 'support':
         return <Support navigate={navigate} fromView={supportFrom} />;
+      case 'admin':
+        return (
+          <Admin 
+            navigate={navigate} 
+            forumTopics={forumTopics} 
+            onUpdateForumTopics={handleUpdateForumTopics} 
+          />
+        );
       default:
         return <Home user={user} navigate={navigate} />;
     }
   };
 
-  const showNav = user && !['welcome', 'login', 'onboarding', 'emergency', 'live-room', 'privacy-policy', 'support'].includes(view);
+  const showNav = user && !['welcome', 'login', 'onboarding', 'emergency', 'live-room', 'privacy-policy', 'support', 'admin'].includes(view);
 
   return (
     <div className="relative h-[100dvh] w-full overflow-hidden bg-brand-gray flex flex-col max-w-md mx-auto shadow-2xl">
