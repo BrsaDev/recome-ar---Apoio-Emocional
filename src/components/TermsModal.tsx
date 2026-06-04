@@ -89,7 +89,7 @@ export default function TermsModal({ user, onAccept }: Props) {
               <span className="font-bold font-display text-[10px] sm:text-xs text-red-900 uppercase">Aviso Técnico-Legal Crucial</span>
             </div>
             <p className="text-[10px] sm:text-[11px] text-red-850 font-normal leading-normal">
-              O <strong>Recomeçar</strong> é uma comunidade de integração social e compartilhamento espontâneo de vivências interpessoais. Ele <strong className="underline">não oferece e não substitui</strong> psicoterapias, tratamentos psiquiátricos, diagnósticos ou nenhum tipo de terapia clínico-assistencial.
+              O <strong>FAPEM</strong> é uma comunidade de integração social e compartilhamento espontâneo de vivências interpessoais. Ele <strong className="underline">não oferece e não substitui</strong> psicoterapias, tratamentos psiquiátricos, diagnósticos ou nenhum tipo de terapia clínico-assistencial.
             </p>
           </div>
 

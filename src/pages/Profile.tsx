@@ -763,7 +763,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                   >
                     <p className="font-bold text-gray-850 uppercase tracking-wide">TERMO DE RESPONSABILIDADE CIVIL E ISENÇÃO DE SUPORTE MÉDICO-CLÍNICO (V1.0.0-PRO-SAFE)</p>
                     <p>
-                      <strong>1. Objeto do Recomeçar:</strong> Atua estritamente como plataforma de compartilhamento de vivências e integração espontânea. Fica expressamente vedada à plataforma a prestação de serviços psicológicos ou assistenciais em saúde mental.
+                      <strong>1. Objeto do FAPEM:</strong> Atua estritamente como plataforma de compartilhamento de vivências e integração espontânea. Fica expressamente vedada à plataforma a prestação de serviços psicológicos ou assistenciais em saúde mental.
                     </p>
                     <p>
                       <strong>2. Recomendação de Assistência Externa:</strong> No surgimento de intercorrências de cunho emergencial clínico ou de surto, o usuário deve buscar ajuda estatal imediata através do SAMU (192) ou CVV (188).
@@ -796,7 +796,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
       </div>
 
       <div className="px-6 pb-6 text-center">
-        <p className="text-[10px] text-gray-400 font-light uppercase tracking-[0.2em]">Recomeçar App v1.0.0</p>
+        <p className="text-[10px] text-gray-400 font-light uppercase tracking-[0.2em]">FAPEM App v1.0.0</p>
       </div>
 
       <AvatarModal

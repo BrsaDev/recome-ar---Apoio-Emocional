@@ -44,7 +44,7 @@ const FAQ_ITEMS: FAQItem[] = [
   {
     category: 'safety',
     question: 'O aplicativo substitui consultas médicas ou terapêuticas?',
-    answer: 'Não, sob hipótese alguma. O Recomeçar é uma rede social de apoio mútuo entre pares baseada em acolhimento e interações empáticas. Situações clínicas de crise emocional aguda ou urgências devem ser reportadas imediatamente ao SAMU (192) ou ao CVV (188).'
+    answer: 'Não, sob hipótese alguma. O FAPEM é uma rede social de apoio mútuo entre pares baseada em acolhimento e interações empáticas. Situações clínicas de crise emocional aguda ou urgências devem ser reportadas imediatamente ao SAMU (192) ou ao CVV (188).'
   },
   {
     category: 'rooms',
@@ -108,7 +108,7 @@ export default function Support({ navigate, fromView = 'profile' }: Props) {
         id: `REC-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 100)}`,
         category: ticketCategory,
         description: ticketDescription,
-        contactEmail: ticketEmail || 'anonimo@recomecar.com',
+        contactEmail: ticketEmail || 'anonimo@fapem.app',
         createdAt: new Date().toISOString(),
         status: 'pending',
         reply: ticketCategory === 'Exclusão de Dados LGPD' 
@@ -404,7 +404,7 @@ export default function Support({ navigate, fromView = 'profile' }: Props) {
         {/* Direct Channel Footer Details */}
         <div className="bg-white rounded-3xl border border-brand-blue/5 p-4.5 space-y-3 text-center">
           <span className="text-[10px] uppercase font-mono tracking-wider text-gray-450 block font-light">E-mail Corporativo de Plantão</span>
-          <p className="text-xs font-bold text-gray-800 select-all font-mono">contato-ouvidoria@recomecar.app.br</p>
+          <p className="text-xs font-bold text-gray-800 select-all font-mono">contato-ouvidoria@fapem.app</p>
           <div className="flex items-center justify-center space-x-1.5 pt-1 text-[9px] text-gray-400 font-light">
             <ShieldCheck size={12} className="text-emerald-500" />
             <span>Prazo máximo de resposta legal: 72 horas úteis</span>

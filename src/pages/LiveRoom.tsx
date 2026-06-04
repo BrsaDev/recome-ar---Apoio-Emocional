@@ -662,7 +662,7 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
               <div className="space-y-2">
                 <h4 className="font-display font-bold text-red-600 text-lg">Bloqueio Preventivo</h4>
                 <p className="text-xs text-brand-text/70 font-light leading-relaxed">
-                  Para manter o Recomeçar um ambiente acolhedor, seguro e livre de agressões, mensagens contendo palavras ofensivas e de baixo calão foram desativadas de forma preventiva.
+                  Para manter o FAPEM um ambiente acolhedor, seguro e livre de agressões, mensagens contendo palavras ofensivas e de baixo calão foram desativadas de forma preventiva.
                 </p>
                 <div className="bg-red-50/50 p-3 rounded-xl border border-red-100/50 text-[10px] text-red-700 font-semibold uppercase tracking-wider">
                   Sua mensagem não foi enviada

@@ -1,6 +1,6 @@
 {
-  "name": "Recomeçar - Apoio Emocional",
-  "description": "Um refúgio seguro para acolhimento emocional, conversas, salas de apoio e ferramentas de calma.",
+  "name": "FAPEM",
+  "description": "FAPEM (Forte Apoio Emocional). Um refúgio seguro de acolhimento emocional, salas de apoio com chat de voz ao vivo, fóruns e ferramentas de calma.",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": []
 }

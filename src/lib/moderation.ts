@@ -1,5 +1,5 @@
 // Sistema unificado de moderação de termos ofensivos
-// Recomeçar - Ambiente Seguro e Protegido
+// FAPEM - Ambiente Seguro e Protegido
 
 const OFFENSIVE_WORDS = [
   'merda', 'bosta', 'porra', 'caralho', 'puta', 'puto', 'fdp', 'pqp',

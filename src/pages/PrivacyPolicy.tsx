@@ -87,7 +87,7 @@ export default function PrivacyPolicy({ navigate, fromView = 'profile' }: Props)
             <div className="bg-purple-50/50 rounded-2xl p-4 border border-purple-100/50">
               <span className="text-purple-800 font-bold block mb-1 text-[11px] uppercase tracking-wider font-display">Política de Privacidade de Dados</span>
               <p className="text-[11px] text-purple-950 font-light">
-                Para nós do <strong>Recomeçar</strong>, a segurança e a assepsia jurídica com os seus dados pessoais são prioridade máxima. Saiba como cuidamos e protegemos as suas interações.
+                Para nós do <strong>FAPEM</strong>, a segurança e a assepsia jurídica com os seus dados pessoais são prioridade máxima. Saiba como cuidamos e protegemos as suas interações.
               </p>
             </div>
 
@@ -134,7 +134,7 @@ export default function PrivacyPolicy({ navigate, fromView = 'profile' }: Props)
             <div className="bg-red-50/50 rounded-2xl p-4 border border-red-100">
               <span className="text-red-800 font-bold block mb-1 text-[11px] uppercase tracking-wider font-display">Isenção de Atividade Médica</span>
               <p className="text-[11px] text-red-950 font-normal leading-normal">
-                Ao utilizar os serviços, você expressamente concorda que o aplicativo Recomeçar e qualquer ferramenta ou material fornecido <strong>não servem e não assumem escopo de orientação assistencial médica profissional ou psicoterapia clínica</strong>.
+                Ao utilizar os serviços, você expressamente concorda que o aplicativo FAPEM e qualquer ferramenta ou material fornecido <strong>não servem e não assumem escopo de orientação assistencial médica profissional ou psicoterapia clínica</strong>.
               </p>
             </div>
 
