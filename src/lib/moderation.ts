@@ -1,4 +1,4 @@
-// Sistema unificado de moderação de termos ofensivos
+// Sistema unificado de moderação de termos ofensivos e detecção de crise
 // FAPEM - Ambiente Seguro e Protegido
 
 const OFFENSIVE_WORDS = [
@@ -11,71 +11,84 @@ const OFFENSIVE_WORDS = [
   'filho da puta', 'filho de puta', 'filha da puta', 'filha de puta'
 ];
 
-// Substrings bem específicas que sempre indicam ofensa sem causar falsos positivos em palavras comuns
 const OFFENSIVE_SUBSTRINGS = [
-  'desgraca', // pega desgraçado, desgraçada, desgraçados, desgraçadas
-  'filhodaputa', 'filhodeputa', 'filhadaputa', 'filhadeputa',
-  'arrombado', 'arrombada',
-  'baderneir',
-  'imbecil',
-  'babaca',
-  'otario',
-  'safad',
-  'vagabund',
-  'maldit'
+  'desgraca', 'filhodaputa', 'filhodeputa', 'filhadaputa', 'filhadeputa',
+  'arrombado', 'arrombada', 'baderneir', 'imbecil', 'babaca', 'otario', 'safad',
+  'vagabund', 'maldit'
 ];
 
-/**
- * Verifica de forma robusta e preventiva por palavras ou frases ofensivas.
- * Adota normalização Unicode (remoção de acentos) para evitar burlas comuns.
- */
-export function hasOffensiveContent(text: string): boolean {
-  if (!text) return false;
+// Termos relacionados a crise, autoagressão ou suicídio
+const CRISIS_TERMS = [
+  'suicidio', 'suicidar', 'quero morrer', 'me matar', 'me ferir',
+  'autoagressao', 'tirar minha vida', 'dar um fim', 'nao aguento mais',
+  'acabar com tudo', 'planejando morte', 'vontade de morrer', 'cortar pulso',
+  'pular de ponte', ' overdose ', 'me enforcar'
+];
 
-  // 1. Normalizar o texto: minúsculas, remover acentuação e caracteres especiais
+export type ModerationStatus = 'safe' | 'offensive' | 'crisis';
+
+/**
+ * Analisa o conteúdo e retorna o status de moderação.
+ */
+export function analyzeContent(text: string): ModerationStatus {
+  if (!text) return 'safe';
+
+  // 1. Normalizar o texto
   const normalized = text
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // Remove acentos como ç -> c, á -> a
-    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?'"+\|\[\]]/g, " ") // Remove pontuações de pontuação com espaços
-    .replace(/\s+/g, " ") // Comprime espaços duplos
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?'"+\|\[\]]/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
 
-  // 1.1 Texto condensado sem espaços para pegar burlas como "f i l h o d a p u t a" ou junções
   const condensed = normalized.replace(/\s/g, "");
 
-  // 2. Verificar correspondência direta de substrings perigosas especificadas
-  for (const sub of OFFENSIVE_SUBSTRINGS) {
-    if (condensed.includes(sub) || normalized.includes(sub)) {
-      return true;
+  // 2. Verificar CRISE primeiro (Prioridade Máxima)
+  for (const term of CRISIS_TERMS) {
+    const termNorm = term.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    if (normalized.includes(termNorm) || condensed.includes(termNorm.replace(/\s/g, ""))) {
+      return 'crisis';
     }
   }
 
-  // 3. Dividir em palavras individuais para verificar correspondência exata do dicionário expandido
+  // 3. Verificar OFENSIVO (Substrings)
+  for (const sub of OFFENSIVE_SUBSTRINGS) {
+    if (condensed.includes(sub) || normalized.includes(sub)) {
+      return 'offensive';
+    }
+  }
+
+  // 4. Verificar OFENSIVO (Palavras exatas)
   const words = normalized.split(' ');
   for (const word of words) {
-    // Oferecer suporte para plural simples nas palavras do dicionário (ex: idiotas, babacas)
     const singularWord = word.endsWith('s') && word.length > 3 ? word.slice(0, -1) : word;
-    
+
     const isOffensive = OFFENSIVE_WORDS.some(offWord => {
       const offWordNorm = offWord.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
       return singularWord === offWordNorm || word === offWordNorm;
     });
 
-    if (isOffensive) {
-      return true;
-    }
+    if (isOffensive) return 'offensive';
   }
 
-  // 4. Verificar também as expressões compostas com/sem espaço
+  // 5. Verificar expressões compostas de OFENSIVO
   for (const term of OFFENSIVE_WORDS) {
     if (term.includes(' ')) {
       const termNorm = term.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
       if (normalized.includes(termNorm)) {
-        return true;
+        return 'offensive';
       }
     }
   }
 
-  return false;
+  return 'safe';
+}
+
+/**
+ * Helper para compatibilidade mantendo a assinatura antiga se necessário
+ */
+export function hasOffensiveContent(text: string): boolean {
+  const result = analyzeContent(text);
+  return result === 'offensive' || result === 'crisis';
 }

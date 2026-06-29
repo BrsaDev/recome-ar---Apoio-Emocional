@@ -4,7 +4,9 @@ import { MessageSquare, Eye, Plus, Search, ChevronRight, X, ThumbsUp, ShieldAler
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { getAvatarById } from '../data/avatars';
-import { hasOffensiveContent } from '../lib/moderation';
+import { analyzeContent } from '../lib/moderation';
+import { apiService } from '../services/api';
+import { Heart } from 'lucide-react';
 
 const CATEGORIES = ['Tudos', 'Ansiedade', 'Solidão', 'Recomeço', 'Relacionamento'];
 const SUBMITTABLE_CATEGORIES = ['Ansiedade', 'Solidão', 'Recomeço', 'Relacionamento'];
@@ -19,13 +21,14 @@ interface Props {
 export default function Forum({ user, navigate, topics, onUpdateTopics }: Props) {
   const [selectedCategory, setSelectedCategory] = useState('Tudos');
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // New topic modal state
   const [isNewTopicOpen, setIsNewTopicOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newCategory, setNewCategory] = useState('Ansiedade');
   const [newContent, setNewContent] = useState('');
   const [offensiveWarning, setOffensiveWarning] = useState<string | null>(null);
+  const [isCrisisWarning, setIsCrisisWarning] = useState<boolean>(false);
 
   const filteredTopics = topics.filter(topic => {
     const matchesCategory = selectedCategory === 'Tudos' || topic.category === selectedCategory;
@@ -37,38 +40,75 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
     e.preventDefault();
     if (!newTitle.trim() || !newContent.trim()) return;
 
-    if (hasOffensiveContent(newTitle) || hasOffensiveContent(newContent)) {
-      setOffensiveWarning("Conteúdo sinalizado pelo sistema de moderação.");
+    const modTitle = analyzeContent(newTitle);
+    const modContent = analyzeContent(newContent);
+    const modResult = modTitle !== 'safe' ? modTitle : modContent;
+
+    if (modResult !== 'safe') {
+      setIsCrisisWarning(modResult === 'crisis');
+      if (modResult === 'crisis') {
+        setOffensiveWarning(
+          "Detectamos palavras sensíveis no seu tópico. Sua vida é muito importante. O CVV está disponível 24h para te ouvir com carinho e sigilo."
+        );
+      } else {
+        setOffensiveWarning("Conteúdo sinalizado pelo sistema de moderação por conter termos ofensivos.");
+      }
       return;
     }
 
-    const newTopicId = (topics.length + 1).toString();
-    const newTopicPost: ForumPost = {
-      id: `p_${newTopicId}_1`,
-      authorName: user?.name || 'Viajante',
-      authorAvatarId: user?.avatarId || 'm1',
-      content: newContent,
-      timestamp: Date.now(),
-      likes: 0
-    };
+    const USE_API = (import.meta as any).env?.VITE_USE_API === 'true';
 
-    const newTopic: ForumTopic = {
-      id: newTopicId,
-      title: newTitle.trim(),
-      category: newCategory,
-      authorName: user?.name || 'Viajante',
-      authorAvatarId: user?.avatarId || 'm1',
-      lastUpdate: Date.now(),
-      repliesCount: 0,
-      viewsCount: 1,
-      posts: [newTopicPost]
-    };
+    if (USE_API) {
+      apiService.forum.createTopic({
+        id: '', // Backend generates ID
+        title: newTitle.trim(),
+        category: newCategory,
+        content: newContent,
+        authorName: user?.nickname || user?.name || 'Viajante',
+        authorAvatarId: user?.avatarId || 'm1',
+        lastUpdate: Date.now(),
+        repliesCount: 0,
+        viewsCount: 1,
+        posts: []
+      } as any).then((topic) => {
+        // Refresh topics via App.tsx callback if provided
+        // We'll rely on App.tsx fetching logic later
+        setNewTitle('');
+        setNewContent('');
+        setNewCategory('Ansiedade');
+        setIsNewTopicOpen(false);
+      }).catch(err => {
+        console.error('[Forum API] Create topic failed:', err);
+      });
+    } else {
+      const newTopicId = (topics.length + 1).toString();
+      const newTopicPost: ForumPost = {
+        id: `p_${newTopicId}_1`,
+        authorName: user?.nickname || user?.name || 'Viajante',
+        authorAvatarId: user?.avatarId || 'm1',
+        content: newContent,
+        timestamp: Date.now(),
+        likes: 0
+      };
 
-    onUpdateTopics([newTopic, ...topics]);
-    setNewTitle('');
-    setNewContent('');
-    setNewCategory('Ansiedade');
-    setIsNewTopicOpen(false);
+      const newTopic: ForumTopic = {
+        id: newTopicId,
+        title: newTitle.trim(),
+        category: newCategory,
+        authorName: user?.nickname || user?.name || 'Viajante',
+        authorAvatarId: user?.avatarId || 'm1',
+        lastUpdate: Date.now(),
+        repliesCount: 0,
+        viewsCount: 1,
+        posts: [newTopicPost]
+      };
+
+      onUpdateTopics([newTopic, ...topics]);
+      setNewTitle('');
+      setNewContent('');
+      setNewCategory('Ansiedade');
+      setIsNewTopicOpen(false);
+    }
   };
 
   return (
@@ -77,12 +117,12 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
       <header className="bg-brand-white px-6 pt-12 pb-6 shrink-0 border-b border-brand-blue/5">
         <h1 className="font-display text-2xl font-bold text-brand-text mb-2">Comunidade</h1>
         <p className="text-gray-500 text-sm mb-6">Um espaço seguro para compartilhar e aprender.</p>
-        
+
         {/* Search */}
         <div className="relative mb-6">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-          <input 
-            type="text" 
+          <input
+            type="text"
             placeholder="Buscar tópicos..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -98,8 +138,8 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
               onClick={() => setSelectedCategory(cat)}
               className={cn(
                 "px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all",
-                selectedCategory === cat 
-                  ? "bg-brand-blue text-white shadow-md shadow-brand-blue/20" 
+                selectedCategory === cat
+                  ? "bg-brand-blue text-white shadow-md shadow-brand-blue/20"
                   : "bg-brand-gray text-gray-500 hover:bg-brand-gray/80"
               )}
             >
@@ -139,12 +179,12 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
                       {new Date(topic.lastUpdate).toLocaleDateString()}
                     </span>
                   </div>
-                  
+
                   <h3 className="text-brand-text font-semibold text-base mb-4 leading-tight">
                     {topic.title}
                   </h3>
                 </div>
-                
+
                 <div className="flex items-center justify-between mt-auto pt-3 border-t border-brand-blue/5">
                   <div className="flex items-center space-x-3 text-gray-400">
                     <div className="flex items-center space-x-1 bg-brand-gray px-2 py-1 rounded-lg">
@@ -160,7 +200,7 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
                       <span className="text-xs font-bold text-gray-500">{totalLikes}</span>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center space-x-2 bg-brand-gray px-2.5 py-1.5 rounded-full border border-brand-blue/5 shadow-xs shrink-0 max-w-[170px]">
                     <span className="text-sm leading-none shrink-0">{authorAvatar?.emoji || '👤'}</span>
                     <span className="text-[11px] font-bold text-brand-text/80 truncate">{topic.authorName}</span>
@@ -174,7 +214,7 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
       </div>
 
       {/* Floating Action Button to write new topic */}
-      <button 
+      <button
         onClick={() => setIsNewTopicOpen(true)}
         className="fixed bottom-24 right-6 w-14 h-14 bg-brand-green text-white rounded-full flex items-center justify-center shadow-xl shadow-brand-green/30 active:scale-90 transition-transform z-20"
         id="btn-new-topic"
@@ -228,7 +268,7 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
                   <span className="text-3xl">{getAvatarById(user?.avatarId || '')?.emoji || '👤'}</span>
                   <div>
                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider leading-none">Publicado sob</p>
-                    <p className="text-sm font-bold text-brand-text mt-1 leading-none">{user?.name || 'Viajante'} <span className="text-xs text-brand-blue font-light">(Anônimo)</span></p>
+                    <p className="text-sm font-bold text-brand-text mt-1 leading-none">{user?.nickname || user?.name || 'Viajante'} <span className="text-xs text-brand-blue font-light">(Anônimo)</span></p>
                   </div>
                 </div>
 
@@ -305,25 +345,57 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-brand-white rounded-[2.5rem] p-8 max-w-sm w-full border border-red-100 shadow-2xl flex flex-col items-center text-center space-y-5"
+              className={cn(
+                "bg-brand-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl flex flex-col items-center text-center space-y-5 border",
+                isCrisisWarning ? "border-purple-100" : "border-red-100"
+              )}
             >
-              <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center text-red-500 shadow-sm animate-bounce">
-                <ShieldAlert size={28} />
+              <div className={cn(
+                "w-14 h-14 rounded-full flex items-center justify-center shadow-sm animate-bounce",
+                isCrisisWarning ? "bg-purple-50 text-purple-500" : "bg-red-50 text-red-500"
+              )}>
+                {isCrisisWarning ? <Heart size={28} /> : <ShieldAlert size={28} />}
               </div>
               <div className="space-y-2">
-                <h4 className="font-display font-bold text-red-600 text-lg">Bloqueio Preventivo</h4>
+                <h4 className={cn(
+                  "font-display font-bold text-lg",
+                  isCrisisWarning ? "text-purple-600" : "text-red-600"
+                )}>
+                  {isCrisisWarning ? "Você não está sozinho" : "Bloqueio Preventivo"}
+                </h4>
                 <p className="text-xs text-brand-text/70 font-light leading-relaxed">
-                  Para manter a comunidade um ambiente acolhedor, seguro e livre de agressões, tópicos contendo palavras ofensivas e de baixo calão foram desativados de forma preventiva.
+                  {offensiveWarning}
                 </p>
-                <div className="bg-red-50/50 p-3 rounded-xl border border-red-100/50 text-[10px] text-red-700 font-semibold uppercase tracking-wider">
-                  Seu tópico não foi criado
-                </div>
+                {isCrisisWarning && (
+                  <div className="bg-purple-50 p-4 rounded-2xl border border-purple-100/50 flex flex-col items-center space-y-3">
+                    <p className="text-[11px] text-purple-800 font-semibold leading-tight">
+                      Ligue para o CVV 188 agora. Eles podem te ajudar nesse momento.
+                    </p>
+                    <a
+                      href="tel:188"
+                      className="flex items-center space-x-2 bg-purple-600 px-6 py-2 rounded-xl text-white font-bold text-sm shadow-md active:scale-95 transition-all outline-none"
+                    >
+                      <span>📞 Ligar para 188</span>
+                    </a>
+                  </div>
+                )}
+                {!isCrisisWarning && (
+                  <div className="bg-red-50/50 p-3 rounded-xl border border-red-100/50 text-[10px] text-red-700 font-semibold uppercase tracking-wider">
+                    Seu tópico não foi criado
+                  </div>
+                )}
               </div>
               <button
-                onClick={() => setOffensiveWarning(null)}
-                className="w-full py-3.5 bg-red-500 hover:bg-red-600 active:scale-95 text-white rounded-2xl text-sm font-bold shadow-lg shadow-red-200 transition-all outline-none"
+                onClick={() => {
+                  setOffensiveWarning(null);
+                  setIsCrisisWarning(false);
+                }}
+                className={cn(
+                  "w-full py-3.5 text-white rounded-2xl text-sm font-bold shadow-lg transition-all outline-none active:scale-95",
+                  isCrisisWarning ? "bg-purple-500 hover:bg-purple-600 shadow-purple-200" : "bg-red-500 hover:bg-red-600 shadow-red-200"
+                )}
               >
-                Compreendendo as Regras
+                {isCrisisWarning ? "Voltar ao Fórum" : "Compreendendo as Regras"}
               </button>
             </motion.div>
           </div>

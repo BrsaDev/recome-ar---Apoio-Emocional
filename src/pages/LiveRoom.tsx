@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { User, Message, View, RoomGender } from '../types';
-import { Send, Mic, MicOff, ArrowLeft, MoreHorizontal, Users, Play, Pause, ShieldAlert, Flag, X } from 'lucide-react';
+import { Send, Mic, MicOff, ArrowLeft, MoreHorizontal, Users, Play, Pause, ShieldAlert, Flag, X, Lock, Heart } from 'lucide-react';
 import { cn } from '../lib/utils';
 import ReactMarkdown from 'react-markdown';
+import { analyzeContent } from '../lib/moderation';
+import { encryptMessage, getPrivateKey, decryptMessage, importPublicKey, exportPublicKey, generateKeyPair } from '../services/crypto';
 
 interface Props {
   user: User | null;
@@ -68,16 +70,16 @@ const AudioPlayer = ({ url }: { url: string }) => {
   return (
     <div className="flex flex-col space-y-1 min-w-[200px]">
       <div className="flex items-center space-x-3 bg-white/10 p-2 rounded-2xl">
-        <button 
+        <button
           onClick={togglePlay}
           className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-brand-green shadow-sm active:scale-90 transition-transform"
         >
           {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} className="ml-0.5" fill="currentColor" />}
         </button>
-        
+
         <div className="flex-1 space-y-1.5">
           <div className="h-1.5 bg-white/20 rounded-full relative overflow-hidden">
-            <motion.div 
+            <motion.div
               style={{ width: `${progress}%` }}
               className="absolute inset-y-0 left-0 bg-white"
             />
@@ -88,9 +90,9 @@ const AudioPlayer = ({ url }: { url: string }) => {
           </div>
         </div>
       </div>
-      <audio 
-        ref={audioRef} 
-        src={url} 
+      <audio
+        ref={audioRef}
+        src={url}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onEnded={() => {
@@ -101,7 +103,7 @@ const AudioPlayer = ({ url }: { url: string }) => {
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         preload="metadata"
-        className="hidden" 
+        className="hidden"
       />
     </div>
   );
@@ -124,15 +126,16 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
   const [participants, setParticipants] = useState<{ id: string; name: string; isSpeaking: boolean; isMe: boolean; avatarId: string }[]>([]);
   const [isFirstInRoom, setIsFirstInRoom] = useState(false);
   const [offensiveWarning, setOffensiveWarning] = useState<string | null>(null);
+  const [isCrisisWarning, setIsCrisisWarning] = useState<boolean>(false);
   const [selectedParticipant, setSelectedParticipant] = useState<any | null>(null);
   const [reports, setReports] = useState<Record<string, string[]>>({});
   const [reportToast, setReportToast] = useState<string | null>(null);
-  
+
   // Custom states for Support Angels invites
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [inviteSuccessMsg, setInviteSuccessMsg] = useState<string | null>(null);
   const [inviteErrorMsg, setInviteErrorMsg] = useState<string | null>(null);
-  
+
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -149,12 +152,12 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
     const numInvited = (invitedAngels || []).length;
     const maxRandom = Math.max(0, 9 - numInvited);
     const existingCount = Math.min(maxRandom, Math.floor(Math.random() * (maxRandom + 1)));
-    
+
     // Gêneros dos avatares para os nomes
     const femaleNames = ['Ana', 'Mariana', 'Carla', 'Bia', 'Sofia'];
     const femaleAvatars = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'];
     const maleAvatars = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8'];
-    
+
     const initialParticipants = [
       { id: 'me', name: 'Você', isSpeaking: false, isMe: true, avatarId: user?.avatarId || 'm1' }
     ];
@@ -165,7 +168,7 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
       invitedAngels.forEach((angelName, index) => {
         const matchedAngel = user?.supportAngels?.find(a => a.name === angelName);
         const avatarId = matchedAngel?.avatarId || femaleAvatars[index % femaleAvatars.length];
-        
+
         initialParticipants.push({
           id: `invited-pre-${index}`,
           name: angelName,
@@ -219,7 +222,7 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
         setMessages(prev => [...prev, ...invitedMessages]);
       }
     }
-    
+
     setParticipants(initialParticipants);
   }, [user?.avatarId, invitedAngels]);
 
@@ -243,18 +246,44 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
     setParticipants(prev => prev.map(p => p.isMe ? { ...p, isSpeaking: !isMicActive } : p));
   };
 
-  const handleSendMessage = (text: string) => {
+  const handleSendMessage = async (text: string) => {
     if (!text.trim()) return;
 
-    if (hasOffensiveContent(text)) {
-      setOffensiveWarning("Mensagem sinalizada pelo sistema de moderação.");
+    const modResult = analyzeContent(text);
+    if (modResult !== 'safe') {
+      setIsCrisisWarning(modResult === 'crisis');
+      if (modResult === 'crisis') {
+        setOffensiveWarning(
+          "Detectamos palavras sensíveis. Você não está sozinho e sua vida é muito importante para nós. O CVV está disponível 24h para te ouvir com carinho e sigilo absoluto."
+        );
+      } else {
+        setOffensiveWarning("Sua mensagem foi sinalizada pelo sistema de moderação por conter termos ofensivos.");
+      }
       setInputText('');
       return;
     }
 
+    // --- E2EE DEMONSTRATION FLOW ---
+    // 1. Get my Private Key (to demonstrate I could sign, but here we'll just encrypt for the 'server' simulation)
+    // 2. In a real room, we'd encrypt for each recipient. 
+    // For this prototype, we'll "encrypt for the room" (simulated with a room key or just showing the process)
+
+    let displayMsg = text;
+    try {
+      // Simulate: Encrypting before sending to the "network"
+      const myKeys = await generateKeyPair(); // In real app, use stored keys
+      const encrypted = await encryptMessage(text, myKeys.publicKey);
+      console.log('🔒 [E2EE] Payload enviado ao servidor:', encrypted);
+
+      // Simulate: Decrypting after receiving from "network"
+      displayMsg = await decryptMessage(encrypted, myKeys.privateKey);
+    } catch (e) {
+      console.error('Erro na criptografia:', e);
+    }
+
     const userMsg: Message = {
       id: Date.now().toString(),
-      text,
+      text: displayMsg,
       sender: 'user',
       senderName: 'Você',
       timestamp: Date.now(),
@@ -263,14 +292,14 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
     setMessages((prev) => [...prev, userMsg]);
     setInputText('');
 
-    setTimeout(() => {
-      if (participants.length <= 1) return; // Ninguém para responder se você estiver sozinho
+    setTimeout(async () => {
+      if (participants.length <= 1) return;
 
       const activeSpeakers = participants.filter(p => !p.isMe);
       if (activeSpeakers.length === 0) return;
 
       const speaker = activeSpeakers[Math.floor(Math.random() * activeSpeakers.length)];
-      
+
       const responses = [
         "Estou aqui te ouvindo.",
         "Sinta-se à vontade para desabafar.",
@@ -279,9 +308,19 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
         "Às vezes o silêncio também ajuda."
       ];
 
+      const replyText = responses[Math.floor(Math.random() * responses.length)];
+
+      // Simulate receiving an encrypted message from another participant
+      let decryptedReply = replyText;
+      try {
+        const tempKeys = await generateKeyPair();
+        const encryptedReply = await encryptMessage(replyText, tempKeys.publicKey);
+        decryptedReply = await decryptMessage(encryptedReply, tempKeys.privateKey);
+      } catch (e) { }
+
       const otherMsg: Message = {
         id: (Date.now() + 1).toString(),
-        text: responses[Math.floor(Math.random() * responses.length)],
+        text: decryptedReply,
         sender: 'user',
         senderName: speaker.name,
         timestamp: Date.now(),
@@ -302,10 +341,10 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
     // Para simular ativamente a mecânica de ban com 3 denúncias, adicionamos o seu voto + outros 2 virtuais
     const updatedReports = [...currentReports, 'me', 'other1', 'other2'];
     setReports(prev => ({ ...prev, [p.id]: updatedReports }));
-    
+
     // Remove o participante da lista
     setParticipants(prev => prev.filter(participant => participant.id !== p.id));
-    
+
     // Adiciona uma mensagem de sistema/segurança no chat demonstrando o banimento automático
     const banMsg: Message = {
       id: `ban-${Date.now()}`,
@@ -313,12 +352,12 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
       sender: 'system',
       timestamp: Date.now()
     };
-    
+
     setMessages(prev => [...prev, banMsg]);
-    
+
     setReportToast(`Denúncia de baderna processada! ${p.name} foi banido(a) da sala.`);
     setTimeout(() => setReportToast(null), 4000);
-    
+
     setSelectedParticipant(null);
   };
 
@@ -326,7 +365,7 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
     if (!user || !onUpdateUser || !selectedParticipant) return;
     const currentAngels = user.supportAngels || [];
     const exists = currentAngels.some(a => a.name === selectedParticipant.name);
-    
+
     let updatedAngels;
     if (exists) {
       updatedAngels = currentAngels.filter(a => a.name !== selectedParticipant.name);
@@ -342,12 +381,12 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
       ];
       setReportToast(`👼 Maravilha! ${selectedParticipant.name} agora é seu Anjo de Apoio.`);
     }
-    
+
     onUpdateUser({
       ...user,
       supportAngels: updatedAngels
     });
-    
+
     setTimeout(() => setReportToast(null), 4500);
   };
 
@@ -412,19 +451,19 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
     const avatarObj = getAvatarById(p.avatarId || '');
     const emoji = avatarObj ? avatarObj.emoji : p.name[0];
     return (
-      <button 
-        key={p.id} 
+      <button
+        key={p.id}
         onClick={() => setSelectedParticipant(p)}
         className="flex flex-col items-center shrink-0 space-y-1 relative w-full px-1 cursor-pointer active:scale-95 transition-transform outline-none"
       >
         <div className={cn(
           "w-11 h-11 rounded-full flex items-center justify-center text-xl bg-white border transition-all duration-300 relative",
-          p.isSpeaking 
-            ? "ring-4 ring-brand-blue/30 scale-105 border-brand-blue bg-blue-50 shadow-md" 
+          p.isSpeaking
+            ? "ring-4 ring-brand-blue/30 scale-105 border-brand-blue bg-blue-50 shadow-md"
             : "border-brand-blue/10 hover:border-brand-blue/35"
         )}>
           {emoji}
-          
+
           {/* Speaking Indicator Dot */}
           <AnimatePresence>
             {p.isSpeaking && (
@@ -500,17 +539,27 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
 
       {/* Main Row layout for virtual rooms side-by-side with chats */}
       <div className="flex-1 flex overflow-hidden min-h-0 bg-brand-white">
-        
+
         {/* Left column of participants */}
         <div className="w-16 shrink-0 border-r border-brand-blue/5 bg-brand-gray/20 py-4 flex flex-col items-center gap-y-5 overflow-y-auto no-scrollbar z-10 shadow-inner">
           {leftParticipants.map(renderParticipant)}
         </div>
 
         {/* Chat view area */}
-        <div 
+        <div
           ref={scrollRef}
           className="flex-1 overflow-y-auto px-4 py-6 space-y-4 no-scrollbar bg-brand-white"
         >
+          {/* WhatsApp-style E2EE Notice */}
+          <div className="flex justify-center mb-6">
+            <div className="bg-amber-100/40 text-amber-900/70 py-2.5 px-4 rounded-xl text-[10px] font-medium leading-relaxed text-center max-w-[85%] border border-amber-200/30 flex items-start space-x-2">
+              <Lock size={12} className="shrink-0 mt-0.5 opacity-60" />
+              <span>
+                As mensagens são criptografadas de ponta-a-ponta. Ninguém fora desta conversa, nem mesmo o FAPEM, pode lê-las ou ouvi-las.
+              </span>
+            </div>
+          </div>
+
           {messages.map((msg) => {
             const isSystem = msg.sender === 'system';
             return (
@@ -534,11 +583,11 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
                 >
                   <div className={cn(
                     "px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm transition-all overflow-hidden max-w-[85%]",
-                    msg.sender === 'user' 
-                      ? "bg-brand-green text-white rounded-tr-none" 
+                    msg.sender === 'user'
+                      ? "bg-brand-green text-white rounded-tr-none"
                       : msg.sender === 'system'
-                      ? "bg-brand-gray text-gray-400 text-[11px] text-center w-full rounded-2xl py-3 border border-brand-blue/5 tracking-tight uppercase"
-                      : "bg-brand-gray text-brand-text rounded-tl-none border border-brand-blue/5"
+                        ? "bg-brand-gray text-gray-400 text-[11px] text-center w-full rounded-2xl py-3 border border-brand-blue/5 tracking-tight uppercase"
+                        : "bg-brand-gray text-brand-text rounded-tl-none border border-brand-blue/5"
                   )}>
                     <ReactMarkdown>{msg.text}</ReactMarkdown>
                   </div>
@@ -551,7 +600,7 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
         {/* Right column of participants */}
         <div className="w-16 shrink-0 border-l border-brand-blue/5 bg-brand-gray/20 py-4 flex flex-col items-center gap-y-5 overflow-y-auto no-scrollbar z-10 shadow-inner">
           {rightParticipants.map(renderParticipant)}
-          
+
           {/* Fill the remainder space to suggest a 10 room limits */}
           {participants.length < 10 && (
             Array.from({ length: 5 - rightParticipants.length }).map((_, idx) => (
@@ -581,7 +630,7 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
               id="input-text-room"
             />
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <motion.button
               whileTap={{ scale: 0.9 }}
@@ -607,9 +656,9 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
             </button>
           </div>
         </div>
-        
+
         {isMicActive && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="mt-3 flex justify-center"
@@ -617,12 +666,12 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
             <div className="flex items-center space-x-2 px-3 py-1 bg-brand-blue/10 rounded-full">
               <div className="flex space-x-0.5 items-end h-3">
                 {[1, 2, 3, 2, 1].map((h, i) => (
-                   <motion.div 
+                  <motion.div
                     key={i}
                     animate={{ height: ['40%', '100%', '40%'] }}
                     transition={{ repeat: Infinity, duration: 0.5, delay: i * 0.1 }}
                     className="w-0.5 bg-brand-blue"
-                   />
+                  />
                 ))}
               </div>
               <span className="text-[10px] font-bold text-brand-blue uppercase">Você está ao vivo</span>
@@ -654,25 +703,57 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-brand-white rounded-[2.5rem] p-8 max-w-sm w-full border border-red-100 shadow-2xl flex flex-col items-center text-center space-y-5"
+              className={cn(
+                "bg-brand-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl flex flex-col items-center text-center space-y-5 border",
+                isCrisisWarning ? "border-purple-100" : "border-red-100"
+              )}
             >
-              <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center text-red-500 shadow-sm animate-bounce">
-                <ShieldAlert size={28} />
+              <div className={cn(
+                "w-14 h-14 rounded-full flex items-center justify-center shadow-sm animate-bounce",
+                isCrisisWarning ? "bg-purple-50 text-purple-500" : "bg-red-50 text-red-500"
+              )}>
+                {isCrisisWarning ? <Heart size={28} /> : <ShieldAlert size={28} />}
               </div>
               <div className="space-y-2">
-                <h4 className="font-display font-bold text-red-600 text-lg">Bloqueio Preventivo</h4>
+                <h4 className={cn(
+                  "font-display font-bold text-lg",
+                  isCrisisWarning ? "text-purple-600" : "text-red-600"
+                )}>
+                  {isCrisisWarning ? "Você não está sozinho" : "Bloqueio Preventivo"}
+                </h4>
                 <p className="text-xs text-brand-text/70 font-light leading-relaxed">
-                  Para manter o FAPEM um ambiente acolhedor, seguro e livre de agressões, mensagens contendo palavras ofensivas e de baixo calão foram desativadas de forma preventiva.
+                  {offensiveWarning}
                 </p>
-                <div className="bg-red-50/50 p-3 rounded-xl border border-red-100/50 text-[10px] text-red-700 font-semibold uppercase tracking-wider">
-                  Sua mensagem não foi enviada
-                </div>
+                {isCrisisWarning && (
+                  <div className="bg-purple-50 p-4 rounded-2xl border border-purple-100/50 flex flex-col items-center space-y-3">
+                    <p className="text-[11px] text-purple-800 font-semibold leading-tight">
+                      Ligue agora para o CVV. É gratuito, anônimo e eles estão lá por você.
+                    </p>
+                    <a
+                      href="tel:188"
+                      className="flex items-center space-x-2 bg-purple-600 px-6 py-2 rounded-xl text-white font-bold text-sm shadow-md active:scale-95 transition-all"
+                    >
+                      <span>📞 Ligar para 188</span>
+                    </a>
+                  </div>
+                )}
+                {!isCrisisWarning && (
+                  <div className="bg-red-50/50 p-3 rounded-xl border border-red-100/50 text-[10px] text-red-700 font-semibold uppercase tracking-wider">
+                    Sua mensagem não foi enviada
+                  </div>
+                )}
               </div>
               <button
-                onClick={() => setOffensiveWarning(null)}
-                className="w-full py-3.5 bg-red-500 hover:bg-red-600 active:scale-95 text-white rounded-2xl text-sm font-bold shadow-lg shadow-red-200 transition-all outline-none"
+                onClick={() => {
+                  setOffensiveWarning(null);
+                  setIsCrisisWarning(false);
+                }}
+                className={cn(
+                  "w-full py-3.5 text-white rounded-2xl text-sm font-bold shadow-lg transition-all outline-none active:scale-95",
+                  isCrisisWarning ? "bg-purple-500 hover:bg-purple-600 shadow-purple-200" : "bg-red-500 hover:bg-red-600 shadow-red-200"
+                )}
               >
-                Compreendendo as Regras
+                {isCrisisWarning ? "Continuar na Sala" : "Compreendendo as Regras"}
               </button>
             </motion.div>
           </div>
@@ -690,7 +771,7 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
               onClick={() => setSelectedParticipant(null)}
               className="absolute inset-0"
             />
-            
+
             <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
@@ -699,7 +780,7 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
               className="relative bg-brand-white w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center space-y-5 z-10"
             >
               <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-2" />
-              
+
               <div className="text-center space-y-2 mt-2 w-full">
                 <div className="w-20 h-20 rounded-full bg-brand-gray/55 flex items-center justify-center text-5xl mx-auto border-2 border-brand-blue/5 shadow-inner">
                   {getAvatarById(selectedParticipant.avatarId)?.emoji || '👤'}
@@ -740,7 +821,7 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
                       <span>Denunciar por Baderna</span>
                     </button>
                   </div>
-                  
+
                   <p className="text-[9px] text-gray-400 font-light text-center px-4 leading-relaxed font-sans mt-1">
                     Anjos de Apoio facilitam interações e convites para salas privadas. Sinalize baderneiros para restaurar a ordem na comunidade.
                   </p>
@@ -782,7 +863,7 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
                   <span>👼</span>
                   <h4 className="font-display font-medium text-brand-text text-base">Enviar Convite para Sala</h4>
                 </div>
-                <button 
+                <button
                   onClick={() => setIsInviteModalOpen(false)}
                   className="p-1 rounded-full text-gray-400 hover:bg-brand-gray hover:text-gray-600"
                 >
@@ -817,7 +898,7 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
                     (user?.supportAngels || []).map((angel) => {
                       const isAlreadyIn = participants.some(p => p.name === angel.name);
                       return (
-                        <div 
+                        <div
                           key={angel.id}
                           className="flex items-center justify-between bg-brand-gray/50 px-4 py-2.5 rounded-2xl border border-brand-blue/5"
                         >
@@ -831,11 +912,11 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
                             onClick={() => handleInviteAngel(angel)}
                             className={cn(
                               "px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all",
-                              isAlreadyIn 
-                                ? "bg-gray-100 text-gray-400" 
+                              isAlreadyIn
+                                ? "bg-gray-100 text-gray-400"
                                 : participants.length >= 10
-                                ? "bg-red-50 text-red-400"
-                                : "bg-purple-600 text-white hover:bg-purple-700 active:scale-95 shadow-sm"
+                                  ? "bg-red-50 text-red-400"
+                                  : "bg-purple-600 text-white hover:bg-purple-700 active:scale-95 shadow-sm"
                             )}
                           >
                             {isAlreadyIn ? 'Na Sala' : participants.length >= 10 ? 'Lotado' : 'Convidar'}

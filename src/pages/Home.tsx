@@ -11,7 +11,7 @@ interface Props {
 }
 
 export default function Home({ user, navigate }: Props) {
-  const greeting = user ? `Oi, ${user.name}.` : 'Olá.';
+  const greeting = user ? `Oi, ${user.nickname || user.name}.` : 'Olá.';
   const userAvatarObj = getAvatarById(user?.avatarId || '');
 
   return (
@@ -70,7 +70,7 @@ export default function Home({ user, navigate }: Props) {
         <div className="space-y-4">
           <h3 className="text-lg font-display font-medium text-brand-text px-1">Outras formas de apoio</h3>
           <div className="grid grid-cols-2 gap-4">
-            <button 
+            <button
               onClick={() => navigate('forum')}
               className="bg-brand-white p-5 rounded-3xl shadow-sm border border-brand-blue/10 flex flex-col items-center text-center space-y-3 shrink-0"
               id="btn-home-forum"
@@ -81,7 +81,7 @@ export default function Home({ user, navigate }: Props) {
               <span className="font-medium text-sm text-brand-text">Fórum</span>
             </button>
 
-            <button 
+            <button
               onClick={() => navigate('rooms')}
               className="bg-brand-white p-5 rounded-3xl shadow-sm border border-brand-blue/10 flex flex-col items-center text-center space-y-3 shrink-0"
               id="btn-home-rooms"

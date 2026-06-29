@@ -7,17 +7,23 @@ export interface SupportAngel {
 }
 
 export interface User {
-  name: string;
+  id?: string;
+  nickname: string;
+  name?: string; // Kept as alias for legacy support if needed
+  role?: 'USER' | 'MODERATOR' | 'ADMIN';
   age?: string;
   initialMood?: Mood;
   avatarId?: string;
-  plan?: 'free' | 'basic' | 'vip' | 'premium';
+  plan?: 'FREE' | 'VIP' | 'PREMIUM';
   supportAngels?: SupportAngel[];
   termsAccepted?: boolean;
   termsAcceptedAt?: string;
   termsVersion?: string;
   email?: string;
   authProvider?: 'google' | 'email';
+  isBanned?: boolean;
+  publicKey?: string;
+  createdAt?: string;
 }
 
 export type View = 'welcome' | 'login' | 'onboarding' | 'home' | 'rooms' | 'live-room' | 'emergency' | 'vip' | 'shop' | 'profile' | 'forum' | 'topic-detail' | 'privacy-policy' | 'support' | 'admin';

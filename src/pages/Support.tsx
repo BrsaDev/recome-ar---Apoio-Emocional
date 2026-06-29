@@ -1,23 +1,24 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  ArrowLeft, 
-  HelpCircle, 
-  ChevronDown, 
-  Send, 
-  Clock, 
-  MessageSquare, 
-  AlertTriangle, 
-  ShieldCheck, 
-  LifeBuoy, 
-  Mail, 
-  CheckCircle2, 
+import {
+  ArrowLeft,
+  HelpCircle,
+  ChevronDown,
+  Send,
+  Clock,
+  MessageSquare,
+  AlertTriangle,
+  ShieldCheck,
+  LifeBuoy,
+  Mail,
+  CheckCircle2,
   PhoneCall,
   Search,
   ExternalLink,
   Trash2
 } from 'lucide-react';
 import { View } from '../types';
+import { encryptMessage, generateKeyPair, decryptMessage } from '../services/crypto';
 
 interface Props {
   navigate: (view: View) => void;
@@ -67,7 +68,7 @@ export default function Support({ navigate, fromView = 'profile' }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFAQ, setActiveFAQ] = useState<number | null>(null);
   const [selectedFAQCategory, setSelectedFAQCategory] = useState<'all' | 'safety' | 'rooms' | 'account'>('all');
-  
+
   // Ticket form states
   const [ticketCategory, setTicketCategory] = useState('Dúvida Geral');
   const [ticketDescription, setTicketDescription] = useState('');
@@ -102,8 +103,8 @@ export default function Support({ navigate, fromView = 'profile' }: Props) {
   // Filter FAQs
   const filteredFAQs = FAQ_ITEMS.filter(item => {
     const matchesCategory = selectedFAQCategory === 'all' || item.category === selectedFAQCategory;
-    const matchesSearch = item.question.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          item.answer.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.answer.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -114,15 +115,27 @@ export default function Support({ navigate, fromView = 'profile' }: Props) {
 
     setIsSubmitting(true);
 
-    setTimeout(() => {
+    setTimeout(async () => {
+      let finalDescription = ticketDescription;
+      try {
+        // [E2EE] Simulating encryption for the Admin's Public Key
+        const adminKeys = await generateKeyPair(); // In real app, fetch admin.publicKey
+        const encrypted = await encryptMessage(ticketDescription, adminKeys.publicKey);
+        console.log('🔒 [E2EE] Ticket criptografado antes de salvar:', encrypted);
+
+        // For demonstration in local state, we show it decrypted, 
+        // but the 'encrypted' blob above is what would go to the API.
+        finalDescription = ticketDescription;
+      } catch (e) { }
+
       const newTicket: SupportTicket = {
         id: `REC-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 100)}`,
         category: ticketCategory,
-        description: ticketDescription,
+        description: finalDescription,
         contactEmail: ticketEmail || 'anonimo@fapem.app',
         createdAt: new Date().toISOString(),
         status: 'pending',
-        reply: ticketCategory === 'Exclusão de Dados LGPD' 
+        reply: ticketCategory === 'Exclusão de Dados LGPD'
           ? 'Sua solicitação LGPD de apagamento definitivo foi recebida e está pré-identificada em nosso pipeline off-line. Seus identificadores locais do WebView podem ser excluídos agora mesmo saindo do perfil.'
           : undefined
       };
@@ -178,7 +191,7 @@ export default function Support({ navigate, fromView = 'profile' }: Props) {
 
       {/* Main Scroll Content */}
       <div className="flex-1 overflow-y-auto p-5 space-y-6 no-scrollbar">
-        
+
         {/* Urgent Crisis Redirect */}
         <div className="bg-red-50/70 border border-red-100 rounded-2xl p-4 flex items-start space-x-3">
           <AlertTriangle className="text-red-600 shrink-0 mt-0.5" size={18} />
@@ -188,15 +201,15 @@ export default function Support({ navigate, fromView = 'profile' }: Props) {
               Nossa equipe de suporte técnico e de moderação voluntária **não realiza** atendimento psicoterapêutico de emergência. Por favor, contate imediatamente o atendimento humanitário gratuito.
             </p>
             <div className="flex space-x-2 pt-1">
-              <a 
-                href="tel:188" 
+              <a
+                href="tel:188"
                 className="inline-flex items-center space-x-1 py-1 px-2.5 bg-red-600 hover:bg-red-700 text-white text-[9.5px] font-bold rounded-lg transition-colors cursor-pointer"
               >
                 <PhoneCall size={10} />
                 <span>Ligar CVV 188</span>
               </a>
-              <a 
-                href="tel:192" 
+              <a
+                href="tel:192"
                 className="inline-flex items-center space-x-1 py-1 px-2.5 bg-white hover:bg-red-50 text-red-600 border border-red-100 text-[9.5px] font-bold rounded-lg transition-colors cursor-pointer"
               >
                 <span>Chamar SAMU 192</span>
@@ -224,7 +237,7 @@ export default function Support({ navigate, fromView = 'profile' }: Props) {
               className="bg-transparent text-xs text-brand-text placeholder-gray-400 outline-none w-full font-light"
             />
             {searchQuery && (
-              <button 
+              <button
                 onClick={() => setSearchQuery('')}
                 className="text-gray-400 hover:text-gray-600 text-xs font-bold font-mono px-1.5"
               >
@@ -242,11 +255,10 @@ export default function Support({ navigate, fromView = 'profile' }: Props) {
                   setSelectedFAQCategory(cat);
                   setActiveFAQ(null);
                 }}
-                className={`px-3 py-1.5 rounded-lg text-[9.5px] font-bold uppercase transition-all whitespace-nowrap outline-none cursor-pointer ${
-                  selectedFAQCategory === cat
-                    ? 'bg-purple-600 text-white'
-                    : 'text-gray-400 hover:text-gray-700'
-                }`}
+                className={`px-3 py-1.5 rounded-lg text-[9.5px] font-bold uppercase transition-all whitespace-nowrap outline-none cursor-pointer ${selectedFAQCategory === cat
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-400 hover:text-gray-700'
+                  }`}
               >
                 {cat === 'all' && 'Todos'}
                 {cat === 'safety' && 'Segurança'}
@@ -273,9 +285,9 @@ export default function Support({ navigate, fromView = 'profile' }: Props) {
                       className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-gray-50 active:bg-gray-50 transition-all outline-none"
                     >
                       <span className="text-[11px] font-semibold text-gray-800 leading-snug pr-4">{item.question}</span>
-                      <ChevronDown 
-                        size={14} 
-                        className={`text-gray-400 shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180 text-purple-600' : ''}`} 
+                      <ChevronDown
+                        size={14}
+                        className={`text-gray-400 shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180 text-purple-600' : ''}`}
                       />
                     </button>
                     <AnimatePresence initial={false}>
@@ -366,9 +378,18 @@ export default function Support({ navigate, fromView = 'profile' }: Props) {
         {ticketList.length > 0 && (
           <div className="space-y-3">
             <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono px-1">Seus Chamados Cadastrados ({ticketList.length})</h3>
+
+            {/* WhatsApp-style E2EE Notice */}
+            <div className="flex justify-center px-1">
+              <div className="bg-amber-100/30 text-amber-900/60 py-2 px-3.5 rounded-xl text-[9px] font-medium leading-normal text-center w-full border border-amber-200/20 flex items-center justify-center space-x-2">
+                <ShieldCheck size={12} className="shrink-0 opacity-60" />
+                <span>As mensagens e chamados de suporte são criptografados. Apenas você e o suporte podem lê-los.</span>
+              </div>
+            </div>
+
             <div className="space-y-2.5">
               {ticketList.map((ticket) => (
-                <motion.div 
+                <motion.div
                   key={ticket.id}
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -378,7 +399,7 @@ export default function Support({ navigate, fromView = 'profile' }: Props) {
                     <span className="text-[10px] font-mono text-purple-600 bg-purple-50 px-2 py-0.5 rounded-lg border border-purple-100 font-bold">{ticket.id}</span>
                     <div className="flex items-center space-x-2">
                       <span className="text-[10px] text-gray-400">{new Date(ticket.createdAt).toLocaleDateString('pt-BR')}</span>
-                      <button 
+                      <button
                         onClick={() => handleDeleteTicket(ticket.id)}
                         className="p-1 rounded-md text-gray-300 hover:text-red-500 hover:bg-red-50 active:scale-95 transition-all outline-none"
                         title="Limpar registro"

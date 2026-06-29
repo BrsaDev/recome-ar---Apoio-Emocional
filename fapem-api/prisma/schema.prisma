@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum UserPlan {
+  FREE
+  VIP
+  PREMIUM
+}
+
+enum TicketStatus {
+  OPEN
+  RESOLVED
+}
+
+enum RoomType {
+  PUBLIC
+  VIP
+  PREMIUM
+}
+
+model User {
+  id            String    @id @default(cuid())
+  nickname      String
+  avatarId      String
+  email         String?   @unique
+  googleId      String?   @unique
+  plan          UserPlan  @default(FREE)
+  role          UserRole  @default(USER)
+  isBanned      Boolean   @default(false)
+  publicKey     String?   // Base64 encoded public key for E2EE
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relationships
+  myAngels      SupportAngel[] @relation("UserAngels")
+  beingAngelFor SupportAngel[] @relation("AngelToUser")
+  
+  topics        Topic[]
+  posts         Post[]
+  ownedRooms    Room[]
+  tickets       SupportTicket[]
+}
+
+model SupportTicket {
+  id            String       @id @default(cuid())
+  userId        String
+  subject       String
+  message       String
+  status        TicketStatus @default(OPEN)
+  adminResponse String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SupportAngel {
+  id        String   @id @default(cuid())
+  userId    String
+  angelId   String
+  createdAt DateTime @default(now())
+
+  user      User     @relation("UserAngels", fields: [userId], references: [id], onDelete: Cascade)
+  angel     User     @relation("AngelToUser", fields: [angelId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, angelId])
+}
+
+model Topic {
+  id                    String    @id @default(cuid())
+  title                 String
+  category              String
+  authorId              String
+  viewsCount            Int       @default(0)
+  repliesCount          Int       @default(0)
+  scheduledDeletionTime DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  author                User      @relation(fields: [authorId], references: [id])
+  posts                 Post[]
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  content   String
+  authorId  String
+  topicId   String
+  isDeleted Boolean  @default(false)
+  reactions Json?    // { like: 0, heart: 0, ... }
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author    User     @relation(fields: [authorId], references: [id])
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+}
+
+model Room {
+  id            String   @id @default(cuid())
+  name          String
+  description   String
+  type          RoomType @default(PUBLIC)
+  capacity      Int      @default(10)
+  ownerId       String?
+  onlineCount   Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  owner         User?    @relation(fields: [ownerId], references: [id])
+}

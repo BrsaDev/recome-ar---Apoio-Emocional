@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { getAvatarById } from '../data/avatars';
-import { hasOffensiveContent } from '../lib/moderation';
+import { analyzeContent } from '../lib/moderation';
+import { apiService } from '../services/api';
+import { Heart } from 'lucide-react';
 
 const REACTION_OPTIONS = [
   { type: 'like', emoji: '👍', label: 'Joinha' },
@@ -30,6 +32,7 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
   const [openPickerPostId, setOpenPickerPostId] = useState<string | null>(null);
   const [offensiveWarning, setOffensiveWarning] = useState<string | null>(null);
   const [selectedMember, setSelectedMember] = useState<{ id: string; name: string; avatarId: string } | null>(null);
+  const [isCrisisWarning, setIsCrisisWarning] = useState<boolean>(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const topic = topics.find(t => t.id === topicId) || topics[0];
@@ -41,14 +44,14 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
         const element = document.getElementById(`post-${postId}`);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          
+
           // Apply a gentle pulse background highlight to guide user attention
           element.classList.add('bg-brand-blue/5', 'ring-2', 'ring-brand-blue/15', 'scale-[1.01]', 'shadow-xs');
-          
+
           const removeTimer = setTimeout(() => {
             element.classList.remove('bg-brand-blue/5', 'ring-2', 'ring-brand-blue/15', 'scale-[1.01]', 'shadow-xs');
           }, 2500);
-          
+
           return () => clearTimeout(removeTimer);
         }
       }, 400); // 400ms provides enough space for page transition and rendering to complete smoothly
@@ -89,37 +92,64 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
 
   const handleSendReply = () => {
     if (!replyText.trim()) return;
-    
-    if (hasOffensiveContent(replyText)) {
-      setOffensiveWarning("Mensagem sinalizada pelo sistema de moderação.");
+
+    const modResult = analyzeContent(replyText);
+    if (modResult !== 'safe') {
+      setIsCrisisWarning(modResult === 'crisis');
+      if (modResult === 'crisis') {
+        setOffensiveWarning(
+          "Detectamos palavras sensíveis no seu comentário. Sua presença é fundamental aqui. O CVV está à disposição 24h para te apoiar."
+        );
+      } else {
+        setOffensiveWarning("Seu comentário foi sinalizado pelo sistema de moderação por conter termos ofensivos.");
+      }
       setReplyText('');
       return;
     }
-    
-    const newPost: ForumPost = {
-      id: Date.now().toString(),
-      authorName: user?.name || 'Viajante',
-      authorAvatarId: user?.avatarId || 'm1',
-      content: replyText.trim(),
-      timestamp: Date.now(),
-      likes: 0
-    };
 
-    const updatedTopics = topics.map(t => {
-      if (t.id === topic.id) {
-        return {
-          ...t,
-          repliesCount: t.repliesCount + 1,
-          lastUpdate: Date.now(),
-          posts: [...t.posts, newPost]
-        };
-      }
-      return t;
-    });
+    const USE_API = (import.meta as any).env?.VITE_USE_API === 'true';
 
-    onUpdateTopics(updatedTopics);
-    setReplyText('');
-    
+    if (USE_API) {
+      apiService.forum.reply(topic.id, {
+        id: '',
+        authorName: user?.nickname || user?.name || 'Viajante',
+        authorAvatarId: user?.avatarId || 'm1',
+        content: replyText.trim(),
+        timestamp: Date.now(),
+        likes: 0
+      }).then(() => {
+        // After reply, we might want to refresh the whole topic
+        // For now, we'll wait for App.tsx state sync
+        setReplyText('');
+      }).catch(err => {
+        console.error('[Forum API] Reply failed:', err);
+      });
+    } else {
+      const newPost: ForumPost = {
+        id: Date.now().toString(),
+        authorName: user?.nickname || user?.name || 'Viajante',
+        authorAvatarId: user?.avatarId || 'm1',
+        content: replyText.trim(),
+        timestamp: Date.now(),
+        likes: 0
+      };
+
+      const updatedTopics = topics.map(t => {
+        if (t.id === topic.id) {
+          return {
+            ...t,
+            repliesCount: t.repliesCount + 1,
+            lastUpdate: Date.now(),
+            posts: [...t.posts, newPost]
+          };
+        }
+        return t;
+      });
+
+      onUpdateTopics(updatedTopics);
+      setReplyText('');
+    }
+
     setTimeout(() => {
       if (scrollRef.current) {
         scrollRef.current.scrollTo({
@@ -131,6 +161,15 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
   };
 
   const handleReactToPost = (postId: string, reactionType: 'like' | 'heart' | 'smile' | 'sad' | 'support') => {
+    const USE_API = (import.meta as any).env?.VITE_USE_API === 'true';
+
+    if (USE_API) {
+      apiService.forum.react(topic.id, postId, reactionType).catch(err => {
+        console.error('[Forum API] React failed:', err);
+      });
+      // OPTIONAL: Optimistic update local state if needed
+    }
+
     const updatedTopics = topics.map(t => {
       if (t.id === topic.id) {
         return {
@@ -144,7 +183,7 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
                 sad: 0,
                 support: 0
               };
-              
+
               const updatedReactions = {
                 ...currentReactions,
                 [reactionType]: (currentReactions[reactionType] ?? 0) + 1
@@ -208,13 +247,13 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
       )}
 
       {/* Content */}
-      <div 
+      <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto px-6 py-6 space-y-8 no-scrollbar pb-24"
       >
         {topic.posts.map((post, index) => {
           const avatar = getAvatarById(post.authorAvatarId || '');
-          const isCurrentUser = post.authorName === user?.name || post.authorName === 'Você';
+          const isCurrentUser = post.authorName === (user?.nickname || user?.name) || post.authorName === 'Você';
           const postReactions = post.reactions || {
             like: post.likes || 0,
             heart: 0,
@@ -222,7 +261,7 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
             sad: 0,
             support: 0
           };
-          
+
           return (
             <motion.div
               key={post.id}
@@ -254,8 +293,8 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
                 >
                   <div className={cn(
                     "w-9 h-9 rounded-full flex items-center justify-center text-sm shadow-xs border transition-colors",
-                    isCurrentUser 
-                      ? "bg-brand-green/10 border-brand-green/20" 
+                    isCurrentUser
+                      ? "bg-brand-green/10 border-brand-green/20"
                       : "bg-brand-gray border-brand-blue/5 group-hover:border-purple-300"
                   )}>
                     {avatar?.emoji || post.authorName[0]}
@@ -390,8 +429,8 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
               disabled={!replyText.trim()}
               className={cn(
                 "w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all outline-none shrink-0",
-                replyText.trim() 
-                  ? "bg-brand-blue text-white shadow-brand-blue/20" 
+                replyText.trim()
+                  ? "bg-brand-blue text-white shadow-brand-blue/20"
                   : "bg-gray-100 text-gray-400"
               )}
             >
@@ -409,25 +448,57 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-brand-white rounded-[2.5rem] p-8 max-w-sm w-full border border-red-100 shadow-2xl flex flex-col items-center text-center space-y-5"
+              className={cn(
+                "bg-brand-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl flex flex-col items-center text-center space-y-5 border",
+                isCrisisWarning ? "border-purple-100" : "border-red-100"
+              )}
             >
-              <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center text-red-500 shadow-sm animate-bounce">
-                <ShieldAlert size={28} />
+              <div className={cn(
+                "w-14 h-14 rounded-full flex items-center justify-center shadow-sm animate-bounce",
+                isCrisisWarning ? "bg-purple-50 text-purple-500" : "bg-red-50 text-red-500"
+              )}>
+                {isCrisisWarning ? <Heart size={28} /> : <ShieldAlert size={28} />}
               </div>
               <div className="space-y-2">
-                <h4 className="font-display font-bold text-red-600 text-lg">Bloqueio Preventivo</h4>
+                <h4 className={cn(
+                  "font-display font-bold text-lg",
+                  isCrisisWarning ? "text-purple-600" : "text-red-600"
+                )}>
+                  {isCrisisWarning ? "Você não está sozinho" : "Bloqueio Preventivo"}
+                </h4>
                 <p className="text-xs text-brand-text/70 font-light leading-relaxed">
-                  Para manter a comunidade um ambiente acolhedor, seguro e livre de agressões, comentários contendo palavras ofensivas e de baixo calão foram desativados de forma preventiva.
+                  {offensiveWarning}
                 </p>
-                <div className="bg-red-50/50 p-3 rounded-xl border border-red-100/50 text-[10px] text-red-700 font-semibold uppercase tracking-wider">
-                  Seu comentário não foi enviado
-                </div>
+                {isCrisisWarning && (
+                  <div className="bg-purple-50 p-4 rounded-2xl border border-purple-100/50 flex flex-col items-center space-y-3">
+                    <p className="text-[11px] text-purple-800 font-semibold leading-tight">
+                      Ligue para o CVV 188 agora. É gratuito, seguro e eles estão lá por você.
+                    </p>
+                    <a
+                      href="tel:188"
+                      className="flex items-center space-x-2 bg-purple-600 px-6 py-2 rounded-xl text-white font-bold text-sm shadow-md active:scale-95 transition-all outline-none"
+                    >
+                      <span>📞 Ligar para 188</span>
+                    </a>
+                  </div>
+                )}
+                {!isCrisisWarning && (
+                  <div className="bg-red-50/50 p-3 rounded-xl border border-red-100/50 text-[10px] text-red-700 font-semibold uppercase tracking-wider">
+                    Seu comentário não foi enviado
+                  </div>
+                )}
               </div>
               <button
-                onClick={() => setOffensiveWarning(null)}
-                className="w-full py-3.5 bg-red-500 hover:bg-red-600 active:scale-95 text-white rounded-2xl text-sm font-bold shadow-lg shadow-red-200 transition-all outline-none"
+                onClick={() => {
+                  setOffensiveWarning(null);
+                  setIsCrisisWarning(false);
+                }}
+                className={cn(
+                  "w-full py-3.5 text-white rounded-2xl text-sm font-bold shadow-lg transition-all outline-none active:scale-95",
+                  isCrisisWarning ? "bg-purple-500 hover:bg-purple-600 shadow-purple-200" : "bg-red-500 hover:bg-red-600 shadow-red-200"
+                )}
               >
-                Compreendendo as Regras
+                {isCrisisWarning ? "Voltar ao Tópico" : "Compreendendo as Regras"}
               </button>
             </motion.div>
           </div>
@@ -445,7 +516,7 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
               onClick={() => setSelectedMember(null)}
               className="absolute inset-0"
             />
-            
+
             <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
@@ -454,7 +525,7 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
               className="relative bg-brand-white w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center space-y-5 z-10"
             >
               <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-2" />
-              
+
               <div className="text-center space-y-2 mt-2 w-full">
                 <div className="w-20 h-20 rounded-full bg-brand-gray/55 flex items-center justify-center text-5xl mx-auto border-2 border-brand-blue/5 shadow-inner animate-pulse">
                   {getAvatarById(selectedMember.avatarId)?.emoji || '👤'}
@@ -471,7 +542,7 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
                     if (!user || !onUpdateUser) return;
                     const currentAngels = user.supportAngels || [];
                     const exists = currentAngels.some(a => a.name === selectedMember.name);
-                    
+
                     let updatedAngels;
                     if (exists) {
                       updatedAngels = currentAngels.filter(a => a.name !== selectedMember.name);
@@ -485,7 +556,7 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
                         }
                       ];
                     }
-                    
+
                     onUpdateUser({
                       ...user,
                       supportAngels: updatedAngels

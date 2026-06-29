@@ -26,7 +26,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
   // Accordion UI states
   const [isForumActivityOpen, setIsForumActivityOpen] = useState(false);
   const [isRoomsActivityOpen, setIsRoomsActivityOpen] = useState(false);
-  
+
   // Forum Tab
   const [forumActiveTab, setForumActiveTab] = useState<'topics' | 'comments'>('topics');
 
@@ -36,7 +36,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        return parsed.filter((r: any) => r.invitedBy === user?.name || (r.isPremiumRoom && r.invitedBy === user?.name));
+        return parsed.filter((r: any) => r.invitedBy === (user?.nickname || user?.name) || (r.isPremiumRoom && r.invitedBy === (user?.nickname || user?.name)));
       } catch (e) {
         console.error(e);
       }
@@ -47,9 +47,9 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
   // Modal / Editing states
   const [editingPost, setEditingPost] = useState<{ topicId: string; post: ForumPost; title: string } | null>(null);
   const [editPostContent, setEditPostContent] = useState('');
-  
+
   const [topicToDelete, setTopicToDelete] = useState<ForumTopic | null>(null);
-  
+
   const [editingRoom, setEditingRoom] = useState<Room | null>(null);
   const [editRoomName, setEditRoomName] = useState('');
   const [editRoomDesc, setEditRoomDesc] = useState('');
@@ -61,13 +61,13 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
   const [visibleRoomsCount, setVisibleRoomsCount] = useState(3);
 
   // Derive my topics
-  const myTopics = topics.filter(t => t.authorName === user?.name || t.authorName === 'Você');
+  const myTopics = topics.filter(t => t.authorName === (user?.nickname || user?.name) || t.authorName === 'Você');
 
   // Derive my comment replies
   const myComments: { topic: ForumTopic; post: ForumPost }[] = [];
   topics.forEach(t => {
     t.posts.forEach((p, idx) => {
-      if (idx > 0 && (p.authorName === user?.name || p.authorName === 'Você')) {
+      if (idx > 0 && (p.authorName === (user?.nickname || user?.name) || p.authorName === 'Você')) {
         myComments.push({ topic: t, post: p });
       }
     });
@@ -182,7 +182,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
     });
 
     localStorage.setItem('recomecar_custom_rooms', JSON.stringify(updatedRooms));
-    setCustomRooms(updatedRooms.filter(r => r.invitedBy === user?.name || (r.isPremiumRoom && r.invitedBy === user?.name)));
+    setCustomRooms(updatedRooms.filter(r => r.invitedBy === (user?.nickname || user?.name) || (r.isPremiumRoom && r.invitedBy === (user?.nickname || user?.name))));
     setEditingRoom(null);
   };
 
@@ -199,7 +199,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
 
     const updatedRooms = allRooms.filter(r => r.id !== roomId);
     localStorage.setItem('recomecar_custom_rooms', JSON.stringify(updatedRooms));
-    setCustomRooms(updatedRooms.filter(r => r.invitedBy === user?.name || (r.isPremiumRoom && r.invitedBy === user?.name)));
+    setCustomRooms(updatedRooms.filter(r => r.invitedBy === (user?.nickname || user?.name) || (r.isPremiumRoom && r.invitedBy === (user?.nickname || user?.name))));
   };
 
   const handleSelectAvatar = (selectedAvatar: any) => {
@@ -233,20 +233,20 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
     <div className="h-full w-full flex flex-col bg-brand-gray overflow-y-auto no-scrollbar">
       <div className="bg-brand-white px-6 pt-16 pb-10 rounded-b-[3rem] shadow-sm">
         <div className="flex flex-col items-center space-y-4">
-          <button 
+          <button
             onClick={() => setIsAvatarModalOpen(true)}
             className="w-24 h-24 rounded-full bg-brand-blue/10 flex items-center justify-center border-4 border-white shadow-xl overflow-hidden relative group active:scale-95 transition-all outline-none"
             title="Escolher avatar"
           >
-             <span className="text-4xl">{avatar?.emoji || '👋'}</span>
-             <div className="absolute inset-0 bg-brand-blue/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-               <Edit3 size={18} className="text-white" />
-             </div>
+            <span className="text-4xl">{avatar?.emoji || '👋'}</span>
+            <div className="absolute inset-0 bg-brand-blue/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <Edit3 size={18} className="text-white" />
+            </div>
           </button>
           <div className="text-center">
-            <h2 className="text-2xl font-display font-semibold text-brand-text">{user?.name || 'Viajante'}</h2>
+            <h2 className="text-2xl font-display font-semibold text-brand-text">{user?.nickname || user?.name || 'Viajante'}</h2>
             <p className="text-gray-400 text-sm italic">Cuidando de si mesmo um dia de cada vez.</p>
-            <button 
+            <button
               onClick={() => setIsAvatarModalOpen(true)}
               className="mt-2 text-xs text-brand-blue font-bold tracking-tight hover:underline focus:outline-none"
             >
@@ -280,7 +280,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                   className="bg-transparent text-xs text-brand-text placeholder-gray-400 outline-none w-full font-medium"
                 />
                 {searchQuery && (
-                  <button 
+                  <button
                     onClick={() => setSearchQuery('')}
                     className="p-1 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600 active:scale-95 transition-all ml-1 outline-none"
                   >
@@ -302,7 +302,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
             ) : filteredAngels.length === 0 ? (
               <div className="text-center py-4 space-y-2">
                 <p className="text-xs text-brand-text/60 font-medium">Nenhum anjo com "{searchQuery}" foi encontrado.</p>
-                <button 
+                <button
                   onClick={() => setSearchQuery('')}
                   className="text-[10px] text-purple-600 font-bold underline hover:text-purple-700 active:scale-95 transition-all outline-none"
                 >
@@ -314,7 +314,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                 {filteredAngels.map((angel) => {
                   const angelAvatar = getAvatarById(angel.avatarId);
                   return (
-                    <motion.div 
+                    <motion.div
                       key={angel.id}
                       initial={{ scale: 0.9, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
@@ -325,7 +325,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                         <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-white animate-pulse" />
                       </div>
                       <span className="text-[10px] font-bold text-brand-text truncate w-14 mt-2 font-display leading-tight">{angel.name}</span>
-                      
+
                       <button
                         onClick={() => handleRemoveAngel(angel.id)}
                         className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-100 hover:bg-red-500 text-red-600 hover:text-white rounded-full flex items-center justify-center shadow-xs active:scale-90 transition-all outline-none"
@@ -343,7 +343,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
 
         {/* Minha Atividade no Fórum */}
         <div className="space-y-3" id="forum-activity-panel">
-          <button 
+          <button
             onClick={() => setIsForumActivityOpen(!isForumActivityOpen)}
             className="w-full flex items-center justify-between px-2 text-left outline-none group cursor-pointer"
           >
@@ -355,7 +355,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
           </button>
 
           {isForumActivityOpen && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               className="bg-brand-white rounded-3xl p-5 shadow-sm border border-brand-blue/5 space-y-4"
@@ -365,22 +365,20 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                 <button
                   type="button"
                   onClick={() => setForumActiveTab('topics')}
-                  className={`flex-1 py-2 text-center text-xs font-bold rounded-xl transition-all cursor-pointer ${
-                    forumActiveTab === 'topics' 
-                      ? 'bg-brand-white text-brand-text shadow-sm' 
+                  className={`flex-1 py-2 text-center text-xs font-bold rounded-xl transition-all cursor-pointer ${forumActiveTab === 'topics'
+                      ? 'bg-brand-white text-brand-text shadow-sm'
                       : 'text-gray-400 hover:text-gray-600'
-                  }`}
+                    }`}
                 >
                   Meus Tópicos ({myTopics.length})
                 </button>
                 <button
                   type="button"
                   onClick={() => setForumActiveTab('comments')}
-                  className={`flex-1 py-2 text-center text-xs font-bold rounded-xl transition-all cursor-pointer ${
-                    forumActiveTab === 'comments' 
-                      ? 'bg-brand-white text-brand-text shadow-sm' 
+                  className={`flex-1 py-2 text-center text-xs font-bold rounded-xl transition-all cursor-pointer ${forumActiveTab === 'comments'
+                      ? 'bg-brand-white text-brand-text shadow-sm'
                       : 'text-gray-400 hover:text-gray-600'
-                  }`}
+                    }`}
                 >
                   Meus Comentários ({myComments.length})
                 </button>
@@ -397,11 +395,11 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                         const firstPost = topic.posts[0];
                         const canEditTopic = firstPost && isEditable(firstPost.timestamp);
                         const isDeletedScheduled = !!topic.scheduledDeletionTime;
-                        
+
                         return (
                           <div key={topic.id} className="p-3 bg-brand-gray/40 hover:bg-brand-gray/70 rounded-2xl border border-brand-blue/5 space-y-2 transition-all">
                             <div className="flex justify-between items-start gap-2">
-                              <button 
+                              <button
                                 type="button"
                                 onClick={() => navigate('topic-detail', { topicId: topic.id })}
                                 className="text-xs font-bold text-brand-text hover:text-brand-blue text-left leading-snug flex-1 transition-colors cursor-pointer"
@@ -445,11 +443,10 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                                 <button
                                   type="button"
                                   onClick={() => setTopicToDelete(topic)}
-                                  className={`text-[10px] font-bold py-1 px-2 rounded-lg flex items-center gap-1 active:scale-95 transition-all outline-none cursor-pointer ${
-                                    isDeletedScheduled 
+                                  className={`text-[10px] font-bold py-1 px-2 rounded-lg flex items-center gap-1 active:scale-95 transition-all outline-none cursor-pointer ${isDeletedScheduled
                                       ? 'text-amber-600 bg-amber-50 border border-amber-100 hover:bg-amber-105'
                                       : 'text-red-500 bg-red-50 hover:bg-red-100 border border-red-100/40'
-                                  }`}
+                                    }`}
                                 >
                                   <Trash2 size={10} /> {isDeletedScheduled ? 'Cancelar Excl.' : 'Excluir'}
                                 </button>
@@ -503,7 +500,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                                 <Calendar size={10} />
                                 {new Date(post.timestamp).toLocaleDateString('pt-BR')}
                               </span>
-                              
+
                               {!post.isDeleted && (
                                 <div className="flex items-center space-x-1.5">
                                   {canEditComment ? (
@@ -556,9 +553,9 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
         </div>
 
         {/* Minhas Salas Personalizadas (Apenas Premium) */}
-        {user?.plan === 'premium' && (
+        {user?.plan === 'PREMIUM' && (
           <div className="space-y-3" id="premium-rooms-panel">
-            <button 
+            <button
               onClick={() => setIsRoomsActivityOpen(!isRoomsActivityOpen)}
               className="w-full flex items-center justify-between px-2 text-left outline-none group cursor-pointer"
             >
@@ -570,7 +567,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
             </button>
 
             {isRoomsActivityOpen && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 className="bg-brand-white rounded-3xl p-5 shadow-sm border border-brand-blue/5 space-y-4"
@@ -578,7 +575,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                 {customRooms.length === 0 ? (
                   <div className="text-center py-5 space-y-2">
                     <p className="text-xs text-brand-text/60 font-light">Você ainda não criou nenhuma sala personalizada de apoio.</p>
-                    <button 
+                    <button
                       type="button"
                       onClick={() => navigate('rooms')}
                       className="text-[10.5px] bg-[#2E9CCA] text-white font-bold px-3 py-1.5 rounded-full active:scale-95 transition-transform cursor-pointer"
@@ -594,11 +591,10 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                           <span className="text-xs font-bold text-brand-text truncate leading-snug">
                             🛡️ {room.name}
                           </span>
-                          <span className={`text-[8.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-                            room.type === 'vip' 
-                              ? 'bg-amber-50 text-amber-700 border-amber-100' 
+                          <span className={`text-[8.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${room.type === 'vip'
+                              ? 'bg-amber-50 text-amber-700 border-amber-100'
                               : 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                          }`}>
+                            }`}>
                             {room.type === 'vip' ? '🔒 Privada (Apenas com Convite)' : '🌐 Pública'}
                           </span>
                         </div>
@@ -661,42 +657,42 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
         <div className="space-y-3">
           <h3 className="text-xs font-medium uppercase tracking-widest text-gray-400 px-2">Bem-estar</h3>
           <div className="bg-brand-white rounded-3xl overflow-hidden shadow-sm border border-brand-blue/5">
-             <button onClick={() => navigate('vip')} className="w-full px-6 py-5 flex items-center justify-between border-b border-gray-50 active:bg-gray-50 transition-all">
-                <div className="flex items-center space-x-4">
-                   <div className="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center text-yellow-500">
-                      <Award size={22} />
-                   </div>
-                   <span className="font-medium text-brand-text">Meu Plano</span>
+            <button onClick={() => navigate('vip')} className="w-full px-6 py-5 flex items-center justify-between border-b border-gray-50 active:bg-gray-50 transition-all">
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center text-yellow-500">
+                  <Award size={22} />
                 </div>
-                <ArrowRight size={18} className="text-gray-300" />
-             </button>
-             <button className="w-full px-6 py-5 flex items-center justify-between border-b border-gray-50 active:bg-gray-50 transition-all">
-                <div className="flex items-center space-x-4">
-                   <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500">
-                      <LayoutGrid size={22} />
-                   </div>
-                   <span className="font-medium text-brand-text">Histórico Emocional</span>
+                <span className="font-medium text-brand-text">Meu Plano</span>
+              </div>
+              <ArrowRight size={18} className="text-gray-300" />
+            </button>
+            <button className="w-full px-6 py-5 flex items-center justify-between border-b border-gray-50 active:bg-gray-50 transition-all">
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500">
+                  <LayoutGrid size={22} />
                 </div>
-                <ArrowRight size={18} className="text-gray-300" />
-             </button>
-             <button className="w-full px-6 py-5 flex items-center justify-between border-b border-gray-50 active:bg-gray-50 transition-all">
-                <div className="flex items-center space-x-4">
-                   <div className="w-10 h-10 rounded-xl bg-brand-green/10 flex items-center justify-center text-brand-green">
-                      <Shield size={22} />
-                   </div>
-                   <span className="font-medium text-brand-text">Configurações de Privacidade</span>
+                <span className="font-medium text-brand-text">Histórico Emocional</span>
+              </div>
+              <ArrowRight size={18} className="text-gray-300" />
+            </button>
+            <button className="w-full px-6 py-5 flex items-center justify-between border-b border-gray-50 active:bg-gray-50 transition-all">
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 rounded-xl bg-brand-green/10 flex items-center justify-center text-brand-green">
+                  <Shield size={22} />
                 </div>
-                <ArrowRight size={18} className="text-gray-300" />
-             </button>
-             <button onClick={() => navigate('support')} className="w-full px-6 py-5 flex items-center justify-between active:bg-gray-50 transition-all" id="btn-profile-support">
-                <div className="flex items-center space-x-4">
-                   <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
-                      <LifeBuoy size={22} />
-                   </div>
-                   <span className="font-medium text-brand-text">Suporte & Central de Ajuda</span>
+                <span className="font-medium text-brand-text">Configurações de Privacidade</span>
+              </div>
+              <ArrowRight size={18} className="text-gray-300" />
+            </button>
+            <button onClick={() => navigate('support')} className="w-full px-6 py-5 flex items-center justify-between active:bg-gray-50 transition-all" id="btn-profile-support">
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
+                  <LifeBuoy size={22} />
                 </div>
-                <ArrowRight size={18} className="text-gray-300" />
-             </button>
+                <span className="font-medium text-brand-text">Suporte & Central de Ajuda</span>
+              </div>
+              <ArrowRight size={18} className="text-gray-300" />
+            </button>
           </div>
         </div>
 
@@ -720,7 +716,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
               <div className="bg-brand-gray/50 rounded-2xl p-3.5 space-y-2 border border-brand-blue/5 text-[11px]">
                 <div className="flex justify-between text-gray-500">
                   <span>Signatário:</span>
-                  <strong className="text-brand-text font-bold">{user.name}</strong>
+                  <strong className="text-brand-text font-bold">{user.nickname || user.name}</strong>
                 </div>
                 <div className="flex justify-between text-gray-500">
                   <span>Data de Aceito:</span>
@@ -785,7 +781,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
           </div>
         </div>
 
-        <button 
+        <button
           onClick={onLogout}
           className="w-full h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center space-x-3 font-medium active:bg-red-100 transition-all"
           id="btn-logout"
@@ -810,7 +806,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
       <AnimatePresence>
         {editingPost && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-6 z-50 animate-in fade-in duration-200">
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -823,7 +819,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                     {editingPost.title}
                   </h4>
                 </div>
-                <button 
+                <button
                   type="button"
                   onClick={() => setEditingPost(null)}
                   className="p-1 text-gray-400 hover:bg-gray-100 rounded-full outline-none transition-transform active:scale-95 shrink-0"
@@ -866,7 +862,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
       <AnimatePresence>
         {topicToDelete && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-6 z-50 animate-in fade-in duration-200">
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -885,7 +881,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
               </div>
 
               <div className="space-y-2">
-                <button 
+                <button
                   type="button"
                   onClick={() => handleScheduleTopicDeletion(topicToDelete.id)}
                   className="w-full text-left p-3.5 bg-amber-50/50 hover:bg-amber-50 cursor-pointer border border-amber-200 rounded-2xl transition-all flex items-start gap-2.5 outline-none font-sans"
@@ -899,7 +895,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                   </div>
                 </button>
 
-                <button 
+                <button
                   type="button"
                   onClick={() => handleImmediateTopicDeletion(topicToDelete.id)}
                   className="w-full text-left p-3.5 bg-red-50/40 hover:bg-red-50 cursor-pointer border border-red-200 rounded-2xl transition-all flex items-start gap-2.5 outline-none font-sans"
@@ -930,7 +926,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
       <AnimatePresence>
         {editingRoom && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-6 z-50 animate-in fade-in duration-200">
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -943,7 +939,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                     Modificar Configurações
                   </h4>
                 </div>
-                <button 
+                <button
                   type="button"
                   onClick={() => setEditingRoom(null)}
                   className="p-1 text-gray-400 hover:bg-gray-100 rounded-full outline-none transition-transform active:scale-90"
@@ -980,22 +976,20 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                     <button
                       type="button"
                       onClick={() => setEditRoomType('public')}
-                      className={`flex-1 py-1.5 text-center text-[10px] font-bold rounded-lg transition-all cursor-pointer ${
-                        editRoomType === 'public' 
-                          ? 'bg-brand-white text-emerald-750 shadow-xs' 
+                      className={`flex-1 py-1.5 text-center text-[10px] font-bold rounded-lg transition-all cursor-pointer ${editRoomType === 'public'
+                          ? 'bg-brand-white text-emerald-750 shadow-xs'
                           : 'text-gray-400'
-                      }`}
+                        }`}
                     >
                       🌐 Pública
                     </button>
                     <button
                       type="button"
                       onClick={() => setEditRoomType('vip')}
-                      className={`flex-1 py-1.5 text-center text-[10px] font-bold rounded-lg transition-all cursor-pointer ${
-                        editRoomType === 'vip' 
-                          ? 'bg-brand-white text-amber-700 shadow-xs' 
+                      className={`flex-1 py-1.5 text-center text-[10px] font-bold rounded-lg transition-all cursor-pointer ${editRoomType === 'vip'
+                          ? 'bg-brand-white text-amber-700 shadow-xs'
                           : 'text-gray-400'
-                      }`}
+                        }`}
                     >
                       🔒 Privada
                     </button>

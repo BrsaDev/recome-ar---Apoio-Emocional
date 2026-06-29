@@ -33,7 +33,7 @@ export default function App() {
   const [privacyPolicyFrom, setPrivacyPolicyFrom] = useState<View>('welcome');
   const [supportFrom, setSupportFrom] = useState<View>('profile');
   const [user, setUser] = useState<User | null>(null);
-  
+
   // Track mock user signups for the welcome limit gift
   const [userCount, setUserCount] = useState<number>(() => {
     const saved = localStorage.getItem('recomecar_user_count');
@@ -64,27 +64,63 @@ export default function App() {
     return INITIAL_FORUM_TOPICS;
   });
 
+  const [isLegalTermsAccepted, setIsLegalTermsAccepted] = useState<boolean>(() => {
+    return localStorage.getItem('fapem_legal_accepted_v1.1.0') === 'true';
+  });
+
   const handleUpdateForumTopics = (updated: ForumTopic[]) => {
     setForumTopics(updated);
-    localStorage.setItem('recomecar_forum_topics', JSON.stringify(updated));
+    if (!(import.meta as any).env?.VITE_USE_API) {
+      localStorage.setItem('recomecar_forum_topics', JSON.stringify(updated));
+    }
   };
 
-  // Load user from localStorage on mount
+  // Sync forum topics from API
   useEffect(() => {
-    const savedUser = localStorage.getItem('recomecar_user');
-    if (savedUser) {
-      try {
-        const parsed = JSON.parse(savedUser);
-        setUser(parsed);
-        const initialView = 'home';
-        setView(initialView);
-        window.history.replaceState({ view: initialView }, '', '');
-      } catch (e) {
-        console.error('Failed to parse user', e);
+    if ((import.meta as any).env?.VITE_USE_API === 'true' && user) {
+      apiService.forum.fetchTopics()
+        .then(setForumTopics)
+        .catch(err => console.warn('[API Forum] Fetch failed:', err));
+    }
+  }, [view, user]); // Refetch on navigation or user login
+
+  // Load user from API or localStorage on mount
+  useEffect(() => {
+    const token = localStorage.getItem('fapem_token');
+
+    if (token) {
+      // Validate token with backend
+      apiService.auth.getMe()
+        .then((userData) => {
+          setUser(userData);
+          const initialView = 'home';
+          setView(initialView);
+          window.history.replaceState({ view: initialView }, '', '');
+        })
+        .catch((err) => {
+          console.warn('[API Auth] Session invalid or expired:', err);
+          localStorage.removeItem('fapem_token');
+          setUser(null);
+          setView('welcome');
+          window.history.replaceState({ view: 'welcome' }, '', '');
+        });
+    } else {
+      // Fallback for sandbox or first visit
+      const savedUser = localStorage.getItem('recomecar_user');
+      if (savedUser) {
+        try {
+          const parsed = JSON.parse(savedUser);
+          setUser(parsed);
+          setView('home');
+          window.history.replaceState({ view: 'home' }, '', '');
+        } catch (e) {
+          setView('welcome');
+          window.history.replaceState({ view: 'welcome' }, '', '');
+        }
+      } else {
+        setView('welcome');
         window.history.replaceState({ view: 'welcome' }, '', '');
       }
-    } else {
-      window.history.replaceState({ view: 'welcome' }, '', '');
     }
   }, []);
 
@@ -120,7 +156,7 @@ export default function App() {
   };
 
   const handleStartOnboarding = () => navigate('login', { isSignUp: true });
-  
+
   const handleCompleteOnboarding = (userData: User) => {
     const updated = {
       ...user,
@@ -142,7 +178,7 @@ export default function App() {
             onComplete={(userData, isNew) => {
               setUser(userData);
               localStorage.setItem('recomecar_user', JSON.stringify(userData));
-              
+
               if (isNew) {
                 navigate('onboarding');
               } else {
@@ -153,18 +189,18 @@ export default function App() {
           />
         );
       case 'onboarding':
-        return <Onboarding onComplete={handleCompleteOnboarding} initialName={user?.name || ''} />;
+        return <Onboarding onComplete={handleCompleteOnboarding} initialName={user?.nickname || user?.name || ''} />;
       case 'home':
         return <Home user={user} navigate={navigate} />;
       case 'rooms':
         return <Rooms user={user} navigate={navigate} />;
       case 'live-room':
         return (
-          <LiveRoom 
-            user={user} 
-            navigate={navigate} 
-            roomName={activeRoom?.name || 'Sala'} 
-            gender={activeRoom?.gender || 'mixed'} 
+          <LiveRoom
+            user={user}
+            navigate={navigate}
+            roomName={activeRoom?.name || 'Sala'}
+            gender={activeRoom?.gender || 'mixed'}
             onUpdateUser={(updated) => {
               setUser(updated);
               localStorage.setItem('recomecar_user', JSON.stringify(updated));
@@ -173,22 +209,22 @@ export default function App() {
         );
       case 'forum':
         return (
-          <Forum 
-            user={user} 
-            navigate={navigate} 
-            topics={forumTopics} 
-            onUpdateTopics={handleUpdateForumTopics} 
+          <Forum
+            user={user}
+            navigate={navigate}
+            topics={forumTopics}
+            onUpdateTopics={handleUpdateForumTopics}
           />
         );
       case 'topic-detail':
         return (
-          <TopicDetail 
-            user={user} 
-            navigate={navigate} 
-            topicId={selectedTopicId || ''} 
+          <TopicDetail
+            user={user}
+            navigate={navigate}
+            topicId={selectedTopicId || ''}
             postId={selectedPostId}
-            topics={forumTopics} 
-            onUpdateTopics={handleUpdateForumTopics} 
+            topics={forumTopics}
+            onUpdateTopics={handleUpdateForumTopics}
             onUpdateUser={(updated) => {
               setUser(updated);
               localStorage.setItem('recomecar_user', JSON.stringify(updated));
@@ -199,16 +235,17 @@ export default function App() {
         return <Emergency onClose={() => navigate('home')} />;
       case 'profile':
         return (
-          <Profile 
-            user={user} 
-            navigate={navigate} 
+          <Profile
+            user={user}
+            navigate={navigate}
             topics={forumTopics}
             onUpdateTopics={handleUpdateForumTopics}
             onLogout={() => {
               localStorage.removeItem('recomecar_user');
+              localStorage.removeItem('fapem_token');
               setUser(null);
               navigate('welcome');
-            }} 
+            }}
             onUpdateUser={(updated) => {
               setUser(updated);
               localStorage.setItem('recomecar_user', JSON.stringify(updated));
@@ -217,9 +254,9 @@ export default function App() {
         );
       case 'vip':
         return (
-          <VIP 
-            user={user} 
-            navigate={navigate} 
+          <VIP
+            user={user}
+            navigate={navigate}
             onUpdateUser={(updated) => {
               setUser(updated);
               localStorage.setItem('recomecar_user', JSON.stringify(updated));
@@ -234,10 +271,10 @@ export default function App() {
         return <Support navigate={navigate} fromView={supportFrom} />;
       case 'admin':
         return (
-          <Admin 
-            navigate={navigate} 
-            forumTopics={forumTopics} 
-            onUpdateForumTopics={handleUpdateForumTopics} 
+          <Admin
+            navigate={navigate}
+            forumTopics={forumTopics}
+            onUpdateForumTopics={handleUpdateForumTopics}
           />
         );
       default:
@@ -268,29 +305,37 @@ export default function App() {
         <Navigation currentView={view} navigate={navigate} />
       )}
 
-      {user && !user.termsAccepted && (
+      {/* Mandatory Legal Gatekeeper */}
+      {!isLegalTermsAccepted && (
         <TermsModal
-          user={user}
           onAccept={(acceptedAt, version) => {
-            const updated = {
-              ...user,
-              termsAccepted: true,
-              termsAcceptedAt: acceptedAt,
-              termsVersion: version
-            };
-            setUser(updated);
-            localStorage.setItem('recomecar_user', JSON.stringify(updated));
-            
-            // Background api synchronizations
-            apiService.profile.acceptTerms(user.name, acceptedAt, version).catch(err => {
-              console.warn('[API Sync] Terms registration failed (Expected in sandbox mode):', err);
-            });
-            apiService.profile.sync(updated).catch(err => {
-              console.warn('[API Sync] Profile sync failed (Expected in sandbox mode):', err);
-            });
+            setIsLegalTermsAccepted(true);
+            localStorage.setItem('fapem_legal_accepted_v1.1.0', 'true');
+
+            // If user is already logged in, sync with server too
+            if (user) {
+              const updated = {
+                ...user,
+                termsAccepted: true,
+                termsAcceptedAt: acceptedAt,
+                termsVersion: version
+              };
+              setUser(updated);
+              localStorage.setItem('recomecar_user', JSON.stringify(updated));
+
+              apiService.profile.acceptTerms(user.nickname || user.name, acceptedAt, version).catch(err => {
+                console.warn('[API Sync] Legal terms sync failed:', err);
+              });
+            }
           }}
         />
       )}
+
+      {/* Legacy Terms Check (removed but logic kept for reference or just use the gate) */}
+      {/* 
+        The top gate handles both guests and users. 
+        Old specific modal check removed in favor of the global gate for v1.1.0.
+      */}
 
       {user && showPromoModal && !['welcome', 'onboarding'].includes(view) && (
         <WelcomePromoModal

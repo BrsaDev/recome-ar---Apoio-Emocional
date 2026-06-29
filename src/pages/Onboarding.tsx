@@ -28,7 +28,7 @@ export default function Onboarding({ onComplete, initialName = '' }: Props) {
     } else if (step === 2 && mood) {
       // Escolher avatar aleatório por padrão
       const randomAvatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
-      onComplete({ name, initialMood: mood, avatarId: randomAvatar.id, plan: 'free' });
+      onComplete({ nickname: name, initialMood: mood, avatarId: randomAvatar.id, plan: 'FREE' });
     }
   };
 
@@ -47,7 +47,7 @@ export default function Onboarding({ onComplete, initialName = '' }: Props) {
               <h2 className="text-3xl font-display font-semibold text-brand-text">Como podemos te chamar?</h2>
               <p className="text-gray-500 font-light">Pode ser seu nome ou um apelido que você goste.</p>
             </div>
-            
+
             <input
               type="text"
               value={name}
@@ -77,8 +77,8 @@ export default function Onboarding({ onComplete, initialName = '' }: Props) {
                   onClick={() => setMood(m.id)}
                   className={cn(
                     "flex flex-col items-center justify-center p-6 rounded-3xl transition-all duration-300 border-2",
-                    mood === m.id 
-                      ? "bg-brand-green/10 border-brand-green text-brand-green" 
+                    mood === m.id
+                      ? "bg-brand-green/10 border-brand-green text-brand-green"
                       : "bg-brand-gray border-transparent text-gray-500"
                   )}
                   id={`btn-mood-${m.id}`}

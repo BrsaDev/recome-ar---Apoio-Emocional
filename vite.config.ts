@@ -18,7 +18,10 @@ export default defineConfig(({mode}) => {
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
+      port: 3000,
+      host: '0.0.0.0',
       hmr: process.env.DISABLE_HMR !== 'true',
+      allowedHosts: ['7dd9-2804-d41-af0e-1c00-103a-495c-8ee7-c646.ngrok-free.app']
     },
   };
 });

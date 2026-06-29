@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Mail, Lock, Check, Sparkles, AlertCircle } from 'lucide-react';
 import logoImg from '../assets/images/fapem_logo_1780580927891.png';
 import { User, Mood } from '../types';
+import { apiService } from '../services/api';
+import { generateKeyPair, exportPublicKey, storePrivateKey, getPrivateKey } from '../services/crypto';
 
 interface Props {
   initialIsSignUp?: boolean;
@@ -15,12 +17,12 @@ export default function Login({ initialIsSignUp = false, onComplete, onBack }: P
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+
   // Custom states for realistic UX
   const [loading, setLoading] = useState(false);
   const [loadingText, setLoadingText] = useState('');
   const [error, setError] = useState<string | null>(null);
-  
+
   // Simulated Google Auth Popup state
   const [showGoogleAuth, setShowGoogleAuth] = useState(false);
 
@@ -40,7 +42,7 @@ export default function Login({ initialIsSignUp = false, onComplete, onBack }: P
         return;
       }
     }
-    
+
     if (password.length < 6) {
       setError('A senha deve conter no mínimo 6 caracteres por segurança.');
       return;
@@ -49,23 +51,39 @@ export default function Login({ initialIsSignUp = false, onComplete, onBack }: P
     setLoading(true);
     setLoadingText(isSignUp ? 'Criando sua conta segura...' : 'Verificando credenciais...');
 
-    // Simulate standard server latency for organic feel
-    setTimeout(() => {
-      const derivedName = isSignUp ? name.trim() : email.split('@')[0];
-      const capitalizedName = derivedName.charAt(0).toUpperCase() + derivedName.slice(1);
-      
-      onComplete({
-        name: capitalizedName,
-        email: email.trim().toLowerCase(),
-        avatarId: 'avatar-1',
-        plan: 'free',
-        authProvider: 'email',
-        termsAccepted: true,
-        termsAcceptedAt: new Date().toISOString(),
-        termsVersion: 'v1.0'
-      }, isSignUp);
-      setLoading(false);
-    }, 1500);
+    apiService.auth.access(name || email.split('@')[0], 'avatar-1', email)
+      .then(async ({ user: userData, token }) => {
+        localStorage.setItem('fapem_token', token);
+
+        // E2EE Key Management
+        try {
+          let privateKey = await getPrivateKey();
+          if (!privateKey) {
+            const keys = await generateKeyPair();
+            await storePrivateKey(keys.privateKey);
+            const pubKeyStr = await exportPublicKey(keys.publicKey);
+            await apiService.auth.updatePublicKey(pubKeyStr);
+          } else if (!userData.publicKey) {
+            // Re-sync public key if missing on server but exists locally
+            // In a real app we'd need the actual public key from the pair
+            // Since we can't easily get it back from privateKey in all browsers without extra steps,
+            // we'd normally store both. For this implementation, we'll assume new keys if sync is needed.
+            const keys = await generateKeyPair();
+            await storePrivateKey(keys.privateKey);
+            const pubKeyStr = await exportPublicKey(keys.publicKey);
+            await apiService.auth.updatePublicKey(pubKeyStr);
+          }
+        } catch (cryptoErr) {
+          console.error('Erro ao configurar chaves de segurança:', cryptoErr);
+        }
+
+        onComplete(userData, isSignUp);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message || 'Erro ao autenticar. Verifique sua conexão.');
+        setLoading(false);
+      });
   };
 
   // Google Login click opens dialog selection
@@ -79,25 +97,39 @@ export default function Login({ initialIsSignUp = false, onComplete, onBack }: P
     setShowGoogleAuth(false);
     setLoading(true);
     setLoadingText(isSignUp ? 'Criando conta via Google de forma segura...' : 'Autenticando via Google de forma segura...');
-    
-    setTimeout(() => {
-      onComplete({
-        name: selectedName,
-        email: selectedEmail,
-        avatarId: 'avatar-4',
-        plan: 'free',
-        authProvider: 'google',
-        termsAccepted: true,
-        termsAcceptedAt: new Date().toISOString(),
-        termsVersion: 'v1.0'
-      }, isSignUp);
-      setLoading(false);
-    }, 1600);
+
+    // In production, currentIdToken should come from a real Google SDK
+    const mockIdToken = "google_token_" + Date.now();
+
+    apiService.auth.googleLogin(mockIdToken, 'avatar-4')
+      .then(async ({ user: userData, token }) => {
+        localStorage.setItem('fapem_token', token);
+
+        // E2EE Key Management
+        try {
+          let privateKey = await getPrivateKey();
+          if (!privateKey) {
+            const keys = await generateKeyPair();
+            await storePrivateKey(keys.privateKey);
+            const pubKeyStr = await exportPublicKey(keys.publicKey);
+            await apiService.auth.updatePublicKey(pubKeyStr);
+          }
+        } catch (cryptoErr) {
+          console.error('Erro ao configurar chaves de segurança:', cryptoErr);
+        }
+
+        onComplete(userData, isSignUp);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message || 'Erro no login Google. Verifique sua conexão.');
+        setLoading(false);
+      });
   };
 
   return (
     <div className="h-full w-full flex flex-col bg-gradient-to-b from-brand-blue/15 via-brand-white to-brand-white p-6 justify-between select-none">
-      
+
       {/* Header and Back navigation */}
       <div className="flex items-center justify-between pt-4 shrink-0">
         <button
@@ -113,7 +145,7 @@ export default function Login({ initialIsSignUp = false, onComplete, onBack }: P
 
       {/* Main Form content wrapper */}
       <div className="flex-1 flex flex-col justify-center max-h-[82%] space-y-5 pt-2">
-        
+
         {/* Logo and Greeting heading */}
         <div className="text-center space-y-1.5">
           <div className="w-16 h-16 mx-auto rounded-2xl overflow-hidden shadow-md border border-indigo-500/10 bg-slate-950 flex items-center justify-center mb-1">
@@ -123,8 +155,8 @@ export default function Login({ initialIsSignUp = false, onComplete, onBack }: P
             {isSignUp ? 'Faça parte do FAPEM' : 'Bem-vindo ao seu refúgio'}
           </h2>
           <p className="text-[11px] text-gray-400 font-light max-w-[280px] mx-auto leading-normal">
-            {isSignUp 
-              ? 'Crie o seu perfil seguro em segundos para ter total privacidade e acolhimento.' 
+            {isSignUp
+              ? 'Crie o seu perfil seguro em segundos para ter total privacidade e acolhimento.'
               : 'Conecte-se para continuar seus diálogos e acompanhamentos terapêuticos.'}
           </p>
         </div>
@@ -360,7 +392,7 @@ export default function Login({ initialIsSignUp = false, onComplete, onBack }: P
                     <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-lg border border-gray-200">
                       {acc.avatar}
                     </div>
-                    
+
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-1.5">
                         <span className="text-xs font-bold text-slate-800 truncate">{acc.name}</span>

@@ -32,17 +32,23 @@ export class APIError extends Error {
  */
 async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
-  
+  const token = localStorage.getItem('fapem_token');
+
   const headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
     ...(options.headers || {}),
   };
 
   try {
     const response = await fetch(url, { ...options, headers });
-    
+
     if (!response.ok) {
+      if (response.status === 401 && endpoint !== '/auth/access' && endpoint !== '/auth/google') {
+        // Optional: Trigger logout or refresh
+        console.warn('[API Auth] Unauthorized access detected.');
+      }
       let errorMsg = `Server error ${response.status}`;
       try {
         const errJson = await response.json();
@@ -52,8 +58,9 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
       }
       throw new APIError(errorMsg, response.status);
     }
-    
-    return await response.json() as T;
+
+    const data = await response.json();
+    return data as T;
   } catch (error) {
     console.error(`[API Network-Error] Failed to communicate with: ${url}`, error);
     throw error;
@@ -69,21 +76,39 @@ export const apiService = {
    * USER PROFILE & TERMS OF SERVICE ENDPOINTS
    * -------------------------------------------------------------
    */
-  profile: {
-    /**
-     * Synchronizes local logged-in User profile with the Node.js database
-     */
-    async sync(user: User): Promise<User> {
-      if (!USE_API) {
-        // Return local copy instantly during sandbox mode
-        return Promise.resolve(user);
-      }
-      return apiRequest<User>('/user/sync', {
+  auth: {
+    async access(nickname: string, avatarId: string, email?: string): Promise<{ user: User; token: string }> {
+      return apiRequest<{ user: User; token: string }>('/auth/access', {
         method: 'POST',
-        body: JSON.stringify(user)
+        body: JSON.stringify({ nickname, avatarId, email })
       });
     },
 
+    async googleLogin(idToken: string, avatarId?: string): Promise<{ user: User; token: string }> {
+      return apiRequest<{ user: User; token: string }>('/auth/google', {
+        method: 'POST',
+        body: JSON.stringify({ idToken, avatarId })
+      });
+    },
+
+    async getMe(): Promise<User> {
+      return apiRequest<User>('/user/me');
+    },
+
+    async updatePublicKey(publicKey: string): Promise<void> {
+      return apiRequest<void>('/user/public-key', {
+        method: 'PATCH',
+        body: JSON.stringify({ publicKey })
+      });
+    },
+
+    async getUserPublicKey(userId: string): Promise<string> {
+      const data = await apiRequest<{ publicKey: string }>(`/user/${userId}/public-key`);
+      return data.publicKey;
+    }
+  },
+
+  profile: {
     /**
      * Explicitly commits the immutable signed Terms & Conditions to backend logs
      */
@@ -92,6 +117,7 @@ export const apiService = {
         console.log(`[Terms Sandbox] Accepted locally by '${name}' on ${acceptedAt} w/ version ${version}`);
         return Promise.resolve({ success: true, data: { name, acceptedAt, version } });
       }
+      // Note: Backend might need this route or handled via profile update
       return apiRequest<{ success: boolean; data: any }>('/user/accept-terms', {
         method: 'POST',
         body: JSON.stringify({ name, acceptedAt, version })
@@ -154,7 +180,18 @@ export const apiService = {
       if (!USE_API) {
         return Promise.reject(new Error('Sandbox operational. Retrieve from local forum state.'));
       }
-      return apiRequest<ForumTopic[]>('/forum/topics');
+      const data = await apiRequest<any[]>('/forum/topics');
+      return data.map(topic => ({
+        id: topic.id,
+        title: topic.title,
+        category: topic.category,
+        authorName: topic.author?.nickname || 'Viajante',
+        authorAvatarId: topic.author?.avatarId || 'm1',
+        lastUpdate: new Date(topic.updatedAt).getTime(),
+        repliesCount: topic.repliesCount || 0,
+        viewsCount: topic.viewsCount || 0,
+        posts: []
+      }));
     },
 
     /**
@@ -164,7 +201,26 @@ export const apiService = {
       if (!USE_API) {
         return Promise.reject(new Error('Sandbox mode. Run through local view resolvers.'));
       }
-      return apiRequest<ForumTopic>(`/forum/topics/${topicId}`);
+      const topic = await apiRequest<any>(`/forum/topics/${topicId}`);
+      return {
+        id: topic.id,
+        title: topic.title,
+        category: topic.category,
+        authorName: topic.author?.nickname || 'Viajante',
+        authorAvatarId: topic.author?.avatarId || 'm1',
+        lastUpdate: new Date(topic.updatedAt).getTime(),
+        repliesCount: topic.repliesCount || 0,
+        viewsCount: topic.viewsCount || 0,
+        posts: (topic.posts || []).map((p: any) => ({
+          id: p.id,
+          authorName: p.author?.nickname || 'Viajante',
+          authorAvatarId: p.author?.avatarId || 'm1',
+          content: p.content,
+          timestamp: new Date(p.createdAt).getTime(),
+          likes: p.likes || 0,
+          reactions: p.reactions || {}
+        }))
+      };
     },
 
     /**
@@ -198,7 +254,7 @@ export const apiService = {
      */
     async react(topicId: string, postId: string, reaction: string): Promise<any> {
       if (!USE_API) return Promise.resolve({ success: true });
-      return apiRequest<any>(`/forum/topics/${topicId}/posts/${postId}/react`, {
+      return apiRequest<any>(`/forum/posts/${postId}/react`, {
         method: 'POST',
         body: JSON.stringify({ reaction })
       });
@@ -207,19 +263,34 @@ export const apiService = {
 
   /**
    * -------------------------------------------------------------
-   * GEMINI ENGINE PROXY (Server-to-Server)
+   * ADMIN DASHBOARD ENDPOINTS
    * -------------------------------------------------------------
-   * Keeps client browser keyless!
-   * Proxies chat queries to the Node server which hosts the safe AI prompts.
    */
-  aiProxy: {
-    async query(prompt: string, context: string): Promise<{ text: string }> {
-      if (!USE_API) {
-        return Promise.reject(new Error('Calling raw client gemini service instead in sandbox'));
-      }
-      return apiRequest<{ text: string }>('/ai/chat', {
+  admin: {
+    async getStats(): Promise<any> {
+      return apiRequest<any>('/admin/stats');
+    },
+    async getUsers(): Promise<User[]> {
+      return apiRequest<User[]>('/admin/users');
+    },
+    async updateUserPlan(userId: string, plan: string): Promise<User> {
+      return apiRequest<User>(`/admin/users/${userId}/plan`, {
+        method: 'PATCH',
+        body: JSON.stringify({ plan })
+      });
+    },
+    async banUser(userId: string): Promise<User> {
+      return apiRequest<User>(`/admin/users/${userId}/ban`, {
+        method: 'POST'
+      });
+    },
+    async getTickets(): Promise<any[]> {
+      return apiRequest<any[]>('/admin/tickets');
+    },
+    async replyTicket(ticketId: string, reply: string): Promise<any> {
+      return apiRequest<any>(`/admin/tickets/${ticketId}/reply`, {
         method: 'POST',
-        body: JSON.stringify({ prompt, context })
+        body: JSON.stringify({ reply })
       });
     }
   }
