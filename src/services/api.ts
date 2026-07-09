@@ -6,14 +6,9 @@ import { User, Room, ForumTopic, ForumPost } from '../types';
  * Set VITE_USE_API=true in your environment variables to route requests to your express server.
  */
 const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || '/api';
-const USE_API = (import.meta as any).env?.VITE_USE_API === 'true';
+const USE_API = true;
 
-// Helpful console log to guide future developers during backend integration
-if (USE_API) {
-  console.log(`[API Integration] Operational. Route points to Node.js server: ${API_BASE_URL}`);
-} else {
-  console.log(`[API Integration] Prototype Sandbox active. Utilizing isolated local storage and browser state.`);
-}
+console.log(`[API Integration] Operational. Route points to Node.js server: ${API_BASE_URL}`);
 
 /**
  * Custom Error helper to parse unified JSON errors from your Node.js server
@@ -113,11 +108,6 @@ export const apiService = {
      * Explicitly commits the immutable signed Terms & Conditions to backend logs
      */
     async acceptTerms(name: string, acceptedAt: string, version: string): Promise<{ success: boolean; data: any }> {
-      if (!USE_API) {
-        console.log(`[Terms Sandbox] Accepted locally by '${name}' on ${acceptedAt} w/ version ${version}`);
-        return Promise.resolve({ success: true, data: { name, acceptedAt, version } });
-      }
-      // Note: Backend might need this route or handled via profile update
       return apiRequest<{ success: boolean; data: any }>('/user/accept-terms', {
         method: 'POST',
         body: JSON.stringify({ name, acceptedAt, version })
@@ -135,10 +125,6 @@ export const apiService = {
      * Retrieves list of active public and VIP rooms from the Express database
      */
     async fetchAll(): Promise<Room[]> {
-      if (!USE_API) {
-        // In local sandbox mode, client resolves lists gracefully from App state
-        return Promise.reject(new Error('Use local state first in sandbox'));
-      }
       return apiRequest<Room[]>('/rooms');
     },
 
@@ -146,9 +132,6 @@ export const apiService = {
      * Persists new custom/VIP room into the Node.js server
      */
     async create(room: Room): Promise<Room> {
-      if (!USE_API) {
-        return Promise.resolve(room);
-      }
       return apiRequest<Room>('/rooms', {
         method: 'POST',
         body: JSON.stringify(room)
@@ -159,7 +142,6 @@ export const apiService = {
      * Track active user joining statistics/logs inside rooms for security compliance
      */
     async logJoin(roomId: string, username: string): Promise<void> {
-      if (!USE_API) return;
       return apiRequest<void>(`/rooms/${roomId}/join`, {
         method: 'POST',
         body: JSON.stringify({ username })
@@ -177,9 +159,6 @@ export const apiService = {
      * Downloads list of active support categories and topics from server
      */
     async fetchTopics(): Promise<ForumTopic[]> {
-      if (!USE_API) {
-        return Promise.reject(new Error('Sandbox operational. Retrieve from local forum state.'));
-      }
       const data = await apiRequest<any[]>('/forum/topics');
       return data.map(topic => ({
         id: topic.id,
@@ -198,9 +177,6 @@ export const apiService = {
      * Pulls replies and individual interactions for a specific chosen topic ID
      */
     async fetchTopicDetails(topicId: string): Promise<ForumTopic> {
-      if (!USE_API) {
-        return Promise.reject(new Error('Sandbox mode. Run through local view resolvers.'));
-      }
       const topic = await apiRequest<any>(`/forum/topics/${topicId}`);
       return {
         id: topic.id,
@@ -227,9 +203,6 @@ export const apiService = {
      * Registers a new thread topic
      */
     async createTopic(topic: ForumTopic): Promise<ForumTopic> {
-      if (!USE_API) {
-        return Promise.resolve(topic);
-      }
       return apiRequest<ForumTopic>('/forum/topics', {
         method: 'POST',
         body: JSON.stringify(topic)
@@ -240,9 +213,6 @@ export const apiService = {
      * Persists a supportive reply post under a thread
      */
     async reply(topicId: string, reply: ForumPost): Promise<ForumPost> {
-      if (!USE_API) {
-        return Promise.resolve(reply);
-      }
       return apiRequest<ForumPost>(`/forum/topics/${topicId}/replies`, {
         method: 'POST',
         body: JSON.stringify(reply)
@@ -253,11 +223,27 @@ export const apiService = {
      * Interacts with reactions (heart, like, hug) in a secure way on the backend
      */
     async react(topicId: string, postId: string, reaction: string): Promise<any> {
-      if (!USE_API) return Promise.resolve({ success: true });
       return apiRequest<any>(`/forum/posts/${postId}/react`, {
         method: 'POST',
         body: JSON.stringify({ reaction })
       });
+    }
+  },
+
+  /**
+   * -------------------------------------------------------------
+   * USER SUPPORT TICKETING ENDPOINTS
+   * -------------------------------------------------------------
+   */
+  support: {
+    async createTicket(subject: string, message: string): Promise<any> {
+      return apiRequest<any>('/user/tickets', {
+        method: 'POST',
+        body: JSON.stringify({ subject, message })
+      });
+    },
+    async getMyTickets(): Promise<any[]> {
+      return apiRequest<any[]>('/user/tickets');
     }
   },
 

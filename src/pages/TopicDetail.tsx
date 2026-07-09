@@ -46,10 +46,10 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
           element.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
           // Apply a gentle pulse background highlight to guide user attention
-          element.classList.add('bg-brand-blue/5', 'ring-2', 'ring-brand-blue/15', 'scale-[1.01]', 'shadow-xs');
+          element.classList.add('bg-purple-500/10', 'ring-2', 'ring-purple-500/20', 'scale-[1.01]', 'shadow-xs');
 
           const removeTimer = setTimeout(() => {
-            element.classList.remove('bg-brand-blue/5', 'ring-2', 'ring-brand-blue/15', 'scale-[1.01]', 'shadow-xs');
+            element.classList.remove('bg-purple-500/10', 'ring-2', 'ring-purple-500/20', 'scale-[1.01]', 'shadow-xs');
           }, 2500);
 
           return () => clearTimeout(removeTimer);
@@ -79,10 +79,10 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
 
   if (!topic) {
     return (
-      <div className="flex flex-col h-full bg-brand-white items-center justify-center p-6 text-center space-y-4">
+      <div className="flex flex-col h-full bg-[#020410] items-center justify-center p-6 text-center space-y-4">
         <span className="text-4xl">⚠️</span>
-        <h4 className="font-display font-semibold text-brand-text">Tópico não encontrado</h4>
-        <button onClick={() => navigate('forum')} className="text-brand-blue font-bold flex items-center space-x-1">
+        <h4 className="font-display font-semibold text-white">Tópico não encontrado</h4>
+        <button onClick={() => navigate('forum')} className="text-purple-400 font-bold flex items-center space-x-1 cursor-pointer">
           <ArrowLeft size={16} />
           <span>Voltar para fórum</span>
         </button>
@@ -208,38 +208,38 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
   };
 
   return (
-    <div className="flex flex-col h-full bg-brand-white relative">
+    <div className="flex flex-col h-full bg-[#020410] relative text-white">
       {/* Header */}
-      <header className="h-20 bg-brand-white border-b border-brand-blue/10 px-6 flex items-center justify-between z-10 shrink-0">
+      <header className="h-20 bg-[#020410]/95 backdrop-blur-md border-b border-white/5 px-6 flex items-center justify-between z-10 shrink-0">
         <div className="flex items-center space-x-4 min-w-0 flex-1">
-          <button onClick={() => navigate('forum')} className="p-2 -ml-2 text-gray-400 active:scale-90 transition-transform">
+          <button onClick={() => navigate('forum')} className="p-2 -ml-2 text-gray-400 hover:text-white active:scale-90 transition-all cursor-pointer">
             <ArrowLeft size={24} />
           </button>
           <div className="min-w-0 flex-1">
-            <h3 className="font-display font-semibold text-brand-text leading-tight truncate">
+            <h3 className="font-display font-semibold text-white leading-tight truncate">
               {topic.title}
             </h3>
-            <p className="text-[10px] text-brand-blue font-bold uppercase tracking-widest leading-none mt-1">
+            <p className="text-[10px] text-purple-400 font-bold uppercase tracking-widest leading-none mt-1">
               {topic.category}
             </p>
           </div>
         </div>
         <div className="flex items-center space-x-1 shrink-0 ml-2">
-          <button className="p-2 text-gray-400">
+          <button className="p-2 text-gray-500 hover:text-white transition-colors cursor-pointer">
             <Share2 size={20} />
           </button>
-          <button className="p-2 text-gray-400">
+          <button className="p-2 text-gray-500 hover:text-white transition-colors cursor-pointer">
             <MoreVertical size={20} />
           </button>
         </div>
       </header>
 
       {topic.scheduledDeletionTime && (
-        <div className="bg-amber-50 border-b border-amber-100 px-6 py-3 flex items-start space-x-2.5 shrink-0 z-10 animate-in fade-in slide-in-from-top-1" id="topic-scheduled-deletion-banner">
-          <span className="text-amber-500 shrink-0 text-base">⚠️</span>
+        <div className="bg-amber-500/10 border-b border-amber-500/20 px-6 py-3 flex items-start space-x-2.5 shrink-0 z-10 animate-in fade-in slide-in-from-top-1" id="topic-scheduled-deletion-banner">
+          <span className="text-amber-400 shrink-0 text-base">⚠️</span>
           <div className="flex-1">
-            <span className="text-xs font-bold text-amber-950 block leading-tight">Exclusão Agendada pelo Autor</span>
-            <p className="text-[10px] text-amber-800 leading-normal mt-0.5 font-light">
+            <span className="text-xs font-bold text-amber-300 block leading-tight">Exclusão Agendada pelo Autor</span>
+            <p className="text-[10px] text-amber-400 leading-normal mt-0.5 font-light">
               Este tópico e todas as suas respostas estão agendados para expiração permanente em 24 horas a pedido do autor. O envio de novos comentários foi suspenso.
             </p>
           </div>
@@ -271,7 +271,7 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
               transition={{ delay: index * 0.05 }}
               className={cn(
                 "flex flex-col space-y-3 transition-all duration-500 rounded-2xl p-3.5 -m-3.5",
-                index !== 0 && "pt-6 border-t border-brand-blue/5"
+                index !== 0 && "pt-6 border-t border-white/5"
               )}
             >
               <div className="flex items-center justify-between">
@@ -294,31 +294,31 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
                   <div className={cn(
                     "w-9 h-9 rounded-full flex items-center justify-center text-sm shadow-xs border transition-colors",
                     isCurrentUser
-                      ? "bg-brand-green/10 border-brand-green/20"
-                      : "bg-brand-gray border-brand-blue/5 group-hover:border-purple-300"
+                      ? "bg-emerald-500/10 border-emerald-500/20"
+                      : "bg-[#12182b] border-white/10 group-hover:border-purple-500/40"
                   )}>
                     {avatar?.emoji || post.authorName[0]}
                   </div>
                   <div>
                     <h5 className={cn(
-                      "text-sm font-bold text-brand-text leading-none flex items-center gap-1.5 transition-colors",
-                      !isCurrentUser && "group-hover:text-purple-600"
+                      "text-sm font-bold text-white leading-none flex items-center gap-1.5 transition-colors",
+                      !isCurrentUser && "group-hover:text-purple-400"
                     )}>
                       {isCurrentUser ? `${post.authorName} (Você)` : post.authorName}
                       {!isCurrentUser && user?.supportAngels?.some(a => a.name === post.authorName) && (
                         <span className="text-[10px]" title="Anjo de Apoio">👼</span>
                       )}
                     </h5>
-                    <p className="text-[10px] text-gray-400 font-medium mt-1">
+                    <p className="text-[10px] text-gray-550 font-medium mt-1">
                       {new Date(post.timestamp).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
                     </p>
                   </div>
                 </button>
               </div>
 
-              <div className="prose prose-sm max-w-none text-brand-text leading-relaxed pl-1 text-[13.5px]">
+              <div className="prose prose-sm prose-invert max-w-none text-gray-100 leading-relaxed pl-1 text-[13.5px]">
                 {post.isDeleted ? (
-                  <span className="text-gray-400 italic text-[11.5px] leading-normal bg-brand-gray px-3.5 py-2.5 rounded-2xl border border-brand-blue/5 block w-full">
+                  <span className="text-gray-500 italic text-[11.5px] leading-normal bg-[#12182b] px-3.5 py-2.5 rounded-2xl border border-white/5 block w-full">
                     🚫 Este comentário foi removido pelo autor.
                   </span>
                 ) : (
@@ -339,11 +339,11 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
                         <button
                           key={type}
                           onClick={() => handleReactToPost(post.id, type)}
-                          className="inline-flex items-center bg-brand-gray/80 hover:bg-brand-gray border border-brand-blue/5 px-2 py-0.5 rounded-full text-xs transition-transform active:scale-95 text-gray-600 font-medium shadow-xs"
+                          className="inline-flex items-center bg-[#12182b] hover:bg-[#1a2235] border border-white/10 px-2 py-0.5 rounded-full text-xs transition-transform active:scale-95 text-gray-300 font-medium shadow-xs cursor-pointer"
                           title={option.label}
                         >
                           <span className="text-xs leading-none">{option.emoji}</span>
-                          <span className="text-[10px] text-gray-500 font-bold ml-1">{count}</span>
+                          <span className="text-[10px] text-gray-400 font-bold ml-1">{count}</span>
                         </button>
                       );
                     })}
@@ -356,8 +356,8 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
                           setOpenPickerPostId(openPickerPostId === post.id ? null : post.id);
                         }}
                         className={cn(
-                          "w-6 h-6 rounded-full bg-brand-gray hover:bg-brand-gray/80 flex items-center justify-center text-[10px] text-gray-500 border border-brand-blue/5 active:scale-95 transition-all outline-none",
-                          openPickerPostId === post.id && "bg-brand-blue/10 border-brand-blue/20 text-brand-blue font-semibold scale-105"
+                          "w-6 h-6 rounded-full bg-[#12182b] hover:bg-[#1a2235] flex items-center justify-center text-[10px] text-gray-500 border border-white/10 active:scale-95 transition-all outline-none cursor-pointer",
+                          openPickerPostId === post.id && "bg-purple-500/10 border-purple-500/30 text-purple-400 font-semibold scale-105"
                         )}
                         title="Adicionar reação"
                       >
@@ -366,7 +366,7 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
 
                       {/* Popover Bubble of Choices */}
                       {openPickerPostId === post.id && (
-                        <div className="absolute left-0 bottom-full mb-2 bg-brand-white border border-brand-blue/10 rounded-2xl shadow-xl p-1 flex items-center space-x-1 z-30 animate-in fade-in slide-in-from-bottom-1 duration-100">
+                        <div className="absolute left-0 bottom-full mb-2 bg-[#0a0f1f]/95 backdrop-blur-sm border border-white/10 rounded-2xl shadow-xl p-1 flex items-center space-x-1 z-30 animate-in fade-in slide-in-from-bottom-1 duration-100">
                           {REACTION_OPTIONS.map((option) => (
                             <button
                               key={option.type}
@@ -374,7 +374,7 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
                                 handleReactToPost(post.id, option.type);
                                 setOpenPickerPostId(null);
                               }}
-                              className="w-7 h-7 rounded-lg hover:bg-brand-gray active:scale-90 transition-transform flex items-center justify-center text-sm outline-none"
+                              className="w-7 h-7 rounded-lg hover:bg-white/10 active:scale-90 transition-transform flex items-center justify-center text-sm outline-none cursor-pointer"
                               title={option.label}
                             >
                               {option.emoji}
@@ -393,23 +393,23 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
 
       {/* Input */}
       {topic.scheduledDeletionTime ? (
-        <footer className="p-6 bg-amber-50/25 border-t border-amber-100/60 shrink-0 text-center space-y-1">
-          <p className="text-xs text-amber-805 font-bold flex items-center justify-center gap-1.5">
+        <footer className="p-6 bg-amber-500/5 border-t border-amber-500/15 shrink-0 text-center space-y-1">
+          <p className="text-xs text-amber-400 font-bold flex items-center justify-center gap-1.5">
             🔒 Novos comentários suspensos
           </p>
-          <p className="text-[10px] text-amber-600 font-light">
+          <p className="text-[10px] text-amber-500 font-light">
             Este tópico foi agendado para exclusão pelo autor e está em modo de apenas leitura.
           </p>
         </footer>
       ) : (
-        <footer className="p-6 bg-brand-white border-t border-brand-blue/10 shrink-0">
+        <footer className="p-4 px-6 bg-[#020410]/95 backdrop-blur-md border-t border-white/5 shrink-0">
           <div className="flex items-end space-x-3">
-            <div className="flex-1 bg-brand-gray rounded-2xl flex flex-col px-4 py-2 min-h-[48px] justify-center">
+            <div className="flex-1 bg-[#12182b] border border-white/10 rounded-2xl flex flex-col px-4 py-2 min-h-[48px] justify-center focus-within:border-purple-500/40 transition-colors">
               <textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 placeholder="Adicionar um comentário..."
-                className="w-full bg-transparent border-none outline-none text-brand-text text-sm py-1 resize-none max-h-32 min-h-[24px]"
+                className="w-full bg-transparent border-none outline-none text-white placeholder-gray-550 text-sm py-1 resize-none max-h-32 min-h-[24px]"
                 rows={1}
                 onInput={(e) => {
                   const target = e.target as HTMLTextAreaElement;
@@ -428,10 +428,10 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
               onClick={handleSendReply}
               disabled={!replyText.trim()}
               className={cn(
-                "w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all outline-none shrink-0",
+                "w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all outline-none shrink-0 cursor-pointer",
                 replyText.trim()
-                  ? "bg-brand-blue text-white shadow-brand-blue/20"
-                  : "bg-gray-100 text-gray-400"
+                  ? "bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-neon-purple"
+                  : "bg-white/5 text-gray-600 border border-white/5"
               )}
             >
               <Send size={18} />
@@ -443,47 +443,47 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
       {/* Alerta de Bloqueio Preventivo */}
       <AnimatePresence>
         {offensiveWarning && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-6">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-6">
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               className={cn(
-                "bg-brand-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl flex flex-col items-center text-center space-y-5 border",
-                isCrisisWarning ? "border-purple-100" : "border-red-100"
+                "bg-[#0a0f1f]/95 rounded-[2.5rem] p-8 max-w-sm w-full shadow-xl flex flex-col items-center text-center space-y-5 border",
+                isCrisisWarning ? "border-purple-500/25 shadow-neon-purple" : "border-red-500/25"
               )}
             >
               <div className={cn(
                 "w-14 h-14 rounded-full flex items-center justify-center shadow-sm animate-bounce",
-                isCrisisWarning ? "bg-purple-50 text-purple-500" : "bg-red-50 text-red-500"
+                isCrisisWarning ? "bg-purple-500/10 border border-purple-500/25 text-purple-400" : "bg-red-500/10 border border-red-500/25 text-[#ff4a5a]"
               )}>
                 {isCrisisWarning ? <Heart size={28} /> : <ShieldAlert size={28} />}
               </div>
               <div className="space-y-2">
                 <h4 className={cn(
                   "font-display font-bold text-lg",
-                  isCrisisWarning ? "text-purple-600" : "text-red-600"
+                  isCrisisWarning ? "text-purple-300" : "text-[#ff4a5a]"
                 )}>
                   {isCrisisWarning ? "Você não está sozinho" : "Bloqueio Preventivo"}
                 </h4>
-                <p className="text-xs text-brand-text/70 font-light leading-relaxed">
+                <p className="text-xs text-gray-300 font-light leading-relaxed">
                   {offensiveWarning}
                 </p>
                 {isCrisisWarning && (
-                  <div className="bg-purple-50 p-4 rounded-2xl border border-purple-100/50 flex flex-col items-center space-y-3">
-                    <p className="text-[11px] text-purple-800 font-semibold leading-tight">
+                  <div className="bg-purple-500/10 p-4 rounded-2xl border border-purple-500/20 flex flex-col items-center space-y-3">
+                    <p className="text-[11px] text-purple-200 font-semibold leading-tight">
                       Ligue para o CVV 188 agora. É gratuito, seguro e eles estão lá por você.
                     </p>
                     <a
                       href="tel:188"
-                      className="flex items-center space-x-2 bg-purple-600 px-6 py-2 rounded-xl text-white font-bold text-sm shadow-md active:scale-95 transition-all outline-none"
+                      className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-2 rounded-xl text-white font-bold text-sm shadow-neon-purple active:scale-95 transition-all outline-none"
                     >
                       <span>📞 Ligar para 188</span>
                     </a>
                   </div>
                 )}
                 {!isCrisisWarning && (
-                  <div className="bg-red-50/50 p-3 rounded-xl border border-red-100/50 text-[10px] text-red-700 font-semibold uppercase tracking-wider">
+                  <div className="bg-red-500/10 p-3 rounded-xl border border-red-500/20 text-[10px] text-[#ff4a5a] font-semibold uppercase tracking-wider">
                     Seu comentário não foi enviado
                   </div>
                 )}
@@ -494,8 +494,8 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
                   setIsCrisisWarning(false);
                 }}
                 className={cn(
-                  "w-full py-3.5 text-white rounded-2xl text-sm font-bold shadow-lg transition-all outline-none active:scale-95",
-                  isCrisisWarning ? "bg-purple-500 hover:bg-purple-600 shadow-purple-200" : "bg-red-500 hover:bg-red-600 shadow-red-200"
+                  "w-full py-3.5 text-white rounded-2xl text-sm font-bold shadow-lg transition-all outline-none active:scale-95 cursor-pointer",
+                  isCrisisWarning ? "bg-gradient-to-r from-purple-600 to-indigo-600 shadow-neon-purple" : "bg-[#ff4a5a] hover:bg-[#ff5c6c]"
                 )}
               >
                 {isCrisisWarning ? "Voltar ao Tópico" : "Compreendendo as Regras"}
@@ -508,7 +508,7 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
       {/* Drawer de Perfil no Fórum */}
       <AnimatePresence>
         {selectedMember && (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-xs p-4 overflow-hidden">
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/75 backdrop-blur-sm p-4 overflow-hidden">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -522,21 +522,21 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-              className="relative bg-brand-white w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center space-y-5 z-10"
+              className="relative bg-[#0a0f1f]/95 backdrop-blur-sm w-full max-w-sm rounded-[2.5rem] p-6 shadow-neon-purple shadow-xl flex flex-col items-center space-y-5 z-10 border border-white/5"
             >
-              <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-2" />
+              <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-2" />
 
               <div className="text-center space-y-2 mt-2 w-full">
-                <div className="w-20 h-20 rounded-full bg-brand-gray/55 flex items-center justify-center text-5xl mx-auto border-2 border-brand-blue/5 shadow-inner animate-pulse">
+                <div className="w-20 h-20 rounded-full bg-[#12182b] flex items-center justify-center text-5xl mx-auto border-2 border-purple-500/20 shadow-inner animate-pulse">
                   {getAvatarById(selectedMember.avatarId)?.emoji || '👤'}
                 </div>
-                <h4 className="font-display font-bold text-brand-text text-xl">{selectedMember.name}</h4>
-                <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">
+                <h4 className="font-display font-bold text-white text-xl">{selectedMember.name}</h4>
+                <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
                   Membro Acolhedor
                 </p>
               </div>
 
-              <div className="w-full pt-2 border-t border-brand-blue/5 space-y-3.5">
+              <div className="w-full pt-2 border-t border-white/5 space-y-3.5">
                 <button
                   onClick={() => {
                     if (!user || !onUpdateUser) return;
@@ -564,10 +564,10 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
                     setSelectedMember(null);
                   }}
                   className={cn(
-                    "w-full py-4 rounded-2xl text-xs font-bold shadow-xs active:scale-95 transition-all outline-none flex items-center justify-center space-x-2 border",
+                    "w-full py-4 rounded-2xl text-xs font-bold shadow-xs active:scale-95 transition-all outline-none flex items-center justify-center space-x-2 border cursor-pointer",
                     user?.supportAngels?.some(a => a.name === selectedMember.name)
-                      ? "bg-purple-50 text-purple-600 border-purple-200"
-                      : "bg-purple-600 text-white border-transparent hover:bg-purple-700 shadow-md shadow-purple-100"
+                      ? "bg-purple-500/10 text-purple-400 border-purple-500/25"
+                      : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-transparent shadow-neon-purple"
                   )}
                 >
                   <span>👼 {user?.supportAngels?.some(a => a.name === selectedMember.name) ? 'Remover dos Anjos de Apoio' : 'Tornar Anjo de Apoio'}</span>
@@ -575,7 +575,7 @@ export default function TopicDetail({ user, navigate, topicId, postId, topics, o
 
                 <button
                   onClick={() => setSelectedMember(null)}
-                  className="w-full py-3 bg-brand-gray text-gray-500 rounded-2xl text-xs font-bold hover:bg-gray-200 active:scale-95 transition-all outline-none"
+                  className="w-full py-3 bg-white/5 border border-white/5 text-white rounded-2xl text-xs font-bold hover:bg-white/10 active:scale-95 transition-all outline-none cursor-pointer"
                 >
                   Voltar para o fórum
                 </button>

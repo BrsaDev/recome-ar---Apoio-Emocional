@@ -72,7 +72,7 @@ const AudioPlayer = ({ url }: { url: string }) => {
       <div className="flex items-center space-x-3 bg-white/10 p-2 rounded-2xl">
         <button
           onClick={togglePlay}
-          className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-brand-green shadow-sm active:scale-90 transition-transform"
+          className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-emerald-500 shadow-sm active:scale-90 transition-transform"
         >
           {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} className="ml-0.5" fill="currentColor" />}
         </button>
@@ -457,10 +457,10 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
         className="flex flex-col items-center shrink-0 space-y-1 relative w-full px-1 cursor-pointer active:scale-95 transition-transform outline-none"
       >
         <div className={cn(
-          "w-11 h-11 rounded-full flex items-center justify-center text-xl bg-white border transition-all duration-300 relative",
+          "w-11 h-11 rounded-full flex items-center justify-center text-xl transition-all duration-300 relative border",
           p.isSpeaking
-            ? "ring-4 ring-brand-blue/30 scale-105 border-brand-blue bg-blue-50 shadow-md"
-            : "border-brand-blue/10 hover:border-brand-blue/35"
+            ? "ring-4 ring-purple-500/30 scale-105 border-purple-500 bg-purple-950/40 shadow-neon-purple"
+            : "border-white/5 bg-white/5 hover:border-white/20"
         )}>
           {emoji}
 
@@ -471,7 +471,7 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0, opacity: 0 }}
-                className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-blue-500 rounded-full border border-brand-white flex items-center justify-center shadow"
+                className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-purple-500 rounded-full border border-[#020410] flex items-center justify-center shadow"
               >
                 <div className="w-1 h-1 bg-white rounded-full animate-ping" />
               </motion.div>
@@ -480,7 +480,7 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
         </div>
         <span className={cn(
           "text-[9px] font-bold tracking-tight text-center truncate max-w-full leading-none",
-          p.isSpeaking ? "text-brand-blue" : "text-gray-400"
+          p.isSpeaking ? "text-purple-400" : "text-gray-500"
         )}>
           {p.name}
         </span>
@@ -489,21 +489,21 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
   };
 
   return (
-    <div className="h-full w-full flex flex-col bg-brand-white">
+    <div className="h-full w-full flex flex-col bg-[#020410]">
       {/* Header */}
-      <header className="h-20 bg-brand-white border-b border-brand-blue/10 px-6 flex items-center justify-between z-10">
+      <header className="h-20 bg-[#0a0f1f]/90 border-b border-white/5 px-6 flex items-center justify-between z-10 backdrop-blur-sm">
         <div className="flex items-center space-x-4">
-          <button onClick={() => navigate('rooms')} className="p-2 -ml-2 text-gray-400">
+          <button onClick={() => navigate('rooms')} className="p-2 -ml-2 text-gray-400 hover:text-white cursor-pointer transition-all outline-none">
             <ArrowLeft size={24} />
           </button>
           <div>
-            <h3 className="font-display font-semibold text-brand-text leading-tight">{roomName}</h3>
+            <h3 className="font-display font-semibold text-white leading-tight">{roomName}</h3>
             <div className="flex items-center space-x-2">
-              <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest leading-none">
+              <p className="text-[10px] text-gray-500 font-medium uppercase tracking-widest leading-none">
                 Conexão em tempo real
               </p>
-              <span className="w-1 h-1 rounded-full bg-gray-300" />
-              <p className="text-[10px] text-brand-blue font-bold uppercase tracking-widest leading-none">
+              <span className="w-1 h-1 rounded-full bg-white/20" />
+              <p className="text-[10px] text-cyan-400 font-bold uppercase tracking-widest leading-none">
                 {participants.length}/10 participantes
               </p>
             </div>
@@ -517,42 +517,42 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
                 setInviteSuccessMsg(null);
                 setIsInviteModalOpen(true);
               }}
-              className="py-1.5 px-3 rounded-full bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-100 active:scale-95 text-[10px] font-bold font-display flex items-center space-x-1 transition-all"
+              className="py-1.5 px-3 rounded-full bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border border-purple-500/30 active:scale-95 text-[10px] font-bold font-display flex items-center space-x-1 transition-all cursor-pointer outline-none shadow-sm"
               title="Convidar Anjo de Apoio"
             >
               <span>👼 Convidar</span>
             </button>
           )}
-          <button className="p-2 text-gray-400">
+          <button className="p-2 text-gray-400 hover:text-white cursor-pointer transition-colors outline-none">
             <MoreHorizontal size={24} />
           </button>
         </div>
       </header>
 
-      {/* Aviso de Privacidade e Segurança Discreto */}
-      <div className="bg-amber-50/90 border-b border-amber-100 px-6 py-2 flex items-center shrink-0 z-10" id="chat-privacy-warning-banner">
-        <ShieldAlert size={14} className="text-amber-600 shrink-0 mr-2" />
-        <span className="text-[10px] text-amber-800/90 font-medium leading-normal">
-          <strong className="font-semibold text-amber-900">Aviso:</strong> Por segurança, nunca envie dados sensíveis como senhas, CPF, endereço ou dados de conta bancária.
+      {/* Discrete Privacy Banner */}
+      <div className="bg-amber-950/20 border-b border-amber-500/10 px-6 py-2 flex items-center shrink-0 z-10" id="chat-privacy-warning-banner">
+        <ShieldAlert size={14} className="text-amber-500 shrink-0 mr-2" />
+        <span className="text-[10px] text-amber-400/90 font-medium leading-normal">
+          <strong className="font-semibold text-amber-400">Aviso:</strong> Por segurança, nunca envie dados sensíveis como senhas, CPF, endereço ou dados de conta bancária.
         </span>
       </div>
 
       {/* Main Row layout for virtual rooms side-by-side with chats */}
-      <div className="flex-1 flex overflow-hidden min-h-0 bg-brand-white">
+      <div className="flex-1 flex overflow-hidden min-h-0 bg-[#020410]">
 
         {/* Left column of participants */}
-        <div className="w-16 shrink-0 border-r border-brand-blue/5 bg-brand-gray/20 py-4 flex flex-col items-center gap-y-5 overflow-y-auto no-scrollbar z-10 shadow-inner">
+        <div className="w-16 shrink-0 border-r border-white/5 bg-[#0a0f1f]/40 py-4 flex flex-col items-center gap-y-5 overflow-y-auto no-scrollbar z-10 shadow-inner">
           {leftParticipants.map(renderParticipant)}
         </div>
 
         {/* Chat view area */}
         <div
           ref={scrollRef}
-          className="flex-1 overflow-y-auto px-4 py-6 space-y-4 no-scrollbar bg-brand-white"
+          className="flex-1 overflow-y-auto px-4 py-6 space-y-4 no-scrollbar bg-[#020410]"
         >
-          {/* WhatsApp-style E2EE Notice */}
+          {/* E2EE notice with Whatsapp-inspired UI in Dark Space */}
           <div className="flex justify-center mb-6">
-            <div className="bg-amber-100/40 text-amber-900/70 py-2.5 px-4 rounded-xl text-[10px] font-medium leading-relaxed text-center max-w-[85%] border border-amber-200/30 flex items-start space-x-2">
+            <div className="bg-amber-950/10 text-amber-400/70 py-2.5 px-4 rounded-xl text-[10px] font-medium leading-relaxed text-center max-w-[85%] border border-amber-500/10 flex items-start space-x-2">
               <Lock size={12} className="shrink-0 mt-0.5 opacity-60" />
               <span>
                 As mensagens são criptografadas de ponta-a-ponta. Ninguém fora desta conversa, nem mesmo o FAPEM, pode lê-las ou ouvi-las.
@@ -567,7 +567,7 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
                 {!isSystem && (
                   <span className={cn(
                     "text-[10px] font-semibold flex items-center gap-1.5 px-2 mb-0.5 tracking-tight",
-                    msg.sender === 'user' ? "justify-end text-brand-green" : "justify-start text-gray-400"
+                    msg.sender === 'user' ? "justify-end text-emerald-400" : "justify-start text-gray-500"
                   )}>
                     <span className="text-sm leading-none">{getSenderAvatarEmoji(msg.senderName, msg.sender)}</span>
                     {msg.senderName}
@@ -584,10 +584,10 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
                   <div className={cn(
                     "px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm transition-all overflow-hidden max-w-[85%]",
                     msg.sender === 'user'
-                      ? "bg-brand-green text-white rounded-tr-none"
+                      ? "bg-emerald-600/90 border border-emerald-500/20 text-white rounded-tr-none"
                       : msg.sender === 'system'
-                        ? "bg-brand-gray text-gray-400 text-[11px] text-center w-full rounded-2xl py-3 border border-brand-blue/5 tracking-tight uppercase"
-                        : "bg-brand-gray text-brand-text rounded-tl-none border border-brand-blue/5"
+                        ? "bg-[#0a0f1f]/80 text-[#8b5cf6]/80 text-[10px] text-center w-full rounded-2xl py-3 border border-purple-500/10 tracking-wide uppercase font-display"
+                        : "glass-card text-white rounded-tl-none border border-white/5"
                   )}>
                     <ReactMarkdown>{msg.text}</ReactMarkdown>
                   </div>
@@ -598,17 +598,17 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
         </div>
 
         {/* Right column of participants */}
-        <div className="w-16 shrink-0 border-l border-brand-blue/5 bg-brand-gray/20 py-4 flex flex-col items-center gap-y-5 overflow-y-auto no-scrollbar z-10 shadow-inner">
+        <div className="w-16 shrink-0 border-l border-white/5 bg-[#0a0f1f]/40 py-4 flex flex-col items-center gap-y-5 overflow-y-auto no-scrollbar z-10 shadow-inner">
           {rightParticipants.map(renderParticipant)}
 
           {/* Fill the remainder space to suggest a 10 room limits */}
           {participants.length < 10 && (
             Array.from({ length: 5 - rightParticipants.length }).map((_, idx) => (
-              <div key={`empty-${idx}`} className="flex flex-col items-center shrink-0 space-y-1 w-full opacity-35">
-                <div className="w-11 h-11 rounded-full border border-dashed border-gray-300 flex items-center justify-center text-sm text-gray-300">
+              <div key={`empty-${idx}`} className="flex flex-col items-center shrink-0 space-y-1 w-full opacity-20">
+                <div className="w-11 h-11 rounded-full border border-dashed border-gray-600 flex items-center justify-center text-sm text-gray-400">
                   👤
                 </div>
-                <span className="text-[9px] text-gray-300/80 font-light scale-90">Livre</span>
+                <span className="text-[9px] text-gray-500 font-light scale-90">Livre</span>
               </div>
             ))
           )}
@@ -617,16 +617,16 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
       </div>
 
       {/* Footer / Input */}
-      <footer className="p-6 bg-brand-white border-t border-brand-blue/10 shrink-0">
+      <footer className="p-6 bg-[#0a0f1f]/90 border-t border-white/5 shrink-0">
         <div className="flex items-center space-x-3">
-          <div className="flex-1 bg-brand-gray rounded-2xl flex items-center px-4 py-1 min-h-[48px]">
+          <div className="flex-1 bg-[#12182b] border border-white/5 rounded-2xl flex items-center px-4 py-1 min-h-[48px]">
             <input
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(inputText)}
               placeholder="Escreva algo para o grupo..."
-              className="flex-1 bg-transparent border-none outline-none text-brand-text text-sm"
+              className="flex-1 bg-transparent border-none outline-none text-white placeholder-gray-500 text-sm"
               id="input-text-room"
             />
           </div>
@@ -636,8 +636,8 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
               whileTap={{ scale: 0.9 }}
               onClick={toggleMic}
               className={cn(
-                "w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg",
-                isMicActive ? "bg-brand-blue text-white ring-4 ring-brand-blue/20" : "bg-gray-100 text-gray-400"
+                "w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg cursor-pointer outline-none",
+                isMicActive ? "bg-purple-600 text-white ring-4 ring-purple-500/20 shadow-neon-purple" : "bg-white/5 text-gray-400 hover:bg-white/10"
               )}
               id="btn-toggle-live-audio"
             >
@@ -647,8 +647,8 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
               onClick={() => handleSendMessage(inputText)}
               disabled={!inputText.trim()}
               className={cn(
-                "w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all",
-                inputText.trim() ? "bg-brand-green text-white" : "bg-gray-100 text-gray-400"
+                "w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all cursor-pointer outline-none",
+                inputText.trim() ? "bg-emerald-600 text-white" : "bg-white/5 text-gray-505"
               )}
               id="btn-send-message"
             >
@@ -663,18 +663,18 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
             animate={{ opacity: 1, y: 0 }}
             className="mt-3 flex justify-center"
           >
-            <div className="flex items-center space-x-2 px-3 py-1 bg-brand-blue/10 rounded-full">
+            <div className="flex items-center space-x-2 px-3 py-1 bg-purple-500/10 rounded-full border border-purple-500/20">
               <div className="flex space-x-0.5 items-end h-3">
                 {[1, 2, 3, 2, 1].map((h, i) => (
                   <motion.div
                     key={i}
                     animate={{ height: ['40%', '100%', '40%'] }}
                     transition={{ repeat: Infinity, duration: 0.5, delay: i * 0.1 }}
-                    className="w-0.5 bg-brand-blue"
+                    className="w-0.5 bg-purple-400"
                   />
                 ))}
               </div>
-              <span className="text-[10px] font-bold text-brand-blue uppercase">Você está ao vivo</span>
+              <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wider font-display">Você está ao vivo</span>
             </div>
           </motion.div>
         )}
@@ -687,7 +687,7 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
             initial={{ opacity: 0, y: -40 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -40 }}
-            className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-brand-text text-white px-5 py-3 rounded-2xl shadow-xl text-xs font-bold flex items-center space-x-2 border border-white/10"
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-[#12182b] text-white px-5 py-3 rounded-2xl shadow-neon-purple shadow-xl text-xs font-bold flex items-center space-x-2 border border-white/10"
           >
             <span>🚨</span>
             <span>{reportToast}</span>
@@ -698,47 +698,44 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
       {/* Alerta de Bloqueio Preventivo (Moderação de Termos Ofensivos) */}
       <AnimatePresence>
         {offensiveWarning && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-6">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-6">
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className={cn(
-                "bg-brand-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl flex flex-col items-center text-center space-y-5 border",
-                isCrisisWarning ? "border-purple-100" : "border-red-100"
-              )}
+              className="bg-[#12182b]/97 rounded-[2.5rem] p-8 max-w-sm w-full shadow-xl flex flex-col items-center text-center space-y-5 border border-white/5"
             >
               <div className={cn(
                 "w-14 h-14 rounded-full flex items-center justify-center shadow-sm animate-bounce",
-                isCrisisWarning ? "bg-purple-50 text-purple-500" : "bg-red-50 text-red-500"
+                isCrisisWarning ? "bg-purple-500/10 text-purple-400 border border-purple-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"
               )}>
                 {isCrisisWarning ? <Heart size={28} /> : <ShieldAlert size={28} />}
               </div>
               <div className="space-y-2">
                 <h4 className={cn(
                   "font-display font-bold text-lg",
-                  isCrisisWarning ? "text-purple-600" : "text-red-600"
+                  isCrisisWarning ? "text-purple-400" : "text-red-400"
                 )}>
                   {isCrisisWarning ? "Você não está sozinho" : "Bloqueio Preventivo"}
                 </h4>
-                <p className="text-xs text-brand-text/70 font-light leading-relaxed">
+                <p className="text-xs text-gray-400 font-light leading-relaxed">
                   {offensiveWarning}
                 </p>
                 {isCrisisWarning && (
-                  <div className="bg-purple-50 p-4 rounded-2xl border border-purple-100/50 flex flex-col items-center space-y-3">
-                    <p className="text-[11px] text-purple-800 font-semibold leading-tight">
+                  <div className="bg-purple-500/5 p-4 rounded-2xl border border-purple-500/15 flex flex-col items-center space-y-3">
+                    <p className="text-[11px] text-purple-300 font-semibold leading-tight">
                       Ligue agora para o CVV. É gratuito, anônimo e eles estão lá por você.
                     </p>
                     <a
                       href="tel:188"
-                      className="flex items-center space-x-2 bg-purple-600 px-6 py-2 rounded-xl text-white font-bold text-sm shadow-md active:scale-95 transition-all"
+                      className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-indigo-600 border border-purple-500/25 px-6 py-2 rounded-xl text-white font-bold text-sm shadow-md active:scale-95 transition-all cursor-pointer font-display"
                     >
                       <span>📞 Ligar para 188</span>
                     </a>
                   </div>
                 )}
                 {!isCrisisWarning && (
-                  <div className="bg-red-50/50 p-3 rounded-xl border border-red-100/50 text-[10px] text-red-700 font-semibold uppercase tracking-wider">
+                  <div className="bg-red-500/10 p-3 rounded-xl border border-red-500/15 text-[10px] text-red-400 font-semibold uppercase tracking-wider">
                     Sua mensagem não foi enviada
                   </div>
                 )}
@@ -749,11 +746,11 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
                   setIsCrisisWarning(false);
                 }}
                 className={cn(
-                  "w-full py-3.5 text-white rounded-2xl text-sm font-bold shadow-lg transition-all outline-none active:scale-95",
-                  isCrisisWarning ? "bg-purple-500 hover:bg-purple-600 shadow-purple-200" : "bg-red-500 hover:bg-red-600 shadow-red-200"
+                  "w-full py-3.5 text-white rounded-2xl text-sm font-bold shadow-lg transition-all outline-none active:scale-95 cursor-pointer border font-display",
+                  isCrisisWarning ? "bg-purple-500/80 border-purple-500/25 shadow-purple-900/30" : "bg-red-500/80 border-red-500/25 shadow-red-900/30"
                 )}
               >
-                {isCrisisWarning ? "Continuar na Sala" : "Compreendendo as Regras"}
+                {isCrisisWarning ? "Continuar na Sala" : "Compreendo as Regras"}
               </button>
             </motion.div>
           </div>
@@ -763,7 +760,7 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
       {/* Drawer de Perfil & Função Denunciar Baderneiro */}
       <AnimatePresence>
         {selectedParticipant && (
-          <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/75 backdrop-blur-sm p-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -775,27 +772,27 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
             <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
-              exit={{ y: '100%' }}
+              exit={{ y: '105%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-              className="relative bg-brand-white w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center space-y-5 z-10"
+              className="relative bg-[#12182b]/97 border border-white/5 w-full max-w-sm rounded-[2.5rem] p-6 shadow-xl flex flex-col items-center space-y-5 z-10"
             >
-              <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-2" />
+              <div className="w-12 h-1 bg-white/10 rounded-full mx-auto mb-2" />
 
-              <div className="text-center space-y-2 mt-2 w-full">
-                <div className="w-20 h-20 rounded-full bg-brand-gray/55 flex items-center justify-center text-5xl mx-auto border-2 border-brand-blue/5 shadow-inner">
+              <div className="text-center space-y-2 mt-2 w-full text-white">
+                <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center text-5xl mx-auto border border-white/5">
                   {getAvatarById(selectedParticipant.avatarId)?.emoji || '👤'}
                 </div>
-                <h4 className="font-display font-bold text-brand-text text-xl">{selectedParticipant.name}</h4>
-                <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">
+                <h4 className="font-display font-bold text-white text-xl">{selectedParticipant.name}</h4>
+                <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
                   {selectedParticipant.isMe ? 'Seu Perfil' : 'Participante Ativo'}
                 </p>
               </div>
 
               {!selectedParticipant.isMe && (
-                <div className="w-full pt-2 border-t border-brand-blue/5 space-y-3.5">
-                  <div className="bg-brand-gray/80 p-3.5 rounded-2xl text-center">
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Status Atual</p>
-                    <p className="text-xs font-bold text-gray-600 mt-1">
+                <div className="w-full pt-2 border-t border-white/5 space-y-3.5">
+                  <div className="bg-white/5 p-3.5 rounded-2xl text-center border border-white/5">
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Status Atual</p>
+                    <p className="text-xs font-bold text-gray-300 mt-1">
                       {selectedParticipant.isSpeaking ? '🗣️ Compartilhando desabafo ao vivo' : '💤 Ouvindo em silêncio'}
                     </p>
                   </div>
@@ -804,10 +801,10 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
                     <button
                       onClick={handleToggleAngel}
                       className={cn(
-                        "w-full py-4 rounded-2xl text-sm font-bold shadow-xs active:scale-95 transition-all outline-none flex items-center justify-center space-x-2 border",
+                        "w-full py-4 rounded-2xl text-sm font-bold active:scale-95 transition-all outline-none flex items-center justify-center space-x-2 border cursor-pointer font-display",
                         user?.supportAngels?.some(a => a.name === selectedParticipant.name)
-                          ? "bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100"
-                          : "bg-purple-600 text-white border-transparent hover:bg-purple-700 shadow-md shadow-purple-100"
+                          ? "bg-purple-500/10 text-purple-400 border-purple-500/25 hover:bg-purple-500/20"
+                          : "bg-purple-600 text-white border-purple-500/25 hover:bg-purple-750 shadow-lg shadow-purple-900/30"
                       )}
                     >
                       <span>👼 {user?.supportAngels?.some(a => a.name === selectedParticipant.name) ? 'Remover dos Anjos' : 'Tornar Anjo de Apoio'}</span>
@@ -815,14 +812,14 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
 
                     <button
                       onClick={() => handleConfirmReport(selectedParticipant)}
-                      className="w-full py-3.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-2xl text-xs font-bold active:scale-95 transition-all outline-none flex items-center justify-center space-x-2 border border-red-100"
+                      className="w-full py-3.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-2xl text-xs font-bold active:scale-95 transition-all outline-none flex items-center justify-center space-x-2 border border-red-500/20 cursor-pointer font-display"
                     >
-                      <Flag size={14} className="fill-red-50" />
+                      <Flag size={14} className="fill-red-500/10" />
                       <span>Denunciar por Baderna</span>
                     </button>
                   </div>
 
-                  <p className="text-[9px] text-gray-400 font-light text-center px-4 leading-relaxed font-sans mt-1">
+                  <p className="text-[9px] text-gray-500 font-light text-center px-4 leading-relaxed mt-1">
                     Anjos de Apoio facilitam interações e convites para salas privadas. Sinalize baderneiros para restaurar a ordem na comunidade.
                   </p>
                 </div>
@@ -830,14 +827,14 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
 
               {selectedParticipant.isMe && (
                 <div className="w-full space-y-3">
-                  <div className="bg-brand-gray p-4 rounded-2xl text-center">
-                    <p className="text-xs text-gray-500 leading-normal font-light">
+                  <div className="bg-white/5 p-4 rounded-2xl text-center border border-white/5">
+                    <p className="text-xs text-gray-400 leading-normal font-light">
                       Você está em uma sessão segura de apoio mútuo. Sinta-se à vontade para compartilhar áudio ou interagir pelo texto!
                     </p>
                   </div>
                   <button
                     onClick={() => setSelectedParticipant(null)}
-                    className="w-full py-3.5 bg-brand-gray text-brand-text font-bold rounded-2xl text-sm active:scale-95 transition-all outline-none"
+                    className="w-full py-3.5 bg-white/5 hover:bg-white/10 border border-white/5 text-white font-bold rounded-2xl text-sm active:scale-95 transition-all outline-none cursor-pointer font-display"
                   >
                     Voltar para Conversa
                   </button>
@@ -851,40 +848,40 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
       {/* Modal de Convite de Anjo de Apoio */}
       <AnimatePresence>
         {isInviteModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-6">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 backdrop-blur-sm p-6">
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-brand-white rounded-[2.5rem] p-6 max-w-sm w-full border border-purple-100 shadow-2xl flex flex-col space-y-4"
+              className="bg-[#12182b]/97 border border-white/5 rounded-[2.5rem] p-6 max-w-sm w-full shadow-2xl flex flex-col space-y-4"
             >
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-2 text-purple-600">
+              <div className="flex justify-between items-center text-white">
+                <div className="flex items-center space-x-2 text-purple-400">
                   <span>👼</span>
-                  <h4 className="font-display font-medium text-brand-text text-base">Enviar Convite para Sala</h4>
+                  <h4 className="font-display font-medium text-white text-base">Enviar Convite para Sala</h4>
                 </div>
                 <button
                   onClick={() => setIsInviteModalOpen(false)}
-                  className="p-1 rounded-full text-gray-400 hover:bg-brand-gray hover:text-gray-600"
+                  className="p-1 rounded-full text-gray-400 hover:text-white cursor-pointer transition-colors"
                 >
                   <X size={18} />
                 </button>
               </div>
 
               {inviteErrorMsg && (
-                <div className="p-3 bg-red-50 text-red-600 rounded-2xl text-xs font-semibold border border-red-100 text-center animate-bounce">
+                <div className="p-3 bg-red-500/10 text-red-400 border border-red-500/20 rounded-2xl text-xs font-semibold text-center animate-bounce">
                   ⚠️ {inviteErrorMsg}
                 </div>
               )}
 
               {inviteSuccessMsg && (
-                <div className="p-3 bg-emerald-50 text-emerald-700 rounded-2xl text-xs font-semibold border border-emerald-100 text-center">
+                <div className="p-3 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-2xl text-xs font-semibold text-center">
                   ✅ {inviteSuccessMsg}
                 </div>
               )}
 
               <div className="space-y-1.5">
-                <div className="flex justify-between text-[10px] text-gray-400 font-bold uppercase tracking-wider px-1">
+                <div className="flex justify-between text-[10px] text-gray-500 font-bold uppercase tracking-wider px-1">
                   <span>Seus Anjos de Apoio</span>
                   <span>{participants.length}/10 Vagas</span>
                 </div>
@@ -900,23 +897,23 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
                       return (
                         <div
                           key={angel.id}
-                          className="flex items-center justify-between bg-brand-gray/50 px-4 py-2.5 rounded-2xl border border-brand-blue/5"
+                          className="flex items-center justify-between bg-white/5 px-4 py-2.5 rounded-2xl border border-white/5"
                         >
                           <div className="flex items-center space-x-3.5">
                             <span className="text-lg">{getAvatarById(angel.avatarId || '')?.emoji || '👤'}</span>
-                            <span className="text-xs font-bold text-brand-text leading-none">{angel.name}</span>
+                            <span className="text-xs font-bold text-white leading-none">{angel.name}</span>
                           </div>
 
                           <button
                             disabled={isAlreadyIn || participants.length >= 10}
                             onClick={() => handleInviteAngel(angel)}
                             className={cn(
-                              "px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all",
+                              "px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer outline-none font-display",
                               isAlreadyIn
-                                ? "bg-gray-100 text-gray-400"
+                                ? "bg-white/5 text-gray-500 border border-white/5"
                                 : participants.length >= 10
-                                  ? "bg-red-50 text-red-400"
-                                  : "bg-purple-600 text-white hover:bg-purple-700 active:scale-95 shadow-sm"
+                                  ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                                  : "bg-purple-600 text-white hover:bg-purple-700 active:scale-95 shadow-sm border border-purple-500/25"
                             )}
                           >
                             {isAlreadyIn ? 'Na Sala' : participants.length >= 10 ? 'Lotado' : 'Convidar'}
@@ -930,7 +927,7 @@ export default function LiveRoom({ user, navigate, roomName, gender, invitedAnge
 
               <button
                 onClick={() => setIsInviteModalOpen(false)}
-                className="w-full py-3 bg-brand-gray text-gray-600 hover:bg-gray-200 text-xs font-semibold rounded-2xl active:scale-95 transition-all text-center"
+                className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/5 text-white text-xs font-semibold rounded-2xl active:scale-95 transition-all text-center cursor-pointer font-display"
               >
                 Voltar para conversa
               </button>

@@ -62,10 +62,10 @@ export async function authRoutes(fastify: FastifyInstance) {
         try {
             const ticket = await googleClient.verifyIdToken({
                 idToken,
-                audience: process.env.GOOGLE_CLIENT_ID ?? undefined,
+                audience: process.env.GOOGLE_CLIENT_ID as string,
             });
 
-            const payload = ticket.getPayload();
+            const payload = (ticket as any).getPayload();
             if (!payload) {
                 return reply.status(400).send({ error: 'Token do Google inválido.' });
             }
@@ -171,5 +171,57 @@ export async function authRoutes(fastify: FastifyInstance) {
         }
 
         return { publicKey: user.publicKey };
+    });
+
+    // Accept Terms of Service
+    fastify.post('/user/accept-terms', {
+        onRequest: [fastify.authenticate]
+    }, async (request, reply) => {
+        const schema = z.object({
+            name: z.string(),
+            acceptedAt: z.string(),
+            version: z.string(),
+        });
+        const { name, acceptedAt, version } = schema.parse(request.body);
+
+        fastify.log.info(`[Terms Accepted] User '${name}' accepted terms version ${version} at ${acceptedAt}`);
+        return { success: true, data: { name, acceptedAt, version } };
+    });
+
+    // Create Support Ticket
+    fastify.post('/user/tickets', {
+        onRequest: [fastify.authenticate]
+    }, async (request, reply) => {
+        const schema = z.object({
+            subject: z.string(),
+            message: z.string(),
+        });
+        const { subject, message } = schema.parse(request.body);
+        const userId = (request.user as any).id;
+
+        const ticket = await prisma.supportTicket.create({
+            data: {
+                userId,
+                subject,
+                message,
+                status: 'OPEN',
+            }
+        });
+
+        return ticket;
+    });
+
+    // Get My Support Tickets
+    fastify.get('/user/tickets', {
+        onRequest: [fastify.authenticate]
+    }, async (request) => {
+        const userId = (request.user as any).id;
+
+        const tickets = await prisma.supportTicket.findMany({
+            where: { userId },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        return tickets;
     });
 }

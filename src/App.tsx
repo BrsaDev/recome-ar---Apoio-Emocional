@@ -70,21 +70,18 @@ export default function App() {
 
   const handleUpdateForumTopics = (updated: ForumTopic[]) => {
     setForumTopics(updated);
-    if (!(import.meta as any).env?.VITE_USE_API) {
-      localStorage.setItem('recomecar_forum_topics', JSON.stringify(updated));
-    }
   };
 
   // Sync forum topics from API
   useEffect(() => {
-    if ((import.meta as any).env?.VITE_USE_API === 'true' && user) {
+    if (user) {
       apiService.forum.fetchTopics()
         .then(setForumTopics)
         .catch(err => console.warn('[API Forum] Fetch failed:', err));
     }
   }, [view, user]); // Refetch on navigation or user login
 
-  // Load user from API or localStorage on mount
+  // Load user from API on mount
   useEffect(() => {
     const token = localStorage.getItem('fapem_token');
 
@@ -105,22 +102,8 @@ export default function App() {
           window.history.replaceState({ view: 'welcome' }, '', '');
         });
     } else {
-      // Fallback for sandbox or first visit
-      const savedUser = localStorage.getItem('recomecar_user');
-      if (savedUser) {
-        try {
-          const parsed = JSON.parse(savedUser);
-          setUser(parsed);
-          setView('home');
-          window.history.replaceState({ view: 'home' }, '', '');
-        } catch (e) {
-          setView('welcome');
-          window.history.replaceState({ view: 'welcome' }, '', '');
-        }
-      } else {
-        setView('welcome');
-        window.history.replaceState({ view: 'welcome' }, '', '');
-      }
+      setView('welcome');
+      window.history.replaceState({ view: 'welcome' }, '', '');
     }
   }, []);
 
@@ -177,7 +160,6 @@ export default function App() {
             initialIsSignUp={window.history.state?.isSignUp || false}
             onComplete={(userData, isNew) => {
               setUser(userData);
-              localStorage.setItem('recomecar_user', JSON.stringify(userData));
 
               if (isNew) {
                 navigate('onboarding');
@@ -203,7 +185,6 @@ export default function App() {
             gender={activeRoom?.gender || 'mixed'}
             onUpdateUser={(updated) => {
               setUser(updated);
-              localStorage.setItem('recomecar_user', JSON.stringify(updated));
             }}
           />
         );
@@ -227,7 +208,6 @@ export default function App() {
             onUpdateTopics={handleUpdateForumTopics}
             onUpdateUser={(updated) => {
               setUser(updated);
-              localStorage.setItem('recomecar_user', JSON.stringify(updated));
             }}
           />
         );
@@ -241,14 +221,12 @@ export default function App() {
             topics={forumTopics}
             onUpdateTopics={handleUpdateForumTopics}
             onLogout={() => {
-              localStorage.removeItem('recomecar_user');
               localStorage.removeItem('fapem_token');
               setUser(null);
               navigate('welcome');
             }}
             onUpdateUser={(updated) => {
               setUser(updated);
-              localStorage.setItem('recomecar_user', JSON.stringify(updated));
             }}
           />
         );
@@ -259,7 +237,6 @@ export default function App() {
             navigate={navigate}
             onUpdateUser={(updated) => {
               setUser(updated);
-              localStorage.setItem('recomecar_user', JSON.stringify(updated));
             }}
           />
         );
@@ -272,6 +249,7 @@ export default function App() {
       case 'admin':
         return (
           <Admin
+            user={user}
             navigate={navigate}
             forumTopics={forumTopics}
             onUpdateForumTopics={handleUpdateForumTopics}
@@ -285,7 +263,7 @@ export default function App() {
   const showNav = user && !['welcome', 'login', 'onboarding', 'emergency', 'live-room', 'privacy-policy', 'support', 'admin'].includes(view);
 
   return (
-    <div className="relative h-[100dvh] w-full overflow-hidden bg-brand-gray flex flex-col max-w-md mx-auto shadow-2xl">
+    <div className="relative h-[100dvh] w-full overflow-hidden bg-[#020410] flex flex-col max-w-md mx-auto shadow-2xl">
       <main className="flex-1 relative overflow-hidden flex flex-col">
         <AnimatePresence mode="wait">
           <motion.div
@@ -321,7 +299,6 @@ export default function App() {
                 termsVersion: version
               };
               setUser(updated);
-              localStorage.setItem('recomecar_user', JSON.stringify(updated));
 
               apiService.profile.acceptTerms(user.nickname || user.name, acceptedAt, version).catch(err => {
                 console.warn('[API Sync] Legal terms sync failed:', err);
@@ -340,15 +317,9 @@ export default function App() {
       {user && showPromoModal && !['welcome', 'onboarding'].includes(view) && (
         <WelcomePromoModal
           user={user}
-          onUpdateUser={(updated) => {
-            setUser(updated);
-            localStorage.setItem('recomecar_user', JSON.stringify(updated));
-          }}
+          onUpdateUser={setUser}
           userCount={userCount}
-          onUpdateUserCount={(newCount) => {
-            setUserCount(newCount);
-            localStorage.setItem('recomecar_user_count', String(newCount));
-          }}
+          onUpdateUserCount={setUserCount}
           onClose={() => {
             setShowPromoModal(false);
             localStorage.setItem('recomecar_has_seen_promo', 'true');

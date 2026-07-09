@@ -230,25 +230,25 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
   );
 
   return (
-    <div className="h-full w-full flex flex-col bg-brand-gray overflow-y-auto no-scrollbar">
-      <div className="bg-brand-white px-6 pt-16 pb-10 rounded-b-[3rem] shadow-sm">
+    <div className="h-full w-full flex flex-col bg-[#020410] overflow-y-auto no-scrollbar">
+      <div className="bg-[#0a0f1f]/90 border-b border-white/5 px-6 pt-16 pb-10 rounded-b-[2rem] shadow-neon-purple shadow-sm">
         <div className="flex flex-col items-center space-y-4">
           <button
             onClick={() => setIsAvatarModalOpen(true)}
-            className="w-24 h-24 rounded-full bg-brand-blue/10 flex items-center justify-center border-4 border-white shadow-xl overflow-hidden relative group active:scale-95 transition-all outline-none"
+            className="w-24 h-24 rounded-full bg-purple-500/10 flex items-center justify-center border-2 border-purple-500/30 shadow-neon-purple shadow-xl overflow-hidden relative group active:scale-95 transition-all outline-none cursor-pointer"
             title="Escolher avatar"
           >
             <span className="text-4xl">{avatar?.emoji || '👋'}</span>
-            <div className="absolute inset-0 bg-brand-blue/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute inset-0 bg-purple-500/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
               <Edit3 size={18} className="text-white" />
             </div>
           </button>
           <div className="text-center">
-            <h2 className="text-2xl font-display font-semibold text-brand-text">{user?.nickname || user?.name || 'Viajante'}</h2>
-            <p className="text-gray-400 text-sm italic">Cuidando de si mesmo um dia de cada vez.</p>
+            <h2 className="text-2xl font-display font-semibold text-white">{user?.nickname || user?.name || 'Viajante'}</h2>
+            <p className="text-gray-500 text-sm italic">Cuidando de si mesmo um dia de cada vez.</p>
             <button
               onClick={() => setIsAvatarModalOpen(true)}
-              className="mt-2 text-xs text-brand-blue font-bold tracking-tight hover:underline focus:outline-none"
+              className="mt-2 text-xs text-purple-400 font-bold tracking-tight hover:underline focus:outline-none cursor-pointer"
             >
               Alterar avatar
             </button>
@@ -261,28 +261,28 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
         {/* Meus Anjos de Apoio Profile Showcase */}
         <div className="space-y-3">
           <div className="flex items-center justify-between px-2">
-            <h3 className="text-xs font-medium uppercase tracking-widest text-gray-400">Meus Anjos de Apoio</h3>
-            <span className="text-[10px] bg-purple-50 text-purple-600 font-bold px-2 py-0.5 rounded-full border border-purple-100">
+            <h3 className="text-xs font-medium uppercase tracking-widest text-gray-500">Meus Anjos de Apoio</h3>
+            <span className="text-[10px] bg-purple-500/10 text-purple-400 font-bold px-2 py-0.5 rounded-full border border-purple-500/20">
               {supportAngels.length} Ativo(s)
             </span>
           </div>
 
-          <div className="bg-brand-white rounded-3xl p-5 shadow-sm border border-brand-blue/5 overflow-hidden">
+          <div className="bg-[#0a0f1f]/60 rounded-3xl p-5 border border-white/5 overflow-hidden">
             {/* Elegant Search Bar displayed only when user has more than 4 angels to maintain pristine UX */}
             {supportAngels.length > 4 && (
-              <div className="relative mb-4 flex items-center bg-brand-gray/50 rounded-2xl px-3.5 py-2.5 border border-brand-blue/5 transition-all focus-within:border-brand-blue/20">
-                <Search size={14} className="text-gray-400 shrink-0 mr-2" />
+              <div className="relative mb-4 flex items-center bg-[#12182b] rounded-2xl px-3.5 py-2.5 border border-white/5 transition-all focus-within:border-purple-500/30">
+                <Search size={14} className="text-gray-500 shrink-0 mr-2" />
                 <input
                   type="text"
                   placeholder="Buscar anjo pelo nome..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-transparent text-xs text-brand-text placeholder-gray-400 outline-none w-full font-medium"
+                  className="bg-transparent text-xs text-white placeholder-gray-500 outline-none w-full font-medium"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="p-1 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600 active:scale-95 transition-all ml-1 outline-none"
+                    className="p-1 rounded-full text-gray-400 hover:bg-white/10 hover:text-white active:scale-95 transition-all ml-1 outline-none cursor-pointer"
                   >
                     <X size={12} />
                   </button>
@@ -292,19 +292,19 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
 
             {supportAngels.length === 0 ? (
               <div className="text-center py-4 space-y-2">
-                <div className="w-10 h-10 rounded-full bg-pink-50 text-pink-400 flex items-center justify-center mx-auto">
-                  <Heart size={20} className="fill-pink-50 animate-pulse" />
+                <div className="w-10 h-10 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center mx-auto">
+                  <Heart size={20} className="fill-purple-500/20 animate-pulse" />
                 </div>
-                <p className="text-xs text-brand-text/60 font-light leading-relaxed max-w-[240px] mx-auto">
-                  Toque no avatar de outros membros no fórum ou na sala para adicioná-los como seus <strong className="text-brand-blue font-semibold">Anjos de Apoio</strong>.
+                <p className="text-xs text-gray-400 font-light leading-relaxed max-w-[240px] mx-auto">
+                  Toque no avatar de outros membros no fórum ou na sala para adicioná-los como seus <strong className="text-purple-400 font-semibold">Anjos de Apoio</strong>.
                 </p>
               </div>
             ) : filteredAngels.length === 0 ? (
               <div className="text-center py-4 space-y-2">
-                <p className="text-xs text-brand-text/60 font-medium">Nenhum anjo com "{searchQuery}" foi encontrado.</p>
+                <p className="text-xs text-gray-400 font-medium">Nenhum anjo com "{searchQuery}" foi encontrado.</p>
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="text-[10px] text-purple-600 font-bold underline hover:text-purple-700 active:scale-95 transition-all outline-none"
+                  className="text-[10px] text-purple-400 font-bold underline hover:text-purple-300 active:scale-95 transition-all outline-none cursor-pointer"
                 >
                   Limpar pesquisa
                 </button>
@@ -318,17 +318,17 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                       key={angel.id}
                       initial={{ scale: 0.9, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
-                      className="snap-start shrink-0 flex flex-col items-center bg-brand-gray/30 p-3 rounded-2xl border border-brand-blue/5 min-w-[80px] relative group text-center"
+                      className="snap-start shrink-0 flex flex-col items-center bg-white/5 p-3 rounded-2xl border border-white/5 min-w-[80px] relative group text-center"
                     >
-                      <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-2.5xl shadow-xs border border-brand-blue/5 relative">
+                      <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-2.5xl shadow-xs border border-white/5 relative">
                         {angelAvatar?.emoji || '👤'}
-                        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-white animate-pulse" />
+                        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-[#020410] animate-pulse" />
                       </div>
-                      <span className="text-[10px] font-bold text-brand-text truncate w-14 mt-2 font-display leading-tight">{angel.name}</span>
+                      <span className="text-[10px] font-bold text-white truncate w-14 mt-2 font-display leading-tight">{angel.name}</span>
 
                       <button
                         onClick={() => handleRemoveAngel(angel.id)}
-                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-100 hover:bg-red-500 text-red-600 hover:text-white rounded-full flex items-center justify-center shadow-xs active:scale-90 transition-all outline-none"
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#1a0c0e] border border-red-500/30 hover:bg-red-550 text-red-400 hover:text-white rounded-full flex items-center justify-center shadow-xs active:scale-90 transition-all outline-none cursor-pointer"
                         title="Remover anjo"
                       >
                         <X size={10} />
@@ -347,8 +347,8 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
             onClick={() => setIsForumActivityOpen(!isForumActivityOpen)}
             className="w-full flex items-center justify-between px-2 text-left outline-none group cursor-pointer"
           >
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-gray-400 group-hover:text-gray-600 transition-colors">Minha Atividade no Fórum</h3>
-            <div className="flex items-center space-x-2 text-xs text-brand-blue font-bold">
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-gray-500 group-hover:text-gray-400 transition-colors">Minha Atividade no Fórum</h3>
+            <div className="flex items-center space-x-2 text-xs text-purple-400 font-bold">
               <span>{myTopics.length} tópico(s) e {myComments.length} coment.</span>
               {isForumActivityOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </div>
@@ -358,16 +358,16 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
-              className="bg-brand-white rounded-3xl p-5 shadow-sm border border-brand-blue/5 space-y-4"
+              className="bg-[#0a0f1f]/60 rounded-3xl p-5 border border-white/5 space-y-4"
             >
               {/* Toggles */}
-              <div className="flex bg-brand-gray p-1 rounded-2xl border border-brand-blue/5">
+              <div className="flex bg-[#12182b] p-1 rounded-2xl border border-white/5">
                 <button
                   type="button"
                   onClick={() => setForumActiveTab('topics')}
                   className={`flex-1 py-2 text-center text-xs font-bold rounded-xl transition-all cursor-pointer ${forumActiveTab === 'topics'
-                      ? 'bg-brand-white text-brand-text shadow-sm'
-                      : 'text-gray-400 hover:text-gray-600'
+                    ? 'bg-[#0a0f1f] text-white border border-white/5 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-400'
                     }`}
                 >
                   Meus Tópicos ({myTopics.length})
@@ -376,8 +376,8 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                   type="button"
                   onClick={() => setForumActiveTab('comments')}
                   className={`flex-1 py-2 text-center text-xs font-bold rounded-xl transition-all cursor-pointer ${forumActiveTab === 'comments'
-                      ? 'bg-brand-white text-brand-text shadow-sm'
-                      : 'text-gray-400 hover:text-gray-600'
+                    ? 'bg-[#0a0f1f] text-white border border-white/5 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-400'
                     }`}
                 >
                   Meus Comentários ({myComments.length})
@@ -388,7 +388,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
               {forumActiveTab === 'topics' && (
                 <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1 no-scrollbar flex flex-col">
                   {myTopics.length === 0 ? (
-                    <p className="text-xs text-gray-400 italic text-center py-4">Você ainda não criou nenhum tópico de discussão.</p>
+                    <p className="text-xs text-gray-500 italic text-center py-4">Você ainda não criou nenhum tópico de discussão.</p>
                   ) : (
                     <>
                       {myTopics.slice(0, visibleTopicsCount).map(topic => {
@@ -397,28 +397,28 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                         const isDeletedScheduled = !!topic.scheduledDeletionTime;
 
                         return (
-                          <div key={topic.id} className="p-3 bg-brand-gray/40 hover:bg-brand-gray/70 rounded-2xl border border-brand-blue/5 space-y-2 transition-all">
+                          <div key={topic.id} className="p-3 bg-[#12182b]/55 hover:bg-[#12182b]/80 rounded-2xl border border-white/5 space-y-2 transition-all">
                             <div className="flex justify-between items-start gap-2">
                               <button
                                 type="button"
                                 onClick={() => navigate('topic-detail', { topicId: topic.id })}
-                                className="text-xs font-bold text-brand-text hover:text-brand-blue text-left leading-snug flex-1 transition-colors cursor-pointer"
+                                className="text-xs font-bold text-white hover:text-purple-400 text-left leading-snug flex-1 transition-colors cursor-pointer"
                               >
                                 💬 {topic.title}
                               </button>
-                              <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-brand-blue/5 text-brand-blue border border-brand-blue/10 shrink-0 font-bold">
+                              <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 shrink-0 font-bold">
                                 {topic.category}
                               </span>
                             </div>
 
                             {isDeletedScheduled && (
-                              <p className="text-[10px] text-amber-600 flex items-center gap-1 font-medium bg-amber-50 px-2 py-1 rounded-lg">
+                              <p className="text-[10px] text-amber-400 flex items-center gap-1 font-medium bg-amber-500/5 px-2 py-1 rounded-lg border border-amber-500/10">
                                 ⚠️ Exclusão agendada em 24h
                               </p>
                             )}
 
-                            <div className="flex justify-between items-center pt-1 border-t border-brand-blue/5">
-                              <span className="text-[9px] text-gray-400 flex items-center gap-1">
+                            <div className="flex justify-between items-center pt-1 border-t border-white/5">
+                              <span className="text-[9px] text-gray-550 flex items-center gap-1">
                                 <Calendar size={10} />
                                 {new Date(topic.lastUpdate).toLocaleDateString('pt-BR')}
                               </span>
@@ -430,12 +430,12 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                                       setEditingPost({ topicId: topic.id, post: firstPost, title: topic.title });
                                       setEditPostContent(firstPost.content);
                                     }}
-                                    className="text-[10px] text-brand-blue font-bold hover:underline py-1 px-2 bg-brand-blue/5 border border-brand-blue/10 rounded-lg flex items-center gap-1 active:scale-95 transition-all outline-none cursor-pointer"
+                                    className="text-[10px] text-purple-400 font-bold hover:underline py-1 px-2 bg-purple-500/10 border border-purple-500/20 rounded-lg flex items-center gap-1 active:scale-95 transition-all outline-none cursor-pointer"
                                   >
                                     <PenSquare size={10} /> Editar
                                   </button>
                                 ) : firstPost ? (
-                                  <span className="text-[9px] text-gray-400 flex items-center gap-0.5" title="Tempo de edição esgotado">
+                                  <span className="text-[9px] text-gray-500 flex items-center gap-0.5" title="Tempo de edição esgotado">
                                     <Clock size={10} /> Expirado
                                   </span>
                                 ) : null}
@@ -444,8 +444,8 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                                   type="button"
                                   onClick={() => setTopicToDelete(topic)}
                                   className={`text-[10px] font-bold py-1 px-2 rounded-lg flex items-center gap-1 active:scale-95 transition-all outline-none cursor-pointer ${isDeletedScheduled
-                                      ? 'text-amber-600 bg-amber-50 border border-amber-100 hover:bg-amber-105'
-                                      : 'text-red-500 bg-red-50 hover:bg-red-100 border border-red-100/40'
+                                    ? 'text-amber-400 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/15'
+                                    : 'text-red-400 bg-red-500/10 hover:bg-red-500/15 border border-red-500/20'
                                     }`}
                                 >
                                   <Trash2 size={10} /> {isDeletedScheduled ? 'Cancelar Excl.' : 'Excluir'}
@@ -460,7 +460,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                         <button
                           type="button"
                           onClick={() => setVisibleTopicsCount(prev => prev + 3)}
-                          className="w-full text-center py-2.5 mt-1 text-[10px] font-bold text-brand-blue hover:text-brand-blue/80 bg-brand-blue/5 hover:bg-brand-blue/10 rounded-xl transition-all outline-none border border-brand-blue/10 cursor-pointer"
+                          className="w-full text-center py-2.5 mt-1 text-[10px] font-bold text-purple-400 hover:text-purple-300 bg-purple-500/5 hover:bg-purple-500/10 rounded-xl transition-all outline-none border border-purple-500/10 cursor-pointer"
                         >
                           Carregar mais tópicos (+3)
                         </button>
@@ -474,29 +474,29 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
               {forumActiveTab === 'comments' && (
                 <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1 no-scrollbar flex flex-col">
                   {myComments.length === 0 ? (
-                    <p className="text-xs text-gray-400 italic text-center py-4">Você ainda não comentou em nenhum tópico.</p>
+                    <p className="text-xs text-gray-550 italic text-center py-4">Você ainda não comentou em nenhum tópico.</p>
                   ) : (
                     <>
                       {myComments.slice(0, visibleCommentsCount).map(({ topic, post }) => {
                         const canEditComment = isEditable(post.timestamp) && !post.isDeleted;
                         return (
-                          <div key={post.id} className="p-3 bg-brand-gray/40 hover:bg-brand-gray/70 rounded-2xl border border-brand-blue/5 space-y-2 transition-all">
+                          <div key={post.id} className="p-3 bg-[#12182b]/55 hover:bg-[#12182b]/80 rounded-2xl border border-white/5 space-y-2 transition-all">
                             <div className="flex justify-between items-start gap-2">
                               <button
                                 type="button"
                                 onClick={() => navigate('topic-detail', { topicId: topic.id, postId: post.id })}
-                                className="text-[10px] text-gray-400 hover:text-brand-blue text-left transition-colors truncate flex-1 cursor-pointer"
+                                className="text-[10px] text-gray-400 hover:text-purple-400 text-left transition-colors truncate flex-1 cursor-pointer"
                               >
-                                Em: <strong className="text-brand-text font-bold text-xs">{topic.title}</strong>
+                                Em: <strong className="text-white font-bold text-xs">{topic.title}</strong>
                               </button>
                             </div>
 
-                            <p className={`text-[11.5px] leading-relaxed break-words ${post.isDeleted ? 'text-gray-400 italic' : 'text-brand-text'}`}>
+                            <p className={`text-[11.5px] leading-relaxed break-words ${post.isDeleted ? 'text-gray-550 italic' : 'text-white'}`}>
                               {post.isDeleted ? '🚫 Comentário removido por você' : post.content}
                             </p>
 
-                            <div className="flex justify-between items-center pt-1 border-t border-brand-blue/5">
-                              <span className="text-[9px] text-gray-400 flex items-center gap-1">
+                            <div className="flex justify-between items-center pt-1 border-t border-white/5">
+                              <span className="text-[9px] text-gray-550 flex items-center gap-1">
                                 <Calendar size={10} />
                                 {new Date(post.timestamp).toLocaleDateString('pt-BR')}
                               </span>
@@ -510,12 +510,12 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                                         setEditingPost({ topicId: topic.id, post, title: topic.title });
                                         setEditPostContent(post.content);
                                       }}
-                                      className="text-[10px] text-brand-blue font-bold hover:underline py-1 px-2 bg-brand-blue/5 border border-brand-blue/10 rounded-lg flex items-center gap-1 active:scale-95 transition-all outline-none cursor-pointer"
+                                      className="text-[10px] text-purple-400 font-bold hover:underline py-1 px-2 bg-purple-500/10 border border-purple-500/20 rounded-lg flex items-center gap-1 active:scale-95 transition-all outline-none cursor-pointer"
                                     >
                                       <PenSquare size={10} /> Editar
                                     </button>
                                   ) : (
-                                    <span className="text-[9px] text-gray-400 flex items-center gap-0.5" title="Tempo de edição expirado">
+                                    <span className="text-[9px] text-gray-500 flex items-center gap-0.5" title="Tempo de edição expirado">
                                       <Clock size={10} /> Expirado
                                     </span>
                                   )}
@@ -523,7 +523,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                                   <button
                                     type="button"
                                     onClick={() => handleDeleteComment(topic.id, post.id)}
-                                    className="text-[10px] text-red-500 font-bold py-1 px-2 bg-red-50 hover:bg-red-100 border border-red-100/40 rounded-lg flex items-center gap-1 active:scale-95 transition-all outline-none cursor-pointer"
+                                    className="text-[10px] text-[#ff4a5a] font-bold py-1 px-2 bg-red-500/10 hover:bg-red-500/15 border border-red-500/20 rounded-lg flex items-center gap-1 active:scale-95 transition-all outline-none cursor-pointer"
                                   >
                                     <Trash2 size={10} /> Excluir
                                   </button>
@@ -538,7 +538,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                         <button
                           type="button"
                           onClick={() => setVisibleCommentsCount(prev => prev + 3)}
-                          className="w-full text-center py-2.5 mt-1 text-[10px] font-bold text-brand-blue hover:text-brand-blue/80 bg-brand-blue/5 hover:bg-brand-blue/10 rounded-xl transition-all outline-none border border-brand-blue/10 cursor-pointer"
+                          className="w-full text-center py-2.5 mt-1 text-[10px] font-bold text-purple-400 hover:text-purple-300 bg-white/5 hover:bg-white/10 rounded-xl transition-all outline-none border border-white/5 cursor-pointer"
                         >
                           Carregar mais comentários (+3)
                         </button>
@@ -559,8 +559,8 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
               onClick={() => setIsRoomsActivityOpen(!isRoomsActivityOpen)}
               className="w-full flex items-center justify-between px-2 text-left outline-none group cursor-pointer"
             >
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-[#2E9CCA] group-hover:text-blue-600 transition-colors shrink-0">Minhas Salas de Apoio</h3>
-              <div className="flex items-center space-x-2 text-xs text-[#2E9CCA] font-bold">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-cyan-400 group-hover:text-cyan-300 transition-colors shrink-0">Minhas Salas de Apoio</h3>
+              <div className="flex items-center space-x-2 text-xs text-cyan-400 font-bold">
                 <span>{customRooms.length} sala(s) criada(s)</span>
                 {isRoomsActivityOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
               </div>
@@ -570,15 +570,15 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
-                className="bg-brand-white rounded-3xl p-5 shadow-sm border border-brand-blue/5 space-y-4"
+                className="bg-[#0a0f1f]/60 rounded-3xl p-5 border border-white/5 space-y-4"
               >
                 {customRooms.length === 0 ? (
                   <div className="text-center py-5 space-y-2">
-                    <p className="text-xs text-brand-text/60 font-light">Você ainda não criou nenhuma sala personalizada de apoio.</p>
+                    <p className="text-xs text-gray-400 font-light">Você ainda não criou nenhuma sala personalizada de apoio.</p>
                     <button
                       type="button"
                       onClick={() => navigate('rooms')}
-                      className="text-[10.5px] bg-[#2E9CCA] text-white font-bold px-3 py-1.5 rounded-full active:scale-95 transition-transform cursor-pointer"
+                      className="text-[10.5px] bg-cyan-600 hover:bg-cyan-705 text-white font-bold px-3 py-1.5 rounded-full active:scale-95 transition-transform cursor-pointer"
                     >
                       Criar primeira sala ↗
                     </button>
@@ -586,25 +586,25 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                 ) : (
                   <div className="space-y-3 max-h-80 overflow-y-auto pr-1 no-scrollbar flex flex-col">
                     {customRooms.slice(0, visibleRoomsCount).map(room => (
-                      <div key={room.id} className="p-3.5 bg-brand-gray/40 hover:bg-brand-gray/70 border border-brand-blue/5 rounded-2xl transition-all space-y-2">
+                      <div key={room.id} className="p-3.5 bg-[#12182b]/55 hover:bg-[#12182b]/80 border border-white/5 rounded-2xl transition-all space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-brand-text truncate leading-snug">
+                          <span className="text-xs font-bold text-white truncate leading-snug">
                             🛡️ {room.name}
                           </span>
                           <span className={`text-[8.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${room.type === 'vip'
-                              ? 'bg-amber-50 text-amber-700 border-amber-100'
-                              : 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                            ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                            : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                             }`}>
                             {room.type === 'vip' ? '🔒 Privada (Apenas com Convite)' : '🌐 Pública'}
                           </span>
                         </div>
 
-                        <p className="text-[10.5px] text-gray-500 font-light leading-relaxed truncate">
+                        <p className="text-[10.5px] text-gray-400 font-light leading-relaxed truncate">
                           {room.description || 'Sem descrição cadastrada.'}
                         </p>
 
-                        <div className="flex items-center justify-between pt-2 border-t border-brand-blue/5">
-                          <span className="text-[9px] text-gray-400 flex items-center gap-1">
+                        <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                          <span className="text-[9px] text-gray-550 flex items-center gap-1">
                             <Users size={10} />
                             Criada por Você (Premium)
                           </span>
@@ -618,7 +618,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                                 setEditRoomDesc(room.description || '');
                                 setEditRoomType(room.type as 'public' | 'vip' || 'public');
                               }}
-                              className="text-[10px] text-brand-blue font-bold px-2 py-1 bg-brand-blue/5 border border-brand-blue/10 hover:underline rounded-lg flex items-center gap-1 active:scale-95 transition-all outline-none cursor-pointer"
+                              className="text-[10px] text-cyan-400 font-bold px-2 py-1 bg-cyan-500/10 border border-cyan-500/20 hover:underline rounded-lg flex items-center gap-1 active:scale-95 transition-all outline-none cursor-pointer"
                             >
                               Editar
                             </button>
@@ -629,7 +629,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                                   handleDeleteRoom(room.id);
                                 }
                               }}
-                              className="text-[10px] text-red-500 font-bold px-2 py-1 bg-red-50 hover:bg-red-105 border border-red-100/40 rounded-lg flex items-center gap-1 active:scale-95 transition-all outline-none cursor-pointer"
+                              className="text-[10px] text-red-400 font-bold px-2 py-1 bg-red-500/10 hover:bg-red-500/15 border border-red-500/20 rounded-lg flex items-center gap-1 active:scale-95 transition-all outline-none cursor-pointer"
                             >
                               Excluir
                             </button>
@@ -642,7 +642,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                       <button
                         type="button"
                         onClick={() => setVisibleRoomsCount(prev => prev + 3)}
-                        className="w-full text-center py-2.5 mt-1 text-[10px] font-bold text-[#2E9CCA] hover:text-blue-600 bg-blue-50/50 hover:bg-blue-50 rounded-xl transition-all outline-none border border-blue-100/30 cursor-pointer"
+                        className="w-full text-center py-2.5 mt-1 text-[10px] font-bold text-cyan-400 hover:text-cyan-300 bg-white/5 hover:bg-white/10 rounded-xl transition-all outline-none border border-white/5 cursor-pointer"
                       >
                         Carregar mais salas (+3)
                       </button>
@@ -655,95 +655,95 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
         )}
 
         <div className="space-y-3">
-          <h3 className="text-xs font-medium uppercase tracking-widest text-gray-400 px-2">Bem-estar</h3>
-          <div className="bg-brand-white rounded-3xl overflow-hidden shadow-sm border border-brand-blue/5">
-            <button onClick={() => navigate('vip')} className="w-full px-6 py-5 flex items-center justify-between border-b border-gray-50 active:bg-gray-50 transition-all">
+          <h3 className="text-xs font-medium uppercase tracking-widest text-gray-505 px-2">Bem-estar</h3>
+          <div className="bg-[#0a0f1f]/60 rounded-3xl overflow-hidden border border-white/5">
+            <button onClick={() => navigate('vip')} className="w-full px-6 py-5 flex items-center justify-between border-b border-white/5 hover:bg-white/5 active:bg-white/10 transition-all cursor-pointer">
               <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center text-yellow-500">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400">
                   <Award size={22} />
                 </div>
-                <span className="font-medium text-brand-text">Meu Plano</span>
+                <span className="font-medium text-white">Meu Plano</span>
               </div>
-              <ArrowRight size={18} className="text-gray-300" />
+              <ArrowRight size={18} className="text-gray-500" />
             </button>
-            <button className="w-full px-6 py-5 flex items-center justify-between border-b border-gray-50 active:bg-gray-50 transition-all">
+            <button className="w-full px-6 py-5 flex items-center justify-between border-b border-white/5 hover:bg-white/5 active:bg-white/10 transition-all cursor-pointer">
               <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400">
                   <LayoutGrid size={22} />
                 </div>
-                <span className="font-medium text-brand-text">Histórico Emocional</span>
+                <span className="font-medium text-white">Histórico Emocional</span>
               </div>
-              <ArrowRight size={18} className="text-gray-300" />
+              <ArrowRight size={18} className="text-gray-550" />
             </button>
-            <button className="w-full px-6 py-5 flex items-center justify-between border-b border-gray-50 active:bg-gray-50 transition-all">
+            <button className="w-full px-6 py-5 flex items-center justify-between border-b border-white/5 hover:bg-white/5 active:bg-white/10 transition-all cursor-pointer">
               <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 rounded-xl bg-brand-green/10 flex items-center justify-center text-brand-green">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
                   <Shield size={22} />
                 </div>
-                <span className="font-medium text-brand-text">Configurações de Privacidade</span>
+                <span className="font-medium text-white">Configurações de Privacidade</span>
               </div>
-              <ArrowRight size={18} className="text-gray-300" />
+              <ArrowRight size={18} className="text-gray-550" />
             </button>
-            <button onClick={() => navigate('support')} className="w-full px-6 py-5 flex items-center justify-between active:bg-gray-50 transition-all" id="btn-profile-support">
+            <button onClick={() => navigate('support')} className="w-full px-6 py-5 flex items-center justify-between hover:bg-white/5 active:bg-white/10 transition-all cursor-pointer" id="btn-profile-support">
               <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400">
                   <LifeBuoy size={22} />
                 </div>
-                <span className="font-medium text-brand-text">Suporte & Central de Ajuda</span>
+                <span className="font-medium text-white">Suporte & Central de Ajuda</span>
               </div>
-              <ArrowRight size={18} className="text-gray-300" />
+              <ArrowRight size={18} className="text-gray-550" />
             </button>
           </div>
         </div>
 
         <div className="space-y-3" id="legal-terms-section">
-          <h3 className="text-xs font-medium uppercase tracking-widest text-gray-400 px-2">Segurança & Termos Legais</h3>
-          <div className="bg-brand-white rounded-3xl p-5 shadow-sm border border-brand-blue/5 space-y-4">
+          <h3 className="text-xs font-medium uppercase tracking-widest text-gray-500 px-2">Segurança & Termos Legais</h3>
+          <div className="bg-[#0a0f1f]/60 rounded-3xl p-5 border border-white/5 space-y-4">
             <div className="flex items-start space-x-3.5">
-              <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 shrink-0">
                 <Shield size={22} className="animate-pulse" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="text-xs font-bold text-gray-950 block">Termo de Consentimento</span>
-                <p className="text-[11px] text-gray-400 leading-tight mt-0.5 font-light">Assinado eletronicamente e irrevogável.</p>
+                <span className="text-xs font-bold text-white block">Termo de Consentimento</span>
+                <p className="text-[11px] text-gray-500 leading-tight mt-0.5 font-light">Assinado eletronicamente e irrevogável.</p>
               </div>
-              <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full border border-emerald-100 flex items-center space-x-1 shrink-0">
+              <span className="text-[10px] bg-emerald-500/10 text-emerald-400 font-bold px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center space-x-1 shrink-0">
                 <span>🔒 Lock</span>
               </span>
             </div>
 
             {user?.termsAccepted ? (
-              <div className="bg-brand-gray/50 rounded-2xl p-3.5 space-y-2 border border-brand-blue/5 text-[11px]">
-                <div className="flex justify-between text-gray-500">
+              <div className="bg-[#12182b] rounded-2xl p-3.5 space-y-2 border border-white/5 text-[11px]">
+                <div className="flex justify-between text-gray-400">
                   <span>Signatário:</span>
-                  <strong className="text-brand-text font-bold">{user.nickname || user.name}</strong>
+                  <strong className="text-white font-bold">{user.nickname || user.name}</strong>
                 </div>
-                <div className="flex justify-between text-gray-500">
+                <div className="flex justify-between text-gray-400">
                   <span>Data de Aceito:</span>
-                  <strong className="text-brand-text font-bold">
+                  <strong className="text-white font-bold">
                     {user.termsAcceptedAt ? new Date(user.termsAcceptedAt).toLocaleString('pt-BR') : 'Gravado'}
                   </strong>
                 </div>
-                <div className="flex justify-between text-gray-500">
+                <div className="flex justify-between text-gray-400">
                   <span>Versão do Termo:</span>
-                  <strong className="text-brand-text font-mono font-bold">{user.termsVersion || '1.0.0-PRO-SAFE'}</strong>
+                  <strong className="text-white font-mono font-bold">{user.termsVersion || '1.0.0-PRO-SAFE'}</strong>
                 </div>
-                <div className="flex justify-between text-gray-500">
+                <div className="flex justify-between text-gray-400">
                   <span>Status Regulatório:</span>
-                  <span className="text-emerald-750 font-bold">Ativo & Auditado ✔</span>
+                  <span className="text-emerald-400 font-bold">Ativo & Auditado ✔</span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 mt-2">
                   <button
                     onClick={() => setIsShowingLegalText(!isShowingLegalText)}
-                    className="py-2.5 bg-brand-gray hover:bg-brand-gray/70 text-gray-700 text-[10.5px] font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center space-x-1 outline-none"
+                    className="py-2.5 bg-white/5 hover:bg-white/10 text-white text-[10.5px] font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center space-x-1 outline-none border border-white/5"
                     id="btn-toggle-terms"
                   >
                     <span>{isShowingLegalText ? 'Esconder Termo ▲' : 'Ler Termo Rápido ▼'}</span>
                   </button>
                   <button
                     onClick={() => navigate('privacy-policy')}
-                    className="py-2.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-[10.5px] font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center space-x-1 outline-none"
+                    className="py-2.5 bg-purple-500/10 hover:bg-purple-500/15 text-purple-400 text-[10.5px] font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center space-x-1 outline-none border border-purple-500/20"
                     id="btn-go-privacy-policy"
                   >
                     <span>Políticas / LGPD ↗</span>
@@ -754,10 +754,10 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
-                    className="mt-3 p-3 bg-white rounded-xl border border-brand-blue/5 max-h-48 overflow-y-auto space-y-2 text-[10px] text-gray-500 leading-normal scrollbar-thin"
+                    className="mt-3 p-3 bg-[#12182b] rounded-xl border border-white/5 max-h-48 overflow-y-auto space-y-2 text-[10px] text-gray-400 leading-normal scrollbar-thin"
                     id="full-legal-text-container"
                   >
-                    <p className="font-bold text-gray-850 uppercase tracking-wide">TERMO DE RESPONSABILIDADE CIVIL E ISENÇÃO DE SUPORTE MÉDICO-CLÍNICO (V1.0.0-PRO-SAFE)</p>
+                    <p className="font-bold text-white uppercase tracking-wide">TERMO DE RESPONSABILIDADE CIVIL E ISENÇÃO DE SUPORTE MÉDICO-CLÍNICO (V1.0.0-PRO-SAFE)</p>
                     <p>
                       <strong>1. Objeto do FAPEM:</strong> Atua estritamente como plataforma de compartilhamento de vivências e integração espontânea. Fica expressamente vedada à plataforma a prestação de serviços psicológicos ou assistenciais em saúde mental.
                     </p>
@@ -767,14 +767,14 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                     <p>
                       <strong>3. Isenção Extensiva e Irrevogabilidade:</strong> O aceite integral deste termo constitui renúncia expressa a ações de reparação médica ou clínica contra moderadores e desenvolvedores do aplicativo, mantendo os registros imutáveis e auditáveis.
                     </p>
-                    <p className="text-[9px] italic border-t pt-1.5 mt-2 text-center text-gray-400">
+                    <p className="text-[9px] italic border-t border-white/5 pt-1.5 mt-2 text-center text-gray-550">
                       🔒 Assinado digitalmente através de identificador local persistente. Modificação desativada.
                     </p>
                   </motion.div>
                 )}
               </div>
             ) : (
-              <div className="text-center py-2 text-red-500 text-[11px] font-bold">
+              <div className="text-center py-2 text-red-400 text-[11px] font-bold">
                 Aguardando assinatura dos termos regulatórios.
               </div>
             )}
@@ -783,7 +783,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
 
         <button
           onClick={onLogout}
-          className="w-full h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center space-x-3 font-medium active:bg-red-100 transition-all"
+          className="w-full h-16 bg-red-500/10 text-[#ff4a5a] border border-red-500/20 rounded-2xl flex items-center justify-center space-x-3 font-medium hover:bg-red-500/15 active:scale-98 transition-all cursor-pointer"
           id="btn-logout"
         >
           <LogOut size={20} />
@@ -792,7 +792,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
       </div>
 
       <div className="px-6 pb-6 text-center">
-        <p className="text-[10px] text-gray-400 font-light uppercase tracking-[0.2em]">FAPEM App v1.0.0</p>
+        <p className="text-[10px] text-gray-600 font-light uppercase tracking-[0.2em]">FAPEM App v1.0.0</p>
       </div>
 
       <AvatarModal
@@ -805,24 +805,24 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
       {/* MODAL: EDITAR POST/COMENTÁRIO */}
       <AnimatePresence>
         {editingPost && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-6 z-50 animate-in fade-in duration-200">
+          <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center p-6 z-50 animate-in fade-in duration-200">
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="bg-brand-white w-full max-w-sm rounded-[2rem] p-6 shadow-2xl border border-brand-blue/10 space-y-4"
+              className="bg-[#0a0f1f]/90 w-full max-w-sm rounded-[2rem] p-6 shadow-neon-purple shadow-xl border border-white/5 space-y-4"
             >
-              <div className="flex justify-between items-center pb-2 border-b border-brand-blue/5">
+              <div className="flex justify-between items-center pb-2 border-b border-white/5">
                 <div className="min-w-0 flex-1 mr-2">
-                  <span className="text-[10px] text-brand-blue uppercase font-bold tracking-wider">Editando sua mensagem</span>
-                  <h4 className="text-sm font-bold text-brand-text truncate leading-tight mt-0.5">
+                  <span className="text-[10px] text-purple-450 uppercase font-bold tracking-wider">Editando sua mensagem</span>
+                  <h4 className="text-sm font-bold text-white truncate leading-tight mt-0.5">
                     {editingPost.title}
                   </h4>
                 </div>
                 <button
                   type="button"
                   onClick={() => setEditingPost(null)}
-                  className="p-1 text-gray-400 hover:bg-gray-100 rounded-full outline-none transition-transform active:scale-95 shrink-0"
+                  className="p-1 text-gray-500 hover:bg-white/10 hover:text-white rounded-full outline-none transition-transform active:scale-95 shrink-0 cursor-pointer"
                 >
                   <X size={16} />
                 </button>
@@ -831,7 +831,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
               <textarea
                 value={editPostContent}
                 onChange={(e) => setEditPostContent(e.target.value)}
-                className="w-full text-xs text-brand-text bg-brand-gray border border-brand-blue/10 rounded-2xl p-4 h-32 focus:outline-none focus:ring-1 focus:ring-brand-blue resize-none leading-relaxed font-sans"
+                className="w-full text-xs text-white bg-[#12182b] border border-white/15 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 rounded-2xl p-4 h-32 focus:outline-none resize-none leading-relaxed font-sans"
                 placeholder="Insira a nova mensagem..."
                 maxLength={1000}
               />
@@ -840,7 +840,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                 <button
                   type="button"
                   onClick={() => setEditingPost(null)}
-                  className="flex-1 py-3 bg-brand-gray hover:bg-brand-gray/80 text-gray-600 text-xs font-bold rounded-2xl transition-all cursor-pointer outline-none"
+                  className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white text-xs font-bold rounded-2xl transition-all cursor-pointer outline-none border border-white/5"
                 >
                   Cancelar
                 </button>
@@ -848,7 +848,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                   type="button"
                   onClick={handleSavePostEdit}
                   disabled={!editPostContent.trim()}
-                  className="flex-1 py-3 bg-brand-blue hover:bg-brand-blue/95 text-white text-xs font-bold rounded-2xl transition-all shadow-md active:scale-98 cursor-pointer outline-none"
+                  className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold rounded-2xl transition-all shadow-neon-purple active:scale-98 cursor-pointer outline-none"
                 >
                   Salvar
                 </button>
@@ -861,21 +861,21 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
       {/* MODAL: CONFIRMAÇÃO E ESCOLHA DE DELEÇÃO DE TÓPICO */}
       <AnimatePresence>
         {topicToDelete && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-6 z-50 animate-in fade-in duration-200">
+          <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center p-6 z-50 animate-in fade-in duration-200">
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="bg-brand-white w-full max-w-sm rounded-[2rem] p-6 shadow-2xl border border-brand-blue/10 space-y-4"
+              className="bg-[#0a0f1f]/90 w-full max-w-sm rounded-[2rem] p-6 shadow-neon-purple shadow-xl border border-white/5 space-y-4"
             >
               <div className="text-center space-y-1.5">
-                <div className="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto text-xl mb-1">
+                <div className="w-12 h-12 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto text-xl mb-1 border border-red-500/20">
                   ⚠️
                 </div>
-                <h4 className="text-sm font-bold text-brand-text leading-tight px-1 text-center">
+                <h4 className="text-sm font-bold text-white leading-tight px-1 text-center">
                   Como deseja excluir o seu tópico?
                 </h4>
-                <p className="text-[11.5px] text-gray-500 leading-normal font-light">
+                <p className="text-[11.5px] text-gray-400 leading-normal font-light">
                   "<strong>{topicToDelete.title}</strong>" possui respostas e discussões ativas. Grandes redes oferecem suporte ético de exclusão. Escolha a sua opção:
                 </p>
               </div>
@@ -884,12 +884,12 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                 <button
                   type="button"
                   onClick={() => handleScheduleTopicDeletion(topicToDelete.id)}
-                  className="w-full text-left p-3.5 bg-amber-50/50 hover:bg-amber-50 cursor-pointer border border-amber-200 rounded-2xl transition-all flex items-start gap-2.5 outline-none font-sans"
+                  className="w-full text-left p-3.5 bg-amber-500/10 hover:bg-amber-500/15 cursor-pointer border border-amber-500/20 rounded-2xl transition-all flex items-start gap-2.5 outline-none font-sans"
                 >
-                  <span className="text-amber-500 pt-0.5 text-sm">📅</span>
+                  <span className="text-amber-400 pt-0.5 text-sm">📅</span>
                   <div>
-                    <span className="text-xs font-bold text-amber-950 block">Agendar Exclusão (Recomendado)</span>
-                    <span className="text-[10px] text-amber-850 font-light block leading-tight mt-0.5">
+                    <span className="text-xs font-bold text-amber-300 block">Agendar Exclusão (Recomendado)</span>
+                    <span className="text-[10px] text-amber-400 font-light block leading-tight mt-0.5">
                       Suspende novas respostas, avisa os participantes e apaga permanentemente tudo em 24h.
                     </span>
                   </div>
@@ -898,12 +898,12 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                 <button
                   type="button"
                   onClick={() => handleImmediateTopicDeletion(topicToDelete.id)}
-                  className="w-full text-left p-3.5 bg-red-50/40 hover:bg-red-50 cursor-pointer border border-red-200 rounded-2xl transition-all flex items-start gap-2.5 outline-none font-sans"
+                  className="w-full text-left p-3.5 bg-red-500/10 hover:bg-red-500/15 cursor-pointer border border-red-500/20 rounded-2xl transition-all flex items-start gap-2.5 outline-none font-sans"
                 >
-                  <span className="text-red-500 pt-0.5 text-sm">🗑️</span>
+                  <span className="text-red-400 pt-0.5 text-sm">🗑️</span>
                   <div>
-                    <span className="text-xs font-bold text-red-950 block">Deleção Completa Imediata</span>
-                    <span className="text-[10px] text-red-800 font-light block leading-tight mt-0.5">
+                    <span className="text-xs font-bold text-red-300 block">Deleção Completa Imediata</span>
+                    <span className="text-[10px] text-red-450 font-light block leading-tight mt-0.5">
                       Apaga imediatamente e permanentemente o tópico e todas as respostas do sistema de forma irreversível.
                     </span>
                   </div>
@@ -913,7 +913,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
               <button
                 type="button"
                 onClick={() => setTopicToDelete(null)}
-                className="w-full py-3 bg-brand-gray hover:bg-brand-gray/80 text-gray-600 text-xs font-bold rounded-2xl transition-all cursor-pointer outline-none mt-2"
+                className="w-full py-3 bg-white/5 hover:bg-white/10 text-white text-xs font-bold rounded-2xl transition-all cursor-pointer outline-none mt-2 border border-white/5"
               >
                 Voltar / Cancelar
               </button>
@@ -925,24 +925,24 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
       {/* MODAL: EDITAR SALA PERSONALIZADA (PREMIUM) */}
       <AnimatePresence>
         {editingRoom && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-6 z-50 animate-in fade-in duration-200">
+          <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center p-6 z-50 animate-in fade-in duration-200">
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="bg-brand-white w-full max-w-sm rounded-[2rem] p-6 shadow-2xl border border-brand-blue/10 space-y-4"
+              className="bg-[#0a0f1f]/90 w-full max-w-sm rounded-[2rem] p-6 shadow-neon-blue shadow-xl border border-white/5 space-y-4"
             >
-              <div className="flex justify-between items-center pb-2 border-b border-brand-blue/5">
+              <div className="flex justify-between items-center pb-2 border-b border-white/5">
                 <div>
-                  <span className="text-[10px] text-brand-blue uppercase font-bold tracking-wider">Edição de Sala Premium</span>
-                  <h4 className="text-sm font-bold text-brand-text truncate leading-tight mt-0.5">
+                  <span className="text-[10px] text-cyan-400 uppercase font-bold tracking-wider">Edição de Sala Premium</span>
+                  <h4 className="text-sm font-bold text-white truncate leading-tight mt-0.5">
                     Modificar Configurações
                   </h4>
                 </div>
                 <button
                   type="button"
                   onClick={() => setEditingRoom(null)}
-                  className="p-1 text-gray-400 hover:bg-gray-100 rounded-full outline-none transition-transform active:scale-90"
+                  className="p-1 text-gray-500 hover:bg-white/10 hover:text-white rounded-full outline-none transition-transform active:scale-90 cursor-pointer"
                 >
                   <X size={16} />
                 </button>
@@ -950,35 +950,35 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
 
               <div className="space-y-3">
                 <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-gray-400 pl-1 font-sans">Nome da Sala</label>
+                  <label className="text-[10px] uppercase font-bold text-gray-500 pl-1 font-sans">Nome da Sala</label>
                   <input
                     type="text"
                     value={editRoomName}
                     onChange={(e) => setEditRoomName(e.target.value)}
-                    className="w-full text-xs text-brand-text bg-brand-gray border border-brand-blue/5 rounded-xl px-3 py-2.5 focus:outline-none"
+                    className="w-full text-xs text-white bg-[#12182b] border border-white/15 focus:border-cyan-500/50 rounded-xl px-3 py-2.5 focus:outline-none"
                     placeholder="Nome marcante e acolhedor..."
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-gray-400 pl-1 font-sans">Descrição</label>
+                  <label className="text-[10px] uppercase font-bold text-gray-500 pl-1 font-sans">Descrição</label>
                   <textarea
                     value={editRoomDesc}
                     onChange={(e) => setEditRoomDesc(e.target.value)}
-                    className="w-full text-xs text-brand-text bg-brand-gray border border-brand-blue/5 rounded-xl px-3 py-2.5 h-16 focus:outline-none resize-none"
+                    className="w-full text-xs text-white bg-[#12182b] border border-white/15 focus:border-cyan-500/50 rounded-xl px-3 py-2.5 h-16 focus:outline-none resize-none"
                     placeholder="Explique o propósito deste espaço..."
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-gray-400 pl-1 font-sans">Tipo de Acesso</label>
-                  <div className="flex bg-brand-gray p-1 rounded-xl border border-brand-blue/5">
+                  <label className="text-[10px] uppercase font-bold text-gray-500 pl-1 font-sans">Tipo de Acesso</label>
+                  <div className="flex bg-[#12182b] p-1 rounded-xl border border-white/5">
                     <button
                       type="button"
                       onClick={() => setEditRoomType('public')}
                       className={`flex-1 py-1.5 text-center text-[10px] font-bold rounded-lg transition-all cursor-pointer ${editRoomType === 'public'
-                          ? 'bg-brand-white text-emerald-750 shadow-xs'
-                          : 'text-gray-400'
+                        ? 'bg-[#0a0f1f] text-emerald-400 border border-white/5 shadow-xs'
+                        : 'text-gray-500'
                         }`}
                     >
                       🌐 Pública
@@ -987,8 +987,8 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                       type="button"
                       onClick={() => setEditRoomType('vip')}
                       className={`flex-1 py-1.5 text-center text-[10px] font-bold rounded-lg transition-all cursor-pointer ${editRoomType === 'vip'
-                          ? 'bg-brand-white text-amber-700 shadow-xs'
-                          : 'text-gray-400'
+                        ? 'bg-[#0a0f1f] text-amber-405 border border-white/5 shadow-xs'
+                        : 'text-gray-500'
                         }`}
                     >
                       🔒 Privada
@@ -1001,7 +1001,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                 <button
                   type="button"
                   onClick={() => setEditingRoom(null)}
-                  className="flex-1 py-3 bg-brand-gray hover:bg-brand-gray/80 text-gray-600 text-xs font-bold rounded-2xl transition-all cursor-pointer outline-none"
+                  className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white text-xs font-bold rounded-2xl transition-all cursor-pointer outline-none border border-white/5"
                 >
                   Cancelar
                 </button>
@@ -1009,7 +1009,7 @@ export default function Profile({ user, navigate, onLogout, onUpdateUser, topics
                   type="button"
                   onClick={handleSaveRoomEdit}
                   disabled={!editRoomName.trim() || !editRoomDesc.trim()}
-                  className="flex-1 py-3 bg-[#2E9CCA] hover:bg-opacity-95 text-white text-xs font-bold rounded-2xl transition-all shadow-md active:scale-98 cursor-pointer outline-none"
+                  className="flex-1 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold rounded-2xl transition-all shadow-neon-blue active:scale-98 cursor-pointer outline-none border border-white/5"
                 >
                   Salvar
                 </button>

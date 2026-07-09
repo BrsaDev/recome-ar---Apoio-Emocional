@@ -83,7 +83,7 @@ export default function Emergency({ onClose }: Props) {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsActive(true)}
-              className="w-20 h-20 rounded-full bg-brand-green flex items-center justify-center shadow-2xl shadow-brand-green/30"
+              className="w-20 h-20 rounded-full bg-emerald-500 flex items-center justify-center shadow-2xl shadow-emerald-500/30"
               id="btn-emergency-start"
             >
               <Wind size={32} />
@@ -101,7 +101,7 @@ export default function Emergency({ onClose }: Props) {
                   duration: 4,
                   ease: "easeInOut",
                 }}
-                className="w-48 h-48 rounded-full bg-brand-green flex items-center justify-center"
+                className="w-48 h-48 rounded-full bg-emerald-500 flex items-center justify-center"
               >
                 <div className="w-40 h-40 rounded-full border-4 border-white/20 flex items-center justify-center">
                   <span className="text-5xl font-display font-light">{counter}</span>
@@ -112,7 +112,7 @@ export default function Emergency({ onClose }: Props) {
               <motion.div
                 animate={{ scale: [1, 1.8], opacity: [0.3, 0] }}
                 transition={{ duration: 2, repeat: Infinity }}
-                className="absolute inset-0 border-2 border-brand-green rounded-full"
+                className="absolute inset-0 border-2 border-emerald-400 rounded-full"
               />
             </div>
 
@@ -138,3 +138,4 @@ export default function Emergency({ onClose }: Props) {
     </div>
   );
 }
+

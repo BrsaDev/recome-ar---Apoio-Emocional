@@ -359,13 +359,13 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
   const displayMRR = (import.meta as any).env?.VITE_USE_API === 'true' ? estimatedMRR : localMRR;
 
   return (
-    <div className="h-full w-full bg-brand-gray flex flex-col overflow-hidden">
+    <div className="h-full w-full bg-[#020410] flex flex-col overflow-hidden">
       {/* Header Bar */}
-      <div className="px-5 py-4 bg-white border-b border-brand-blue/5 flex items-center justify-between shrink-0">
+      <div className="px-5 py-4 bg-[#0a0f1f]/60 border-b border-white/5 flex items-center justify-between shrink-0">
         <div className="flex items-center space-x-3">
           <button
             onClick={() => navigate('profile')}
-            className="p-2 -ml-2 rounded-xl hover:bg-brand-gray/50 active:scale-95 transition-all text-gray-650 cursor-pointer outline-none"
+            className="p-2 -ml-2 rounded-xl hover:bg-[#020410]/50 active:scale-95 transition-all text-gray-650 cursor-pointer outline-none"
             title="Voltar ao Perfil"
           >
             <ArrowLeft size={18} />
@@ -374,7 +374,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
             <h1 className="text-sm font-display font-black text-gray-950 leading-none">
               Painel do Administrador
             </h1>
-            <p className="text-[10px] text-brand-green font-bold uppercase tracking-widest font-mono mt-1">
+            <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest font-mono mt-1">
               FAPEM Admin Control • v1.50
             </p>
           </div>
@@ -391,7 +391,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
             <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 mx-auto border border-indigo-200/20 shadow-xs mb-1">
               <Lock size={22} className="animate-pulse" />
             </div>
-            <h2 className="text-lg font-display font-black text-brand-text leading-tight w-full">Segurança do Painel</h2>
+            <h2 className="text-lg font-display font-black text-white leading-tight w-full">Segurança do Painel</h2>
             <p className="text-[11px] text-gray-500 font-light leading-relaxed">
               Este painel contém informações de privacidade dos usuários, chamados de suporte e controle de salas. Por favor, forneça o PIN seguro para validar o acesso administrativo.
             </p>
@@ -410,7 +410,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                   placeholder="Insira o seu PIN..."
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-white border border-brand-blue/10 focus:border-brand-blue/30 rounded-2xl py-3.5 pl-4 pr-11 text-xs text-brand-text outline-none transition-all placeholder-gray-400 font-mono text-center tracking-widest"
+                  className="w-full bg-[#0a0f1f]/60 border border-white/10 focus:border-white/20 rounded-2xl py-3.5 pl-4 pr-11 text-xs text-white outline-none transition-all placeholder-gray-550 font-mono text-center tracking-widest"
                 />
                 <button
                   type="button"
@@ -442,7 +442,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
           </form>
 
           <p className="text-[9.5px] text-center text-gray-400 font-light">
-            Dica do Refúgio: O PIN seguro inicial padrão configurado pelo desenvolvedor é <strong className="font-mono text-brand-green font-bold">2026</strong>
+            Dica do Refúgio: O PIN seguro inicial padrão configurado pelo desenvolvedor é <strong className="font-mono text-emerald-400 font-bold">2026</strong>
           </p>
         </div>
       ) : (
@@ -450,7 +450,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
         <div className="flex-1 flex flex-col overflow-hidden">
 
           {/* Section Selector Tab Row (Expanded to incorporate Metrics, Users, and Moderation channels) */}
-          <div className="bg-white border-b border-brand-blue/5 px-2.5 py-2 flex items-center space-x-1 shrink-0 overflow-x-auto no-scrollbar">
+          <div className="bg-[#0a0f1f]/60 border-b border-white/5 px-2.5 py-2 flex items-center space-x-1 shrink-0 overflow-x-auto no-scrollbar">
             <button
               onClick={() => setActiveTab('metrics')}
               className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-[10.5px] font-bold font-display uppercase tracking-wider transition-all cursor-pointer outline-none whitespace-nowrap ${activeTab === 'metrics' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-400 hover:text-gray-750'
@@ -518,13 +518,13 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
 
                 {/* 3 Metrics Cards */}
                 <div className="grid grid-cols-2 gap-3.5">
-                  <div className="bg-white border border-brand-blue/5 rounded-2xl p-4 space-y-1 shadow-xs">
+                  <div className="bg-[#0a0f1f]/60 border border-white/5 rounded-2xl p-4 space-y-1 shadow-xs">
                     <span className="text-[9px] text-gray-400 uppercase tracking-widest font-mono">Engajamento Total</span>
-                    <p className="text-2xl font-display font-black text-brand-text">{totalVisitorCount} <span className="text-xs text-brand-green font-bold">ativos</span></p>
+                    <p className="text-2xl font-display font-black text-white">{totalVisitorCount} <span className="text-xs text-emerald-400 font-bold">ativos</span></p>
                     <span className="text-[9.5px] text-gray-400 block font-light">Visitantes únicos registrados</span>
                   </div>
 
-                  <div className="bg-white border border-brand-blue/5 rounded-2xl p-4 space-y-1 shadow-xs">
+                  <div className="bg-[#0a0f1f]/60 border border-white/5 rounded-2xl p-4 space-y-1 shadow-xs">
                     <span className="text-[9px] text-gray-400 uppercase tracking-widest font-mono font-mono">Simulação Receita</span>
                     <p className="text-2xl font-display font-black text-indigo-600">R$ {displayMRR.toFixed(2)}</p>
                     <span className="text-[9.5px] text-gray-400 block font-light">Assinaturas recorrentes estimadas</span>
@@ -532,22 +532,22 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                 </div>
 
                 <div className="grid grid-cols-3 gap-2">
-                  <div className="bg-brand-gray/40 border border-brand-blue/5 rounded-xl p-3 text-center space-y-1">
+                  <div className="bg-[#020410]/40 border border-white/5 rounded-xl p-3 text-center space-y-1">
                     <span className="text-[8px] uppercase tracking-wide text-indigo-600 font-bold col-span-3">Assinantes PREMIUM</span>
-                    <p className="text-lg font-display font-bold text-gray-850">{countPremium}</p>
+                    <p className="text-lg font-display font-bold text-white">{countPremium}</p>
                   </div>
-                  <div className="bg-brand-gray/40 border border-brand-blue/5 rounded-xl p-3 text-center space-y-1">
+                  <div className="bg-[#020410]/40 border border-white/5 rounded-xl p-3 text-center space-y-1">
                     <span className="text-[8px] uppercase tracking-wide text-purple-600 font-bold col-span-3">Assinantes VIP</span>
-                    <p className="text-lg font-display font-bold text-gray-850">{countVip}</p>
+                    <p className="text-lg font-display font-bold text-white">{countVip}</p>
                   </div>
-                  <div className="bg-brand-gray/40 border border-brand-blue/5 rounded-xl p-3 text-center space-y-1">
+                  <div className="bg-[#020410]/40 border border-white/5 rounded-xl p-3 text-center space-y-1">
                     <span className="text-[8px] uppercase tracking-wide text-violet-600 font-bold col-span-3">Assinantes BÁSICO</span>
-                    <p className="text-lg font-display font-bold text-gray-850">{countBasic}</p>
+                    <p className="text-lg font-display font-bold text-white">{countBasic}</p>
                   </div>
                 </div>
 
                 {/* Safety & Moderate Controls card */}
-                <div className="bg-white border border-brand-blue/5 rounded-2xl p-5 space-y-3 shadow-xs">
+                <div className="bg-[#0a0f1f]/60 border border-white/5 rounded-2xl p-5 space-y-3 shadow-xs">
                   <div className="flex items-center space-x-2">
                     <Settings size={15} className="text-violet-600" />
                     <h4 className="text-xs font-display font-bold text-gray-900 uppercase tracking-wider">Configurações Globais Rápidas</h4>
@@ -556,7 +556,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                   <div className="space-y-3.5 pt-1">
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <span className="text-[11px] font-bold text-gray-850 block">Modo de Segurança Rigoroso</span>
+                        <span className="text-[11px] font-bold text-white block">Modo de Segurança Rigoroso</span>
                         <span className="text-[9px] text-gray-400 font-light block">Modera automaticamente palavras de ódio ou ansiedade grave nas salas do app.</span>
                       </div>
                       <button
@@ -564,15 +564,15 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                           setSystemSafetyMode(!systemSafetyMode);
                           setApiLogs(prev => [...prev, `[Config] Modo de Segurança Rigoroso alterado para: ${(!systemSafetyMode).toString().toUpperCase()}`]);
                         }}
-                        className={`w-11 h-6 rounded-full p-0.5 transition-colors focus:ring-1 focus:ring-indigo-300 outline-none ${systemSafetyMode ? 'bg-brand-green' : 'bg-gray-200'}`}
+                        className={`w-11 h-6 rounded-full p-0.5 transition-colors focus:ring-1 focus:ring-indigo-300 outline-none ${systemSafetyMode ? 'bg-emerald-500' : 'bg-gray-200'}`}
                       >
-                        <div className={`bg-white w-5 h-5 rounded-full shadow-sm transform transition-transform ${systemSafetyMode ? 'translate-x-5' : 'translate-x-0'}`} />
+                        <div className={`bg-[#0a0f1f]/60 w-5 h-5 rounded-full shadow-sm transform transition-transform ${systemSafetyMode ? 'translate-x-5' : 'translate-x-0'}`} />
                       </button>
                     </div>
 
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <span className="text-[11px] font-bold text-gray-850 block">Tempo de Resposta da IA Acolhedora</span>
+                        <span className="text-[11px] font-bold text-white block">Tempo de Resposta da IA Acolhedora</span>
                         <span className="text-[9px] text-gray-400 font-light block">Tempo simulado de processamento para respostas de suporte e desabafo com IA.</span>
                       </div>
                       <select
@@ -581,7 +581,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                           setAiResponseDelay(e.target.value);
                           setApiLogs(prev => [...prev, `[Config] Delay da IA acolhedora alterada para: ${e.target.value.toUpperCase()}`]);
                         }}
-                        className="bg-brand-gray border border-brand-blue/5 text-[10px] font-bold text-indigo-700 px-2.5 py-1.5 rounded-lg outline-none cursor-pointer"
+                        className="bg-[#020410] border border-white/5 text-[10px] font-bold text-indigo-700 px-2.5 py-1.5 rounded-lg outline-none cursor-pointer"
                       >
                         <option value="instant">Imediato (0s)</option>
                         <option value="normal">Normal (1-2s)</option>
@@ -609,7 +609,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                   {simulatedUsers.map(user => (
                     <div
                       key={user.id}
-                      className="bg-white border border-brand-blue/5 rounded-2xl p-4 space-y-3.5 shadow-xs relative overflow-hidden"
+                      className="bg-[#0a0f1f]/60 border border-white/5 rounded-2xl p-4 space-y-3.5 shadow-xs relative overflow-hidden"
                     >
                       {/* Ribbon representing suspended status */}
                       {user.isBanned && (
@@ -630,7 +630,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                           </div>
 
                           <div className="flex items-center space-x-2 pt-0.5">
-                            <span className="text-[9px] font-medium bg-brand-gray px-2 py-0.5 rounded text-gray-600">
+                            <span className="text-[9px] font-medium bg-[#020410] px-2 py-0.5 rounded text-gray-600">
                               Humor: {user.mood || 'Não informado'}
                             </span>
                             <span className="text-[9px] text-gray-400 font-light">•</span>
@@ -640,7 +640,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                       </div>
 
                       {/* Interactive Controls Bar for plan upgrade & suspension */}
-                      <div className="pt-2.5 border-t border-brand-blue/5 flex items-center justify-between flex-wrap gap-2 text-[10px]">
+                      <div className="pt-2.5 border-t border-white/5 flex items-center justify-between flex-wrap gap-2 text-[10px]">
                         <div className="flex items-center space-x-1">
                           <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider select-none mr-1">Plano:</span>
                           {(['FREE', 'VIP', 'PREMIUM'] as const).map(tier => (
@@ -649,7 +649,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                               onClick={() => handleChangeUserPlan(user.id, tier)}
                               className={`px-2 py-1 rounded text-[8.5px] uppercase font-mono font-bold transition-all cursor-pointer outline-none ${user.plan === tier
                                 ? 'bg-indigo-600 text-white'
-                                : 'bg-brand-gray text-gray-400 hover:text-gray-700'
+                                : 'bg-[#020410] text-gray-400 hover:text-gray-700'
                                 }`}
                             >
                               {tier}
@@ -697,8 +697,8 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                 </div>
 
                 {tickets.length === 0 ? (
-                  <div className="bg-white rounded-3xl p-8 border border-brand-blue/5 text-center text-gray-400 text-xs font-light space-y-1">
-                    <CheckCircle className="mx-auto text-brand-green" size={24} />
+                  <div className="bg-[#0a0f1f]/60 rounded-3xl p-8 border border-white/5 text-center text-gray-400 text-xs font-light space-y-1">
+                    <CheckCircle className="mx-auto text-emerald-400" size={24} />
                     <p className="font-bold text-gray-750 font-display">Sem chamados abertos</p>
                     <p className="text-[10px]">Todos os contatos de suporte de usuários estão respondidos!</p>
                   </div>
@@ -707,7 +707,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                     {tickets.map((ticket) => (
                       <div
                         key={ticket.id}
-                        className="bg-white border border-brand-blue/5 rounded-2xl p-4 space-y-3 shadow-xs"
+                        className="bg-[#0a0f1f]/60 border border-white/5 rounded-2xl p-4 space-y-3 shadow-xs"
                       >
                         <div className="flex items-start justify-between">
                           <div className="space-y-0.5">
@@ -737,7 +737,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                           </div>
                         </div>
 
-                        <p className="text-[11px] text-gray-600 font-light leading-relaxed bg-brand-gray/30 p-2.5 rounded-xl border border-brand-blue/5">
+                        <p className="text-[11px] text-gray-600 font-light leading-relaxed bg-[#020410]/30 p-2.5 rounded-xl border border-white/5">
                           {ticket.description}
                         </p>
 
@@ -755,7 +755,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                               <CheckCircle size={10} />
                               <span>Resposta Enviada:</span>
                             </span>
-                            <p className="text-[10px] text-indigo-950 leading-normal font-light italic bg-white/70 p-2 rounded-lg">
+                            <p className="text-[10px] text-indigo-950 leading-normal font-light italic bg-[#0a0f1f]/60/70 p-2 rounded-lg">
                               "{ticket.reply}"
                             </p>
                           </div>
@@ -768,7 +768,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                                   rows={2}
                                   value={replyText}
                                   onChange={(e) => setReplyText(e.target.value)}
-                                  className="w-full bg-brand-gray/50 border border-brand-blue/5 focus:border-brand-blue/15 rounded-xl p-2.5 text-[10.5px] font-light placeholder-gray-400 text-gray-800 outline-none resize-none leading-relaxed"
+                                  className="w-full bg-[#020410]/50 border border-white/5 focus:border-white/15 rounded-xl p-2.5 text-[10.5px] font-light placeholder-gray-550 text-white outline-none resize-none leading-relaxed"
                                 />
                                 <div className="flex space-x-1.5 justify-end">
                                   <button
@@ -820,7 +820,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                 </div>
 
                 {rooms.length === 0 ? (
-                  <div className="bg-white rounded-3xl p-8 border border-brand-blue/5 text-center text-gray-400 text-xs font-light">
+                  <div className="bg-[#0a0f1f]/60 rounded-3xl p-8 border border-white/5 text-center text-gray-400 text-xs font-light">
                     Nenhuma sala customizada criada por usuários atualmente no sistema local.
                   </div>
                 ) : (
@@ -828,7 +828,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                     {rooms.map((room) => (
                       <div
                         key={room.id}
-                        className="bg-white border border-brand-blue/5 rounded-2xl p-4 flex items-center justify-between shadow-xs"
+                        className="bg-[#0a0f1f]/60 border border-white/5 rounded-2xl p-4 flex items-center justify-between shadow-xs"
                       >
                         <div className="space-y-1 pr-4 min-w-0">
                           <div className="flex items-center space-x-1.5">
@@ -870,7 +870,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                 </div>
 
                 {forumTopics.length === 0 ? (
-                  <div className="bg-white rounded-3xl p-8 border border-brand-blue/5 text-center text-gray-400 text-xs font-light">
+                  <div className="bg-[#0a0f1f]/60 rounded-3xl p-8 border border-white/5 text-center text-gray-400 text-xs font-light">
                     Nenhum tópico encontrado no fórum.
                   </div>
                 ) : (
@@ -878,10 +878,10 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                     {forumTopics.map((topic) => (
                       <div
                         key={topic.id}
-                        className="bg-white border border-brand-blue/5 rounded-2xl p-4 flex items-center justify-between shadow-xs"
+                        className="bg-[#0a0f1f]/60 border border-white/5 rounded-2xl p-4 flex items-center justify-between shadow-xs"
                       >
                         <div className="space-y-1 pr-4 min-w-0">
-                          <span className="text-[8px] uppercase tracking-wide bg-brand-blue/30 text-brand-green font-bold px-1.5 py-0.5 rounded">
+                          <span className="text-[8px] uppercase tracking-wide bg-purple-500/20 text-emerald-400 font-bold px-1.5 py-0.5 rounded">
                             {topic.category}
                           </span>
                           <span className="font-bold text-[11px] text-gray-900 block leading-tight mt-0.5">{topic.title}</span>
@@ -909,11 +909,11 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                 ------------------------------------------------------------- */}
             {activeTab === 'supabase' && (
               <div className="space-y-4">
-                <div className="bg-white border border-brand-blue/5 rounded-2xl p-5 space-y-4 shadow-xs">
+                <div className="bg-[#0a0f1f]/60 border border-white/5 rounded-2xl p-5 space-y-4 shadow-xs">
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
                       <h4 className="text-sm font-display font-bold text-gray-950 flex items-center space-x-1.5">
-                        <Database size={15} className="text-brand-green" />
+                        <Database size={15} className="text-emerald-400" />
                         <span>Mapeamento do Banco de Dados (Supabase)</span>
                       </h4>
                       <p className="text-[10px] text-gray-400 font-light leading-relaxed">
@@ -924,29 +924,29 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
 
                   <div className="pt-2 flex flex-col space-y-2.5">
                     <div className="grid grid-cols-2 gap-2">
-                      <div className="bg-brand-gray/50 p-3 rounded-xl border border-brand-blue/5 space-y-1 text-center">
+                      <div className="bg-[#020410]/50 p-3 rounded-xl border border-white/5 space-y-1 text-center">
                         <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-mono">Tabela Remota</span>
                         <p className="font-mono font-bold text-[10.5px] text-indigo-700">recomecar_tickets</p>
                       </div>
-                      <div className="bg-brand-gray/50 p-3 rounded-xl border border-brand-blue/5 space-y-1 text-center">
+                      <div className="bg-[#020410]/50 p-3 rounded-xl border border-white/5 space-y-1 text-center">
                         <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-mono">Tabela Remota</span>
                         <p className="font-mono font-bold text-[10.5px] text-indigo-700">recomecar_users</p>
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center py-1.5 border-t border-brand-blue/5">
+                    <div className="flex justify-between items-center py-1.5 border-t border-white/5">
                       <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Esquema SQL Proposto:</span>
                       <div className="flex space-x-1.5">
                         <button
                           onClick={() => setSelectedSqlDialect('postgres')}
-                          className={`px-2 py-0.5 rounded text-[8.5px] font-mono font-bold ${selectedSqlDialect === 'postgres' ? 'bg-indigo-600 text-white' : 'bg-brand-gray text-gray-400'
+                          className={`px-2 py-0.5 rounded text-[8.5px] font-mono font-bold ${selectedSqlDialect === 'postgres' ? 'bg-indigo-600 text-white' : 'bg-[#020410] text-gray-400'
                             }`}
                         >
                           Raw SQL
                         </button>
                         <button
                           onClick={() => setSelectedSqlDialect('api-js')}
-                          className={`px-2 py-0.5 rounded text-[8.5px] font-mono font-bold ${selectedSqlDialect === 'api-js' ? 'bg-indigo-600 text-white' : 'bg-brand-gray text-gray-400'
+                          className={`px-2 py-0.5 rounded text-[8.5px] font-mono font-bold ${selectedSqlDialect === 'api-js' ? 'bg-indigo-600 text-white' : 'bg-[#020410] text-gray-400'
                             }`}
                         >
                           API Client
@@ -955,7 +955,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                     </div>
 
                     {/* Syntax Highlight Box */}
-                    <div className="bg-[#1e1e24] p-3.5 rounded-xl text-[9px] font-mono text-emerald-400 select-all overflow-x-auto leading-relaxed border border-brand-blue/5 shadow-xs whitespace-pre">
+                    <div className="bg-[#1e1e24] p-3.5 rounded-xl text-[9px] font-mono text-emerald-400 select-all overflow-x-auto leading-relaxed border border-white/5 shadow-xs whitespace-pre">
                       {selectedSqlDialect === 'postgres' ? (
                         `-- Tabela de Suporte no Supabase
 CREATE TABLE recomecar_tickets (
@@ -1004,7 +1004,7 @@ export async function insertSupportTicket(ticket) {
                         ? 'bg-emerald-600 text-white'
                         : supabaseStatus === 'testing'
                           ? 'bg-gray-200 text-gray-400'
-                          : 'bg-brand-green hover:bg-brand-green/95 text-white'
+                          : 'bg-emerald-500 hover:bg-emerald-500/95 text-white'
                         }`}
                     >
                       {supabaseStatus === 'testing' ? (
@@ -1049,3 +1049,4 @@ export async function insertSupportTicket(ticket) {
     </div>
   );
 }
+

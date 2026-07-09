@@ -15,12 +15,12 @@ export default function PrivacyPolicy({ navigate, fromView = 'profile' }: Props)
   const [activeTab, setActiveTab] = useState<Tab>('privacy');
 
   return (
-    <div className="h-full w-full bg-brand-white flex flex-col overflow-hidden">
+    <div className="h-full w-full bg-[#020410] flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-4 bg-white border-b border-brand-blue/5 flex items-center space-x-3 shrink-0">
+      <div className="px-5 py-4 bg-[#0a0f1f]/60 border-b border-white/5 flex items-center space-x-3 shrink-0">
         <button
           onClick={() => navigate(fromView)}
-          className="p-2 -ml-2 rounded-xl hover:bg-brand-gray/50 active:scale-95 transition-all text-gray-600 cursor-pointer outline-none"
+          className="p-2 -ml-2 rounded-xl hover:bg-white/5 active:scale-95 transition-all text-gray-400 hover:text-white cursor-pointer outline-none"
           title="Voltar"
         >
           <ArrowLeft size={18} />
@@ -39,13 +39,13 @@ export default function PrivacyPolicy({ navigate, fromView = 'profile' }: Props)
       </div>
 
       {/* Navigation Tabs */}
-      <div className="px-5 py-2.5 bg-white border-b border-brand-blue/5 flex space-x-2 shrink-0">
+      <div className="px-5 py-2.5 bg-[#0a0f1f]/60 border-b border-white/5 flex space-x-2 shrink-0">
         <button
           onClick={() => setActiveTab('privacy')}
           className={`flex-1 py-2 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center space-x-1 outline-none cursor-pointer ${
             activeTab === 'privacy'
               ? 'bg-purple-600 text-white shadow-sm shadow-purple-100'
-              : 'bg-brand-gray/50 text-gray-500 hover:text-gray-700'
+              : 'bg-white/5 text-gray-400 hover:text-white'
           }`}
         >
           <Lock size={12} />
@@ -56,7 +56,7 @@ export default function PrivacyPolicy({ navigate, fromView = 'profile' }: Props)
           className={`flex-1 py-2 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center space-x-1 outline-none cursor-pointer ${
             activeTab === 'terms'
               ? 'bg-purple-600 text-white shadow-sm shadow-purple-100'
-              : 'bg-brand-gray/50 text-gray-500 hover:text-gray-750'
+              : 'bg-white/5 text-gray-400 hover:text-white'
           }`}
         >
           <Scale size={13} />
@@ -67,7 +67,7 @@ export default function PrivacyPolicy({ navigate, fromView = 'profile' }: Props)
           className={`flex-1 py-2 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center space-x-1 outline-none cursor-pointer ${
             activeTab === 'lgpd'
               ? 'bg-purple-600 text-white shadow-sm shadow-purple-100'
-              : 'bg-brand-gray/50 text-gray-500 hover:text-gray-750'
+              : 'bg-white/5 text-gray-400 hover:text-white'
           }`}
         >
           <FileCheck size={12} />
@@ -156,12 +156,12 @@ export default function PrivacyPolicy({ navigate, fromView = 'profile' }: Props)
               <p className="pl-3 font-light">
                 Em casos de crise em andamento ou impulsividade autodestrutiva grave, você deve entrar em contato imediato com órgãos devidamente credenciados para assistência humanitária e resgate cívico de saúde.
               </p>
-              <div className="bg-brand-gray/50 rounded-xl p-3 border border-brand-blue/5 space-y-1.5 font-light text-[11px]">
-                <div className="flex justify-between items-center bg-white p-2 rounded-lg border border-brand-blue/5">
+              <div className="bg-[#12182b]/60 rounded-xl p-3 border border-white/5 space-y-1.5 font-light text-[11px]">
+                <div className="flex justify-between items-center bg-[#0a0f1f]/60 p-2 rounded-lg border border-white/5">
                   <span className="font-medium text-gray-800">Centro de Valorização da Vida (CVV)</span>
                   <span className="text-purple-700 font-bold text-xs">Ligar 188</span>
                 </div>
-                <div className="flex justify-between items-center bg-white p-2 rounded-lg border border-brand-blue/5">
+                <div className="flex justify-between items-center bg-[#0a0f1f]/60 p-2 rounded-lg border border-white/5">
                   <span className="font-medium text-gray-800">SAMU de Urgência Médica</span>
                   <span className="text-purple-700 font-bold text-xs">Ligar 192</span>
                 </div>
@@ -222,7 +222,7 @@ export default function PrivacyPolicy({ navigate, fromView = 'profile' }: Props)
               <p className="pl-3 font-light text-gray-600">
                 Para qualquer solicitação jurídica de violação, dúvidas de conformidade ou exclusão definitiva remota dos servidores sincronizados de API, por favor entre em contato direto com o nosso canal dedicado de ouvidoria legal:
               </p>
-              <div className="bg-white rounded-xl border border-brand-blue/5 p-3.5 flex items-center space-x-3.5 shadow-xs">
+              <div className="bg-[#0a0f1f]/60 rounded-xl border border-white/5 p-3.5 flex items-center space-x-3.5 shadow-xs">
                 <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-700 shrink-0">
                   <Mail size={18} />
                 </div>
@@ -237,7 +237,7 @@ export default function PrivacyPolicy({ navigate, fromView = 'profile' }: Props)
       </div>
 
       {/* Sticky Bottom Footer Badge */}
-      <div className="px-5 py-3.5 bg-white border-t border-brand-blue/5 flex items-center justify-between text-[10px] text-gray-400 shrink-0 font-light font-mono">
+      <div className="px-5 py-3.5 bg-[#0a0f1f]/60 border-t border-white/5 flex items-center justify-between text-[10px] text-gray-400 shrink-0 font-light font-mono">
         <div className="flex items-center space-x-1">
           <Lock size={12} className="text-emerald-600" />
           <span>Políticas 100% Homologadas</span>
@@ -247,3 +247,4 @@ export default function PrivacyPolicy({ navigate, fromView = 'profile' }: Props)
     </div>
   );
 }
+

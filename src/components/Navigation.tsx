@@ -16,24 +16,24 @@ export default function Navigation({ currentView, navigate }: Props) {
   ] as const;
 
   return (
-    <nav className="h-20 bg-white border-t border-brand-blue/30 px-6 pb-2 flex items-center justify-between z-10">
+    <nav className="h-20 bg-[#020410]/95 backdrop-blur-md border-t border-white/5 px-6 pb-2 flex items-center justify-between z-10">
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = currentView === tab.id;
-        
+
         return (
           <button
             key={tab.id}
             onClick={() => navigate(tab.id)}
             className={cn(
               "flex flex-col items-center justify-center space-y-1 transition-all duration-300",
-              isActive ? "text-brand-green" : "text-gray-400"
+              isActive ? "text-purple-400" : "text-gray-400"
             )}
             id={`nav-tab-${tab.id}`}
           >
             <div className={cn(
               "p-1 rounded-xl transition-all duration-300",
-              isActive && "bg-brand-green/10"
+              isActive && "bg-purple-500/10"
             )}>
               <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
             </div>

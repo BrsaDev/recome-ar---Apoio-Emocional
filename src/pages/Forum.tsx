@@ -112,21 +112,21 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
   };
 
   return (
-    <div className="flex flex-col h-full bg-brand-gray/30 relative">
+    <div className="flex flex-col h-full bg-[#020410] relative">
       {/* Header */}
-      <header className="bg-brand-white px-6 pt-12 pb-6 shrink-0 border-b border-brand-blue/5">
-        <h1 className="font-display text-2xl font-bold text-brand-text mb-2">Comunidade</h1>
+      <header className="bg-[#0a0f1f]/90 backdrop-blur-sm px-6 pt-12 pb-6 shrink-0 border-b border-white/5">
+        <h1 className="font-display text-2xl font-bold text-white mb-1">Comunidade</h1>
         <p className="text-gray-500 text-sm mb-6">Um espaço seguro para compartilhar e aprender.</p>
 
         {/* Search */}
-        <div className="relative mb-6">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+        <div className="relative mb-5">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
           <input
             type="text"
             placeholder="Buscar tópicos..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-brand-gray pl-12 pr-4 py-3 rounded-2xl text-sm border-none focus:ring-2 focus:ring-brand-blue/20 transition-all outline-none"
+            className="w-full bg-white/5 border border-white/5 pl-11 pr-4 py-3 rounded-2xl text-sm text-white placeholder-gray-600 focus:border-purple-500/30 focus:ring-1 focus:ring-purple-500/20 transition-all outline-none"
           />
         </div>
 
@@ -137,10 +137,10 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
               key={cat}
               onClick={() => setSelectedCategory(cat)}
               className={cn(
-                "px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all",
+                "px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all outline-none cursor-pointer",
                 selectedCategory === cat
-                  ? "bg-brand-blue text-white shadow-md shadow-brand-blue/20"
-                  : "bg-brand-gray text-gray-500 hover:bg-brand-gray/80"
+                  ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-900/30"
+                  : "bg-white/5 text-gray-400 hover:text-white border border-white/5"
               )}
             >
               {cat}
@@ -150,12 +150,12 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
       </header>
 
       {/* Topics List */}
-      <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4 no-scrollbar pb-24">
+      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-3 no-scrollbar pb-24">
         {filteredTopics.length === 0 ? (
-          <div className="text-center py-12 text-gray-400 space-y-2">
+          <div className="text-center py-16 text-gray-500 space-y-3">
             <span className="text-4xl block">💬</span>
-            <p className="text-sm font-medium">Nenhum tópico encontrado.</p>
-            <p className="text-xs">Seja o primeiro a criar um tópico nessa categoria!</p>
+            <p className="text-sm font-medium text-gray-400">Nenhum tópico encontrado.</p>
+            <p className="text-xs text-gray-600">Seja o primeiro a criar um tópico nessa categoria!</p>
           </div>
         ) : (
           filteredTopics.map((topic, index) => {
@@ -168,43 +168,43 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
                 onClick={() => navigate('topic-detail', { topicId: topic.id })}
-                className="bg-brand-white p-5 rounded-[2rem] border border-brand-blue/5 shadow-sm active:scale-[0.98] transition-transform cursor-pointer hover:border-brand-blue/10 flex flex-col justify-between"
+                className="glass-card p-5 rounded-[1.75rem] border border-white/5 hover:border-purple-500/20 active:scale-[0.98] transition-all cursor-pointer flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-brand-blue bg-brand-blue/10 px-2.5 py-1 rounded-full">
+                  <div className="flex justify-between items-start mb-3">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-400/10 px-2.5 py-1 rounded-full border border-cyan-400/15">
                       {topic.category}
                     </span>
-                    <span className="text-[10px] text-gray-400 font-medium">
+                    <span className="text-[10px] text-gray-500 font-medium">
                       {new Date(topic.lastUpdate).toLocaleDateString()}
                     </span>
                   </div>
 
-                  <h3 className="text-brand-text font-semibold text-base mb-4 leading-tight">
+                  <h3 className="text-white font-semibold text-sm mb-4 leading-snug">
                     {topic.title}
                   </h3>
                 </div>
 
-                <div className="flex items-center justify-between mt-auto pt-3 border-t border-brand-blue/5">
-                  <div className="flex items-center space-x-3 text-gray-400">
-                    <div className="flex items-center space-x-1 bg-brand-gray px-2 py-1 rounded-lg">
-                      <MessageSquare size={13} className="text-brand-blue" />
-                      <span className="text-xs font-bold text-gray-500">{topic.repliesCount}</span>
+                <div className="flex items-center justify-between mt-auto pt-3 border-t border-white/5">
+                  <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-1 bg-white/5 px-2 py-1 rounded-lg border border-white/5">
+                      <MessageSquare size={11} className="text-purple-400" />
+                      <span className="text-xs font-bold text-gray-400">{topic.repliesCount}</span>
                     </div>
-                    <div className="flex items-center space-x-1 bg-brand-gray px-2 py-1 rounded-lg">
-                      <Eye size={13} className="text-orange-400" />
-                      <span className="text-xs font-bold text-gray-500">{topic.viewsCount}</span>
+                    <div className="flex items-center space-x-1 bg-white/5 px-2 py-1 rounded-lg border border-white/5">
+                      <Eye size={11} className="text-orange-400" />
+                      <span className="text-xs font-bold text-gray-400">{topic.viewsCount}</span>
                     </div>
-                    <div className="flex items-center space-x-1 bg-brand-gray px-2 py-1 rounded-lg">
-                      <ThumbsUp size={13} className="text-brand-green" />
-                      <span className="text-xs font-bold text-gray-500">{totalLikes}</span>
+                    <div className="flex items-center space-x-1 bg-white/5 px-2 py-1 rounded-lg border border-white/5">
+                      <ThumbsUp size={11} className="text-cyan-400" />
+                      <span className="text-xs font-bold text-gray-400">{totalLikes}</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-2 bg-brand-gray px-2.5 py-1.5 rounded-full border border-brand-blue/5 shadow-xs shrink-0 max-w-[170px]">
+                  <div className="flex items-center space-x-1.5 bg-white/5 px-2.5 py-1.5 rounded-full border border-white/5 shrink-0 max-w-[150px]">
                     <span className="text-sm leading-none shrink-0">{authorAvatar?.emoji || '👤'}</span>
-                    <span className="text-[11px] font-bold text-brand-text/80 truncate">{topic.authorName}</span>
-                    <ChevronRight size={12} className="text-brand-blue shrink-0" />
+                    <span className="text-[10px] font-bold text-gray-400 truncate">{topic.authorName}</span>
+                    <ChevronRight size={10} className="text-purple-400 shrink-0" />
                   </div>
                 </div>
               </motion.div>
@@ -213,21 +213,20 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
         )}
       </div>
 
-      {/* Floating Action Button to write new topic */}
+      {/* Floating Action Button */}
       <button
         onClick={() => setIsNewTopicOpen(true)}
-        className="fixed bottom-24 right-6 w-14 h-14 bg-brand-green text-white rounded-full flex items-center justify-center shadow-xl shadow-brand-green/30 active:scale-90 transition-transform z-20"
+        className="fixed bottom-24 right-6 w-14 h-14 bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-full flex items-center justify-center shadow-xl shadow-purple-900/40 active:scale-90 transition-transform z-20 border border-purple-500/25"
         id="btn-new-topic"
         title="Criar novo tópico"
       >
-        <Plus size={28} />
+        <Plus size={26} />
       </button>
 
       {/* New Topic Drawer Modal */}
       <AnimatePresence>
         {isNewTopicOpen && (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-xs">
-            {/* Backdrop Click */}
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/75 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -236,56 +235,52 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
               className="absolute inset-0"
             />
 
-            {/* Modal Panel */}
             <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-              className="relative w-full max-w-sm bg-brand-white rounded-t-[2.5rem] shadow-2xl flex flex-col p-6 overflow-hidden z-10"
+              className="relative w-full max-w-sm bg-[#12182b]/97 rounded-t-[2.5rem] border-t border-x border-purple-500/15 shadow-2xl flex flex-col p-6 overflow-hidden z-10"
               style={{ maxHeight: '85vh' }}
             >
-              <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4 shrink-0" />
+              <div className="w-12 h-1 bg-white/10 rounded-full mx-auto mb-5 shrink-0" />
 
-              {/* Header */}
-              <div className="flex items-center justify-between mb-4 shrink-0">
+              <div className="flex items-center justify-between mb-5 shrink-0">
                 <div>
-                  <h3 className="font-display font-bold text-lg text-brand-text">Novo Tópico</h3>
-                  <p className="text-xs text-gray-400 font-light">Publique um desabafo ou dúvida de forma anônima.</p>
+                  <h3 className="font-display font-bold text-lg text-white">Novo Tópico</h3>
+                  <p className="text-xs text-gray-500 font-light mt-0.5">Publique um desabafo ou dúvida de forma anônima.</p>
                 </div>
                 <button
                   onClick={() => setIsNewTopicOpen(false)}
-                  className="w-8 h-8 rounded-full bg-brand-gray/85 flex items-center justify-center text-gray-400 hover:text-brand-text transition-all outline-none"
+                  className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white transition-all outline-none cursor-pointer"
                 >
-                  <X size={18} />
+                  <X size={16} />
                 </button>
               </div>
 
-              {/* Form */}
               <form onSubmit={handleCreateTopic} className="space-y-4 overflow-y-auto no-scrollbar pb-6 flex-1 pr-1">
-                {/* Visual Identity Preview */}
-                <div className="bg-brand-gray p-3 rounded-2xl border border-brand-blue/5 flex items-center space-x-3">
+                <div className="bg-white/5 p-3 rounded-2xl border border-white/5 flex items-center space-x-3">
                   <span className="text-3xl">{getAvatarById(user?.avatarId || '')?.emoji || '👤'}</span>
                   <div>
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider leading-none">Publicado sob</p>
-                    <p className="text-sm font-bold text-brand-text mt-1 leading-none">{user?.nickname || user?.name || 'Viajante'} <span className="text-xs text-brand-blue font-light">(Anônimo)</span></p>
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider leading-none">Publicado sob</p>
+                    <p className="text-sm font-bold text-white mt-1 leading-none">{user?.nickname || user?.name || 'Viajante'} <span className="text-xs text-purple-400 font-light">(Anônimo)</span></p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-brand-text/60 uppercase tracking-widest mb-1 px-1">Título</label>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 pl-1">Título</label>
                   <input
                     type="text"
                     required
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
                     placeholder="Ex: Como manter a calma sob pressão?"
-                    className="w-full bg-brand-gray/80 px-4 py-3 rounded-2xl text-sm border-2 border-transparent focus:border-brand-blue/20 transition-all outline-none"
+                    className="w-full bg-white/5 border border-white/5 px-4 py-3 rounded-2xl text-sm text-white placeholder-gray-600 focus:border-purple-500/30 focus:ring-1 focus:ring-purple-500/20 transition-all outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-brand-text/60 uppercase tracking-widest mb-1.5 px-1">Categoria</label>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 pl-1">Categoria</label>
                   <div className="flex flex-wrap gap-1.5">
                     {SUBMITTABLE_CATEGORIES.map(cat => (
                       <button
@@ -293,10 +288,10 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
                         type="button"
                         onClick={() => setNewCategory(cat)}
                         className={cn(
-                          "px-3 py-2 rounded-xl text-xs font-semibold border-2 transition-all",
+                          "px-3 py-2 rounded-xl text-xs font-semibold border transition-all outline-none cursor-pointer",
                           newCategory === cat
-                            ? "bg-brand-blue/10 border-brand-blue/60 text-brand-blue font-bold"
-                            : "bg-brand-gray/40 border-transparent text-gray-400 hover:border-brand-gray/80"
+                            ? "bg-purple-950/40 border-purple-500/35 text-purple-400"
+                            : "bg-white/5 border-white/5 text-gray-400 hover:text-white"
                         )}
                       >
                         {cat}
@@ -306,26 +301,26 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-brand-text/60 uppercase tracking-widest mb-1 px-1">O que gostaria de dizer?</label>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 pl-1">O que gostaria de dizer?</label>
                   <textarea
                     required
                     rows={4}
                     value={newContent}
                     onChange={(e) => setNewContent(e.target.value)}
                     placeholder="Fique à vontade para desabafar, a comunidade é um ambiente de total acolhimento e cuidado mútuo."
-                    className="w-full bg-brand-gray/80 px-4 py-3 rounded-2xl text-sm border-2 border-transparent focus:border-brand-blue/20 transition-all outline-none resize-none leading-relaxed"
+                    className="w-full bg-white/5 border border-white/5 px-4 py-3 rounded-2xl text-sm text-white placeholder-gray-600 focus:border-purple-500/30 transition-all outline-none resize-none leading-relaxed"
                   />
                 </div>
 
-                <div className="pt-2">
+                <div className="pt-1">
                   <button
                     type="submit"
                     disabled={!newTitle.trim() || !newContent.trim()}
                     className={cn(
-                      "w-full py-3.5 rounded-2xl font-bold font-display text-sm tracking-wider uppercase transition-all shadow-md flex items-center justify-center space-x-2 outline-none",
+                      "w-full py-3.5 rounded-2xl font-bold font-display text-sm tracking-wider uppercase transition-all shadow-md flex items-center justify-center space-x-2 outline-none cursor-pointer",
                       newTitle.trim() && newContent.trim()
-                        ? "bg-brand-blue text-white shadow-brand-blue/20"
-                        : "bg-gray-100 text-gray-400"
+                        ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white border border-purple-500/25 shadow-purple-900/20"
+                        : "bg-white/5 text-gray-600 border border-white/5 cursor-not-allowed"
                     )}
                   >
                     <span>Criar Tópico</span>
@@ -340,47 +335,47 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
       {/* Alerta de Bloqueio Preventivo */}
       <AnimatePresence>
         {offensiveWarning && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-6">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 backdrop-blur-sm p-6">
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               className={cn(
-                "bg-brand-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl flex flex-col items-center text-center space-y-5 border",
-                isCrisisWarning ? "border-purple-100" : "border-red-100"
+                "bg-[#12182b]/97 rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl flex flex-col items-center text-center space-y-5 border",
+                isCrisisWarning ? "border-purple-500/20" : "border-red-500/20"
               )}
             >
               <div className={cn(
-                "w-14 h-14 rounded-full flex items-center justify-center shadow-sm animate-bounce",
-                isCrisisWarning ? "bg-purple-50 text-purple-500" : "bg-red-50 text-red-500"
+                "w-14 h-14 rounded-full flex items-center justify-center animate-bounce",
+                isCrisisWarning ? "bg-purple-900/30 text-purple-400 border border-purple-500/25" : "bg-red-900/30 text-red-400 border border-red-500/25"
               )}>
-                {isCrisisWarning ? <Heart size={28} /> : <ShieldAlert size={28} />}
+                {isCrisisWarning ? <Heart size={26} /> : <ShieldAlert size={26} />}
               </div>
               <div className="space-y-2">
                 <h4 className={cn(
                   "font-display font-bold text-lg",
-                  isCrisisWarning ? "text-purple-600" : "text-red-600"
+                  isCrisisWarning ? "text-purple-400" : "text-red-400"
                 )}>
                   {isCrisisWarning ? "Você não está sozinho" : "Bloqueio Preventivo"}
                 </h4>
-                <p className="text-xs text-brand-text/70 font-light leading-relaxed">
+                <p className="text-xs text-gray-400 font-light leading-relaxed">
                   {offensiveWarning}
                 </p>
                 {isCrisisWarning && (
-                  <div className="bg-purple-50 p-4 rounded-2xl border border-purple-100/50 flex flex-col items-center space-y-3">
-                    <p className="text-[11px] text-purple-800 font-semibold leading-tight">
+                  <div className="bg-purple-950/30 p-4 rounded-2xl border border-purple-500/20 flex flex-col items-center space-y-3">
+                    <p className="text-[11px] text-purple-400 font-semibold leading-tight">
                       Ligue para o CVV 188 agora. Eles podem te ajudar nesse momento.
                     </p>
                     <a
                       href="tel:188"
-                      className="flex items-center space-x-2 bg-purple-600 px-6 py-2 rounded-xl text-white font-bold text-sm shadow-md active:scale-95 transition-all outline-none"
+                      className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-2 rounded-xl text-white font-bold text-sm shadow-md active:scale-95 transition-all outline-none border border-purple-500/25"
                     >
                       <span>📞 Ligar para 188</span>
                     </a>
                   </div>
                 )}
                 {!isCrisisWarning && (
-                  <div className="bg-red-50/50 p-3 rounded-xl border border-red-100/50 text-[10px] text-red-700 font-semibold uppercase tracking-wider">
+                  <div className="bg-red-950/20 p-3 rounded-xl border border-red-500/20 text-[10px] text-red-400 font-semibold uppercase tracking-wider">
                     Seu tópico não foi criado
                   </div>
                 )}
@@ -391,8 +386,10 @@ export default function Forum({ user, navigate, topics, onUpdateTopics }: Props)
                   setIsCrisisWarning(false);
                 }}
                 className={cn(
-                  "w-full py-3.5 text-white rounded-2xl text-sm font-bold shadow-lg transition-all outline-none active:scale-95",
-                  isCrisisWarning ? "bg-purple-500 hover:bg-purple-600 shadow-purple-200" : "bg-red-500 hover:bg-red-600 shadow-red-200"
+                  "w-full py-3.5 text-white rounded-2xl text-sm font-bold transition-all outline-none active:scale-95 cursor-pointer border",
+                  isCrisisWarning
+                    ? "bg-gradient-to-r from-purple-600 to-indigo-600 border-purple-500/25 shadow-purple-900/20"
+                    : "bg-red-600 hover:bg-red-700 border-red-500/25"
                 )}
               >
                 {isCrisisWarning ? "Voltar ao Fórum" : "Compreendendo as Regras"}

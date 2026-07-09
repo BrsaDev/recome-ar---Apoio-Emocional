@@ -70,7 +70,7 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
 
   const isLimitReached = userCount >= 500;
 
-  const handleSubscribe = (planKey: 'free' | 'basic' | 'vip' | 'premium', planName: string) => {
+  const handleSubscribe = (planKey: 'FREE' | 'VIP' | 'PREMIUM', planName: string) => {
     setSuccessAnimationPlan(planName);
     if (user && onUpdateUser) {
       onUpdateUser({
@@ -84,30 +84,30 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
   };
 
   return (
-    <div className="h-full w-full bg-brand-white flex flex-col relative select-none">
+    <div className="h-full w-full bg-[#020410] flex flex-col relative select-none">
       {/* Header */}
-      <header className="p-4 flex items-center justify-between border-b border-brand-blue/5">
+      <header className="p-4 pt-12 flex items-center justify-between border-b border-white/5 bg-[#0a0f1f]/90 backdrop-blur-sm">
         <div className="flex items-center space-x-3">
-          <button onClick={() => navigate('profile')} className="p-2 -ml-2 text-gray-400 hover:text-brand-text active:scale-95 transition-transform">
+          <button onClick={() => navigate('profile')} className="p-2 -ml-2 text-gray-400 hover:text-white active:scale-95 transition-all cursor-pointer outline-none">
             <ArrowLeft size={22} />
           </button>
-          <h2 className="text-lg font-display font-bold text-brand-text">Planos e Assinaturas</h2>
+          <h2 className="text-lg font-display font-bold text-white">Planos e Assinaturas</h2>
         </div>
-        <div className="flex bg-brand-gray p-0.5 rounded-xl border border-brand-blue/5">
-          <button 
-            onClick={() => setActiveTab('cards')} 
+        <div className="flex bg-white/5 p-0.5 rounded-xl border border-white/5">
+          <button
+            onClick={() => setActiveTab('cards')}
             className={cn(
-              "px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all outline-none",
-              activeTab === 'cards' ? "bg-white text-brand-text shadow-xs" : "text-gray-400 hover:text-gray-600"
+              "px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all outline-none cursor-pointer",
+              activeTab === 'cards' ? "bg-white/10 text-white" : "text-gray-500 hover:text-gray-300"
             )}
           >
             Vitrine
           </button>
-          <button 
-            onClick={() => setActiveTab('table')} 
+          <button
+            onClick={() => setActiveTab('table')}
             className={cn(
-              "px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all outline-none",
-              activeTab === 'table' ? "bg-white text-brand-text shadow-xs" : "text-gray-400 hover:text-gray-600"
+              "px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all outline-none cursor-pointer",
+              activeTab === 'table' ? "bg-white/10 text-white" : "text-gray-500 hover:text-gray-300"
             )}
           >
             Tabela
@@ -117,20 +117,20 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
 
       {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar pb-10">
-        
+
         {/* TAB 1: CARDS */}
         {activeTab === 'cards' && (
           <div className="space-y-6">
-            <div className="text-center space-y-1.5 max-w-xs mx-auto">
-              <span className="text-[10px] uppercase font-bold text-brand-blue tracking-widest">Escolha a melhor opção</span>
-              <h3 className="text-xl font-display font-bold text-brand-text leading-tight">Cuidado emocional sob medida</h3>
-              <p className="text-xs text-brand-text/60 leading-normal font-light">
+            <div className="text-center space-y-1.5 max-w-xs mx-auto pt-2">
+              <span className="text-[10px] uppercase font-bold text-cyan-400 tracking-widest">Escolha a melhor opção</span>
+              <h3 className="text-xl font-display font-bold text-white leading-tight">Cuidado emocional sob medida</h3>
+              <p className="text-xs text-gray-500 leading-normal font-light">
                 Assine de forma simples e rápida com ativação instantânea no aplicativo.
               </p>
             </div>
 
             {/* Plan selector cards */}
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-3">
               {TIER_DETAILS.map((plan) => {
                 const isSelected = selectedPlan === plan.id;
                 const displayPrice = plan.id === 'basic' && !isLimitReached ? 'R$ 0,00' : plan.price;
@@ -143,14 +143,14 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                     onClick={() => setSelectedPlan(plan.id)}
                     className={cn(
                       "border rounded-3xl p-5 relative overflow-hidden transition-all cursor-pointer",
-                      isSelected 
-                        ? "bg-brand-white border-brand-text ring-1 ring-brand-text shadow-md" 
-                        : "bg-brand-white border-brand-blue/10 hover:border-brand-blue/20"
+                      isSelected
+                        ? "bg-[#0a0f1f]/95 border-purple-500 ring-1 ring-white shadow-md"
+                        : "bg-[#0a0f1f]/95 border-white/10 hover:border-purple-500/30"
                     )}
                     layoutId={`plan-${plan.id}`}
                   >
                     {plan.isPopular && (
-                      <div className="absolute right-0 top-0 bg-brand-text text-white text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
+                      <div className="absolute right-0 top-0 bg-white text-white text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
                         Recomendado
                       </div>
                     )}
@@ -165,7 +165,7 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                             {plan.duration}
                           </span>
                         </div>
-                        <h4 className="font-display font-bold text-[16px] text-brand-text pt-1">
+                        <h4 className="font-display font-bold text-[16px] text-white pt-1">
                           Acesso {plan.name}
                         </h4>
                       </div>
@@ -176,7 +176,7 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                             {displayOriginalPrice}
                           </div>
                         )}
-                        <div className="text-lg font-display font-extrabold text-brand-text">
+                        <div className="text-lg font-display font-extrabold text-white">
                           {displayPrice}
                         </div>
                       </div>
@@ -185,19 +185,19 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                     {/* Features list dynamic preview for selected or all cards */}
                     <AnimatePresence>
                       {isSelected && (
-                        <motion.div 
+                        <motion.div
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }}
-                          className="mt-4 pt-4 border-t border-brand-blue/5 space-y-2.5 overflow-hidden"
+                          className="mt-4 pt-4 border-t border-white/5 space-y-2.5 overflow-hidden"
                         >
                           {plan.id === 'free' && (
                             <>
-                              <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
+                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
                                 <Check size={14} className="text-indigo-500 shrink-0" />
                                 <span>Salas temáticas (5 minutos a cada 24 horas)</span>
                               </div>
-                              <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
+                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
                                 <Check size={14} className="text-indigo-500 shrink-0" />
                                 <span>Mensagens motivacionais diárias</span>
                               </div>
@@ -210,19 +210,19 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
 
                           {plan.id === 'basic' && (
                             <>
-                              <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
+                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
                                 <Check size={14} className="text-purple-500 shrink-0" />
                                 <span>Salas temáticas sem limite de tempo</span>
                               </div>
-                              <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
+                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
                                 <Check size={14} className="text-purple-500 shrink-0" />
                                 <span>Mensagens motivacionais ilimitadas</span>
                               </div>
-                              <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
+                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
                                 <Check size={14} className="text-purple-500 shrink-0" />
                                 <span>Fórum integrado</span>
                               </div>
-                              <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
+                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
                                 <Check size={14} className="text-purple-500 shrink-0" />
                                 <span>Pode receber convite para Sala VIP</span>
                               </div>
@@ -231,15 +231,15 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
 
                           {plan.id === 'vip' && (
                             <>
-                              <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
+                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
                                 <Check size={14} className="text-violet-500 shrink-0" />
                                 <span>Salas temáticas ilimitadas</span>
                               </div>
-                              <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
+                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
                                 <Check size={14} className="text-violet-500 shrink-0" />
                                 <span>Acesso ao Fórum completo</span>
                               </div>
-                              <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
+                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
                                 <Check size={14} className="text-violet-500 shrink-0" />
                                 <span>Pode receber convites para Sala VIP</span>
                               </div>
@@ -252,16 +252,16 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
 
                           {plan.id === 'premium' && (
                             <>
-                              <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
-                                <Check size={14} className="text-brand-green shrink-0" />
+                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
+                                <Check size={14} className="text-emerald-400 shrink-0" />
                                 <span>Tudo liberado 24h por 30 dias</span>
                               </div>
-                              <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
-                                <Check size={14} className="text-brand-green shrink-0" />
+                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
+                                <Check size={14} className="text-emerald-400 shrink-0" />
                                 <span>Acesso total ao Fórum e Salas VIP</span>
                               </div>
-                              <div className="flex items-center space-x-2 text-xs text-brand-text/75 font-light">
-                                <Check size={14} className="text-brand-green shrink-0" />
+                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
+                                <Check size={14} className="text-emerald-400 shrink-0" />
                                 <span>Permissão para criar suas próprias salas</span>
                               </div>
                             </>
@@ -296,22 +296,22 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
         {activeTab === 'table' && (
           <div className="space-y-6">
             <div className="text-center space-y-1.5 max-w-xs mx-auto mb-2">
-              <span className="text-[10px] uppercase font-bold text-brand-blue tracking-widest">Tabela de Atributos</span>
-              <h3 className="text-xl font-display font-bold text-brand-text leading-tight">Comparação Completa</h3>
+              <span className="text-[10px] uppercase font-bold text-purple-400 tracking-widest">Tabela de Atributos</span>
+              <h3 className="text-xl font-display font-bold text-white leading-tight">Comparação Completa</h3>
             </div>
 
             {/* Design da tabela */}
-            <div className="bg-brand-white border border-brand-blue/10 rounded-[2rem] overflow-hidden shadow-sm">
-              <div className="grid grid-cols-5 bg-brand-gray border-b border-brand-blue/5 text-[9px] font-bold text-gray-500 uppercase tracking-wider py-4 px-3 text-center">
+            <div className="bg-[#0a0f1f]/95 border border-white/10 rounded-[2rem] overflow-hidden shadow-sm">
+              <div className="grid grid-cols-5 bg-[#12182b] border-b border-white/5 text-[9px] font-bold text-gray-500 uppercase tracking-wider py-4 px-3 text-center">
                 <span className="text-left font-display">Recurso</span>
                 <span className="text-indigo-600">Grátis</span>
                 <span className="text-purple-600">Básico</span>
                 <span className="text-violet-600">VIP</span>
-                <span className="text-brand-green">Premium</span>
+                <span className="text-emerald-400">Premium</span>
               </div>
 
               {/* Rows */}
-              <div className="divide-y divide-brand-blue/5 text-xs text-brand-text">
+              <div className="divide-y divide-white/5 text-xs text-white">
                 {/* Row 1 */}
                 <div className="grid grid-cols-5 py-3.5 px-3 items-center text-center">
                   <span className="text-left text-[11px] font-semibold text-gray-700">Salas temáticas</span>
@@ -320,7 +320,7 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                   </div>
                   <div className="flex justify-center text-purple-600 font-bold">sim</div>
                   <div className="flex justify-center text-violet-600 font-bold">sim</div>
-                  <div className="flex justify-center text-brand-green font-bold">sim</div>
+                  <div className="flex justify-center text-emerald-400 font-bold">sim</div>
                 </div>
 
                 {/* Row 2 */}
@@ -329,7 +329,7 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                   <div className="flex justify-center text-indigo-600 font-bold">sim</div>
                   <div className="flex justify-center text-purple-600 font-bold">sim</div>
                   <div className="flex justify-center text-violet-600 font-bold">sim</div>
-                  <div className="flex justify-center text-brand-green font-bold">sim</div>
+                  <div className="flex justify-center text-emerald-400 font-bold">sim</div>
                 </div>
 
                 {/* Row 3 */}
@@ -338,16 +338,16 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                   <div className="flex justify-center text-red-400 font-bold">não</div>
                   <div className="flex justify-center text-purple-600 font-bold">sim</div>
                   <div className="flex justify-center text-violet-600 font-bold">sim</div>
-                  <div className="flex justify-center text-brand-green font-bold">sim</div>
+                  <div className="flex justify-center text-emerald-400 font-bold">sim</div>
                 </div>
 
                 {/* Row 4 */}
-                <div className="grid grid-cols-5 py-3.5 px-3 items-center text-center text-brand-text">
+                <div className="grid grid-cols-5 py-3.5 px-3 items-center text-center text-white">
                   <span className="text-left text-[11px] font-semibold text-gray-700">Sala VIP</span>
                   <div className="flex justify-center text-red-400 font-bold">não</div>
                   <div className="flex justify-center text-purple-600 font-bold">sim**</div>
                   <div className="flex justify-center text-violet-600 font-bold">sim**</div>
-                  <div className="flex justify-center text-brand-green font-bold">sim</div>
+                  <div className="flex justify-center text-emerald-400 font-bold">sim</div>
                 </div>
 
                 {/* Row 5 */}
@@ -356,11 +356,11 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                   <div className="flex justify-center text-red-400 font-bold">não</div>
                   <div className="flex justify-center text-red-400 font-bold">não</div>
                   <div className="flex justify-center text-red-400 font-bold">não</div>
-                  <div className="flex justify-center text-brand-green font-bold">sim</div>
+                  <div className="flex justify-center text-emerald-400 font-bold">sim</div>
                 </div>
 
                 {/* Row 6 / Price */}
-                <div className="grid grid-cols-5 py-4 px-3 items-center text-center bg-brand-gray/30 font-display">
+                <div className="grid grid-cols-5 py-4 px-3 items-center text-center bg-[#12182b]/30 font-display">
                   <span className="text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Valor</span>
                   <div className="font-bold text-indigo-700 text-[10px]">Grátis</div>
                   <div className="font-bold text-purple-700 text-[10px]">{isLimitReached ? 'R$ 0,99' : 'R$ 0,00'}</div>
@@ -370,7 +370,7 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                   </div>
                   <div className="text-[10px] flex flex-col justify-center">
                     <span className="text-[8px] text-gray-400 line-through">R$29,99</span>
-                    <span className="font-bold text-brand-green">R$14,99</span>
+                    <span className="font-bold text-emerald-400">R$14,99</span>
                   </div>
                 </div>
               </div>
@@ -379,31 +379,31 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
             {/* Quick CTAs for each column below table */}
             <div className="grid grid-cols-2 gap-2.5">
               <button
-                onClick={() => handleSubscribe('free', 'Grátis')}
-                className="py-2.5 px-3 rounded-xl bg-indigo-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
+                onClick={() => handleSubscribe('FREE', 'Grátis')}
+                className="py-2.5 px-3 rounded-xl bg-indigo-600/80 border border-indigo-500/25 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
               >
                 <span>Ativar Grátis</span>
                 <span className="text-[8.5px] font-light opacity-80">R$ 0,00 (Sempre)</span>
               </button>
               <button
-                onClick={() => handleSubscribe('basic', 'Básico')}
-                className="py-2.5 px-3 rounded-xl bg-purple-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
+                onClick={() => handleSubscribe('FREE', 'Básico')}
+                className="py-2.5 px-3 rounded-xl bg-purple-600/80 border border-purple-500/25 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
               >
                 <span>Assinar Básico</span>
                 <span className="text-[8.5px] font-light opacity-80">
-                  {isLimitReached ? 'R$ 0,99 (24 horas)' : 'Grátis (Promo de Abertura)'}
+                  {isLimitReached ? 'R$ 0,99 (24 horas)' : 'Grátis (Promo)'}
                 </span>
               </button>
               <button
-                onClick={() => handleSubscribe('vip', 'VIP')}
-                className="py-2.5 px-3 rounded-xl bg-violet-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
+                onClick={() => handleSubscribe('VIP', 'VIP')}
+                className="py-2.5 px-3 rounded-xl bg-violet-600/80 border border-violet-500/25 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
               >
                 <span>Assinar VIP</span>
                 <span className="text-[8.5px] font-light opacity-80">R$ 5,99 (10 dias)</span>
               </button>
               <button
-                onClick={() => handleSubscribe('premium', 'PREMIUM')}
-                className="py-2.5 px-3 rounded-xl bg-brand-green active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
+                onClick={() => handleSubscribe('PREMIUM', 'PREMIUM')}
+                className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 border border-purple-500/25 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
               >
                 <span>Assinar PREMIUM</span>
                 <span className="text-[8.5px] font-light opacity-80">R$ 14,99 (30 dias)</span>
@@ -413,7 +413,7 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
         )}
 
         {/* Footnotes */}
-        <div className="bg-brand-gray p-4 rounded-2xl space-y-2 border border-brand-blue/5">
+        <div className="bg-[#12182b] p-4 rounded-2xl space-y-2 border border-white/5">
           <div className="flex items-start space-x-2">
             <AlertCircle size={14} className="text-gray-400 mt-0.5 shrink-0" />
             <p className="text-[10px] text-gray-500 font-light leading-relaxed">
@@ -437,20 +437,20 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-brand-white rounded-[2.5rem] p-8 max-w-sm w-full border border-yellow-200 shadow-2xl flex flex-col items-center text-center space-y-5"
+              className="bg-[#0a0f1f]/95 rounded-[2.5rem] p-8 max-w-sm w-full border border-yellow-200 shadow-2xl flex flex-col items-center text-center space-y-5"
             >
               <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center text-white text-3xl shadow-xl shadow-yellow-100 animate-pulse">
                 👑
               </div>
               <div className="space-y-2">
-                <h4 className="font-display font-bold text-brand-text text-xl">Assinatura Ativada!</h4>
-                <p className="text-xs text-brand-text/75 font-light leading-relaxed">
-                  Parabéns! Sua assinatura do Plano <strong className="text-brand-blue font-semibold">{successAnimationPlan}</strong> foi processada com sucesso via simulação offline. Todos os recursos já estão ativos no seu perfil!
+                <h4 className="font-display font-bold text-white text-xl">Assinatura Ativada!</h4>
+                <p className="text-xs text-white/75 font-light leading-relaxed">
+                  Parabéns! Sua assinatura do Plano <strong className="text-purple-400 font-semibold">{successAnimationPlan}</strong> foi processada com sucesso via simulação offline. Todos os recursos já estão ativos no seu perfil!
                 </p>
               </div>
               <button
                 onClick={() => setSuccessAnimationPlan(null)}
-                className="w-full py-4 bg-brand-text hover:bg-brand-text/90 active:scale-95 text-white rounded-2xl text-xs font-bold transition-all outline-none"
+                className="w-full py-4 bg-white hover:bg-white/90 active:scale-95 text-white rounded-2xl text-xs font-bold transition-all outline-none"
               >
                 Começar a Usar
               </button>
@@ -461,3 +461,4 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
     </div>
   );
 }
+

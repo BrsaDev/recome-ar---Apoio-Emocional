@@ -5,11 +5,14 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Poppins", sans-serif;
   
-  --color-brand-green: #8369F4;
-  --color-brand-blue: #ECE7FF;
-  --color-brand-white: #FFFFFF;
-  --color-brand-gray: #F8F9FA;
-  --color-brand-text: #4A4A4A;
+  --color-brand-green: #10B981;
+  --color-brand-blue: #3B82F6;
+  --color-brand-white: #0D1226; /* Dark slate card background replacement */
+  --color-brand-gray: #050814; /* Main deep space background */
+  --color-brand-text: #FFFFFF; /* High contrast text */
+  --color-accent-purple: #D946EF; /* Neon purple */
+  --color-accent-cyan: #06B6D4; /* Neon cyan */
+  --color-accent-indigo: #8B5CF6; /* Neon indigo */
 }
 
 @layer base {
@@ -18,9 +21,39 @@
   }
   
   body {
-    @apply font-sans antialiased bg-brand-gray text-brand-text selection:bg-brand-green/30 fixed inset-0;
+    @apply font-sans antialiased bg-brand-gray text-brand-text fixed inset-0;
+    background-image: radial-gradient(circle at 50% 10%, #0c102c 0%, #050814 80%);
     -webkit-tap-highlight-color: transparent;
   }
+}
+
+/* Neon glow utilities */
+.neon-border-purple {
+  border: 1px solid rgba(217, 70, 239, 0.3);
+  box-shadow: 0 0 15px rgba(217, 70, 239, 0.15);
+}
+.neon-border-cyan {
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.15);
+}
+.neon-border-indigo {
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.15);
+}
+
+.text-neon-purple {
+  text-shadow: 0 0 8px rgba(217, 70, 239, 0.5);
+}
+.text-neon-cyan {
+  text-shadow: 0 0 8px rgba(6, 182, 212, 0.5);
+}
+
+/* Custom Glassmorphism Card styling */
+.glass-card {
+  background: rgba(13, 18, 38, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Custom Hide Scrollbar */

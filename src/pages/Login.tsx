@@ -128,33 +128,36 @@ export default function Login({ initialIsSignUp = false, onComplete, onBack }: P
   };
 
   return (
-    <div className="h-full w-full flex flex-col bg-gradient-to-b from-brand-blue/15 via-brand-white to-brand-white p-6 justify-between select-none">
+    <div className="h-full w-full flex flex-col bg-[#020410] p-6 justify-between select-none relative overflow-hidden">
+      {/* Background neon blobs */}
+      <div className="absolute top-[-20%] left-[-20%] w-72 h-72 rounded-full bg-purple-600/10 blur-[80px]" />
+      <div className="absolute bottom-[-20%] right-[-20%] w-72 h-72 rounded-full bg-cyan-600/10 blur-[80px]" />
 
       {/* Header and Back navigation */}
-      <div className="flex items-center justify-between pt-4 shrink-0">
+      <div className="flex items-center justify-between pt-4 shrink-0 relative z-10">
         <button
           type="button"
           onClick={onBack}
-          className="p-2.5 rounded-full bg-brand-white border border-brand-blue/5 hover:border-brand-blue/20 text-gray-500 hover:text-brand-text active:scale-95 transition-all outline-none"
+          className="p-2.5 rounded-full bg-white/5 border border-white/10 hover:border-white/20 text-gray-400 hover:text-white active:scale-95 transition-all outline-none"
           title="Voltar"
         >
           <ArrowLeft size={18} />
         </button>
-        <span className="text-xs text-gray-400 font-mono">FAPEM Segura</span>
+        <span className="text-xs text-gray-500 font-mono text-neon-cyan">FAPEM Segura</span>
       </div>
 
       {/* Main Form content wrapper */}
-      <div className="flex-1 flex flex-col justify-center max-h-[82%] space-y-5 pt-2">
+      <div className="flex-1 flex flex-col justify-center max-h-[82%] space-y-6 pt-2 relative z-10">
 
         {/* Logo and Greeting heading */}
-        <div className="text-center space-y-1.5">
-          <div className="w-16 h-16 mx-auto rounded-2xl overflow-hidden shadow-md border border-indigo-500/10 bg-slate-950 flex items-center justify-center mb-1">
-            <img src={logoImg} alt="FAPEM" className="w-full h-full object-cover animate-pulse-slow font-sans" />
+        <div className="text-center space-y-2">
+          <div className="w-16 h-16 mx-auto rounded-2xl overflow-hidden border border-purple-500/20 bg-slate-950/40 flex items-center justify-center mb-1 shadow-neon-purple/5">
+            <img src={logoImg} alt="FAPEM" className="w-10 h-10 object-contain font-sans" />
           </div>
-          <h2 className="text-xl font-display font-black text-brand-text leading-tight tracking-tight">
+          <h2 className="text-2xl font-display font-black text-white leading-tight tracking-tight">
             {isSignUp ? 'Faça parte do FAPEM' : 'Bem-vindo ao seu refúgio'}
           </h2>
-          <p className="text-[11px] text-gray-400 font-light max-w-[280px] mx-auto leading-normal">
+          <p className="text-[12px] text-gray-400 font-light max-w-[280px] mx-auto leading-normal">
             {isSignUp
               ? 'Crie o seu perfil seguro em segundos para ter total privacidade e acolhimento.'
               : 'Conecte-se para continuar seus diálogos e acompanhamentos terapêuticos.'}
@@ -162,18 +165,18 @@ export default function Login({ initialIsSignUp = false, onComplete, onBack }: P
         </div>
 
         {/* Mode Toggle Tab Selector */}
-        <div className="flex bg-brand-gray p-1 rounded-2xl border border-brand-blue/5 select-none shrink-0">
+        <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5 select-none shrink-0">
           <button
             type="button"
             onClick={() => { setIsSignUp(false); setError(null); }}
-            className={`flex-1 py-2 rounded-xl text-[10.5px] font-bold font-display transition-all ${!isSignUp ? 'bg-white text-brand-text shadow-3xs' : 'text-gray-400 hover:text-brand-text'}`}
+            className={`flex-1 py-2 rounded-xl text-[11px] font-bold font-display transition-all outline-none cursor-pointer ${!isSignUp ? 'bg-gradient-to-r from-purple-650 to-indigo-650 text-white shadow-md border border-purple-500/20' : 'text-gray-400 hover:text-white bg-transparent'}`}
           >
             Acessar Conta
           </button>
           <button
             type="button"
             onClick={() => { setIsSignUp(true); setError(null); }}
-            className={`flex-1 py-2 rounded-xl text-[10.5px] font-bold font-display transition-all ${isSignUp ? 'bg-white text-brand-text shadow-3xs' : 'text-gray-400 hover:text-brand-text'}`}
+            className={`flex-1 py-2 rounded-xl text-[11px] font-bold font-display transition-all outline-none cursor-pointer ${isSignUp ? 'bg-gradient-to-r from-purple-650 to-indigo-650 text-white shadow-md border border-purple-500/20' : 'text-gray-400 hover:text-white bg-transparent'}`}
           >
             Criar Conta
           </button>
@@ -184,18 +187,18 @@ export default function Login({ initialIsSignUp = false, onComplete, onBack }: P
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-2.5 bg-red-50 border border-red-100 rounded-xl text-[10px] text-red-600 flex items-start space-x-2"
+            className="p-3 bg-red-950/20 border border-red-500/30 rounded-xl text-[11px] text-red-400 flex items-start space-x-2"
           >
-            <AlertCircle size={13} className="mt-0.5 shrink-0" />
+            <AlertCircle size={14} className="mt-0.5 shrink-0" />
             <span>{error}</span>
           </motion.div>
         )}
 
         {/* Unified Standard Credentials Input Form */}
-        <form onSubmit={handleEmailAuthSubmit} className="space-y-2.5">
+        <form onSubmit={handleEmailAuthSubmit} className="space-y-3">
           {isSignUp && (
-            <div className="space-y-0.5">
-              <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest pl-1" htmlFor="login-name">
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1" htmlFor="login-name">
                 Seu Nome ou Apelido
               </label>
               <div className="relative">
@@ -208,14 +211,14 @@ export default function Login({ initialIsSignUp = false, onComplete, onBack }: P
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Como gostaria de ser chamado..."
-                  className="w-full bg-brand-gray border border-brand-blue/5 focus:border-brand-blue/30 rounded-2xl py-3 pl-11 pr-4 text-xs font-sans text-brand-text placeholder-gray-400 outline-none transition-all"
+                  className="w-full bg-white/5 border border-white/5 focus:border-purple-500/30 rounded-2xl py-3.5 pl-11 pr-4 text-xs font-sans text-white placeholder-gray-550 outline-none transition-all focus:ring-1 focus:ring-purple-500/30"
                 />
               </div>
             </div>
           )}
 
-          <div className="space-y-0.5">
-            <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest pl-1" htmlFor="login-email">
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1" htmlFor="login-email">
               E-mail
             </label>
             <div className="relative">
@@ -228,13 +231,13 @@ export default function Login({ initialIsSignUp = false, onComplete, onBack }: P
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Exemplo: seuemail@provedor.com"
-                className="w-full bg-brand-gray border border-brand-blue/5 focus:border-brand-blue/30 rounded-2xl py-3 pl-11 pr-4 text-xs font-sans text-brand-text placeholder-gray-400 outline-none transition-all"
+                className="w-full bg-white/5 border border-white/5 focus:border-purple-500/30 rounded-2xl py-3.5 pl-11 pr-4 text-xs font-sans text-white placeholder-gray-550 outline-none transition-all focus:ring-1 focus:ring-purple-500/30"
               />
             </div>
           </div>
 
-          <div className="space-y-0.5">
-            <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest pl-1" htmlFor="login-passwd">
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1" htmlFor="login-passwd">
               Senha secreta
             </label>
             <div className="relative">
@@ -246,8 +249,8 @@ export default function Login({ initialIsSignUp = false, onComplete, onBack }: P
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Minímo de 6 dígitos"
-                className="w-full bg-brand-gray border border-brand-blue/5 focus:border-brand-blue/30 rounded-2xl py-3 pl-11 pr-4 text-xs font-sans text-brand-text placeholder-gray-400 outline-none transition-all"
+                placeholder="Mínimo de 6 dígitos"
+                className="w-full bg-white/5 border border-white/5 focus:border-purple-500/30 rounded-2xl py-3.5 pl-11 pr-4 text-xs font-sans text-white placeholder-gray-550 outline-none transition-all focus:ring-1 focus:ring-purple-500/30"
               />
             </div>
           </div>
@@ -255,24 +258,24 @@ export default function Login({ initialIsSignUp = false, onComplete, onBack }: P
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 mt-1.5 bg-brand-green hover:bg-brand-green/95 text-white font-display font-medium text-xs rounded-2xl shadow-md transition-all active:scale-98 flex items-center justify-center space-x-2 cursor-pointer"
+            className="w-full py-4 mt-2 bg-gradient-to-r from-purple-650 to-indigo-650 text-white border border-purple-500/25 font-display font-bold text-sm rounded-2xl shadow-lg shadow-purple-500/10 transition-all active:scale-98 flex items-center justify-center space-x-2 cursor-pointer"
           >
             <span>{loading ? 'Cadastrando...' : isSignUp ? 'Criar minha conta e começar' : 'Acessar minha conta'}</span>
           </button>
         </form>
 
         {/* Separator block */}
-        <div className="flex items-center space-x-3 text-gray-200">
-          <div className="h-px bg-gray-200 flex-1" />
+        <div className="flex items-center space-x-3 text-white/10">
+          <div className="h-px bg-white/10 flex-1" />
           <span className="text-[9px] font-medium uppercase tracking-wider text-gray-400">ou</span>
-          <div className="h-px bg-gray-200 flex-1" />
+          <div className="h-px bg-white/10 flex-1" />
         </div>
 
         {/* High-Fidelity Easy Google OAuth Integration button */}
         <button
           type="button"
           onClick={handleGoogleClick}
-          className="w-full py-3 bg-white border border-gray-200 hover:bg-gray-50 text-slate-800 text-xs font-bold rounded-2xl shadow-3xs cursor-pointer flex items-center justify-center space-x-2.5 transition-all outline-none"
+          className="w-full py-3.5 bg-[#12182b]/60 border border-white/5 hover:bg-[#12182b] text-white text-xs font-semibold rounded-2xl shadow-sm cursor-pointer flex items-center justify-center space-x-2.5 transition-all outline-none"
         >
           {/* Official branding layout Google asset icon */}
           <svg className="w-4.5 h-4.5" viewBox="0 0 24 24">
@@ -293,7 +296,7 @@ export default function Login({ initialIsSignUp = false, onComplete, onBack }: P
               d="M22.31 10.716a10.033 10.033 0 01.127 1.284c0 .35-.02.7-.058 1.05h-10.14V10.28h10.07"
             />
           </svg>
-          <span className="font-semibold text-slate-705">
+          <span className="font-semibold text-gray-300">
             {isSignUp ? 'Cadastrar com o Google' : 'Entrar com o Google'}
           </span>
         </button>
@@ -317,7 +320,7 @@ export default function Login({ initialIsSignUp = false, onComplete, onBack }: P
             className="fixed inset-0 z-55 bg-slate-950/85 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center text-white"
           >
             <div className="relative mb-4">
-              <div className="w-14 h-14 rounded-full border-2 border-indigo-500/20 border-t-brand-green animate-spin" />
+              <div className="w-14 h-14 rounded-full border-2 border-indigo-500/20 border-t-emerald-400 animate-spin" />
               <span className="absolute inset-0 flex items-center justify-center text-lg">💡</span>
             </div>
             <p className="text-sm font-medium tracking-wide animate-pulse">{loadingText}</p>

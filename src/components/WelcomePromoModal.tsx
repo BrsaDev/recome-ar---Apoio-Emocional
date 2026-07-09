@@ -26,13 +26,13 @@ export default function WelcomePromoModal({
 
   const handleRedeem = () => {
     if (isLimitReached) return;
-    
+
     setIsRedeeming(true);
     // Simulate slight loading for better UX feel
     setTimeout(() => {
       onUpdateUser({
         ...user,
-        plan: 'basic'
+        plan: 'FREE'
       });
       // Increment count
       onUpdateUserCount(userCount + 1);
@@ -67,7 +67,7 @@ export default function WelcomePromoModal({
               Campanha de Abertura
             </span>
           </div>
-          
+
           <button
             type="button"
             onClick={onClose}
@@ -80,19 +80,19 @@ export default function WelcomePromoModal({
 
         {/* Scrollable Gift Content to keep elegant vertical constraints */}
         <div className="flex-1 overflow-y-auto px-7 py-3 max-h-[72dvh] space-y-5 no-scrollbar scroll-smooth">
-          
+
           {/* Calming Welcome Illustration */}
           <div className="flex justify-center pt-2">
             <div className="relative w-28 h-28 flex items-center justify-center rounded-full bg-indigo-950/50 border border-indigo-500/20">
               {/* Spinning border */}
               <div className="absolute inset-0 rounded-full border-t border-r border-indigo-400/30 animate-spin" style={{ animationDuration: '6s' }} />
-              
+
               {/* Custom SVG: Minimalist heart inside comforting hands */}
               <svg className="w-16 h-16 text-indigo-300 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor" className="text-indigo-500/30" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.05 17.5a4.5 4.5 0 011.95.5 4.5 4.5 0 011.95-.5M6 13h12M8 10h8" />
               </svg>
-              
+
               <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-indigo-500 text-white flex items-center justify-center text-sm shadow-lg shadow-indigo-500/20">
                 🌟
               </div>
@@ -132,7 +132,7 @@ export default function WelcomePromoModal({
                   <p className="text-xs text-slate-300 leading-relaxed font-light text-center">
                     Que bom que você está aqui. O FAPEM é o seu novo porto seguro, e queremos que você se sinta em casa desde o primeiro segundo.
                   </p>
-                  
+
                   <p className="text-xs text-indigo-100 bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-2xl leading-relaxed font-normal text-center">
                     Para celebrar o seu início nessa jornada de acolhimento e apoio nós liberamos o <strong>Acesso Gratuito por Tempo Limitado</strong> ao nosso plano básico (que normalmente custa apenas R$ 0,99/dia).
                   </p>
@@ -197,7 +197,7 @@ export default function WelcomePromoModal({
                     <button
                       type="button"
                       onClick={onClose}
-                      className="w-full py-3.5 bg-brand-green hover:bg-brand-green/95 text-white text-xs font-bold rounded-2xl transition-all shadow-md active:scale-97 cursor-pointer outline-none"
+                      className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-2xl transition-all shadow-md active:scale-97 cursor-pointer outline-none"
                     >
                       Explorar No Plano Grátis
                     </button>
@@ -218,7 +218,7 @@ export default function WelcomePromoModal({
               <div className="w-16 h-16 bg-emerald-500 text-white rounded-full flex items-center justify-center text-2xl mx-auto shadow-lg shadow-emerald-500/30 animate-bounce">
                 ✓
               </div>
-              
+
               <div className="space-y-1.5">
                 <h4 className="text-lg font-bold text-emerald-400">🎁 Acesso Grátis Resgatado!</h4>
                 <p className="text-xs text-slate-300 leading-relaxed font-light">
@@ -254,7 +254,7 @@ export default function WelcomePromoModal({
             >
               <span>{isRedeeming ? 'Ativando...' : '💜 Resgatar Meu Acesso Grátis'}</span>
             </motion.button>
-            
+
             <p className="text-[10px] text-slate-400 text-center font-light leading-snug">
               Não se preocupe, nenhuma cobrança será feita agora.
             </p>

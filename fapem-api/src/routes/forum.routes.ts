@@ -60,4 +60,106 @@ export async function forumRoutes(fastify: FastifyInstance) {
 
         return topic;
     });
+
+    // Get Topic Details with Posts
+    fastify.get('/forum/topics/:id', async (request, reply) => {
+        const { id } = z.object({ id: z.string() }).parse(request.params);
+        const topic = await prisma.topic.findUnique({
+            where: { id },
+            include: {
+                author: {
+                    select: { nickname: true, avatarId: true }
+                },
+                posts: {
+                    orderBy: { createdAt: 'asc' },
+                    include: {
+                        author: {
+                            select: { nickname: true, avatarId: true }
+                        }
+                    }
+                }
+            }
+        });
+
+        if (!topic) {
+            return reply.status(404).send({ error: 'Tópico não encontrado.' });
+        }
+
+        return topic;
+    });
+
+    // Add Reply Post to Topic
+    fastify.post('/forum/topics/:id/replies', {
+        onRequest: [fastify.authenticate]
+    }, async (request, reply) => {
+        const { id: topicId } = z.object({ id: z.string() }).parse(request.params);
+        const schema = z.object({
+            content: z.string().min(1),
+        });
+        const { content } = schema.parse(request.body);
+        const userId = (request.user as any).id;
+
+        const topic = await prisma.topic.findUnique({ where: { id: topicId } });
+        if (!topic) {
+            return reply.status(404).send({ error: 'Tópico não encontrado.' });
+        }
+
+        const post = await prisma.$transaction(async (tx) => {
+            const newPost = await tx.post.create({
+                data: {
+                    content,
+                    authorId: userId,
+                    topicId,
+                },
+                include: {
+                    author: {
+                        select: { nickname: true, avatarId: true }
+                    }
+                }
+            });
+
+            await tx.topic.update({
+                where: { id: topicId },
+                data: {
+                    repliesCount: { increment: 1 }
+                }
+            });
+
+            return newPost;
+        });
+
+        return post;
+    });
+
+    // React to a Post
+    fastify.post('/forum/posts/:postId/react', {
+        onRequest: [fastify.authenticate]
+    }, async (request, reply) => {
+        const { postId } = z.object({ postId: z.string() }).parse(request.params);
+        const schema = z.object({
+            reaction: z.string()
+        });
+        const { reaction } = schema.parse(request.body);
+
+        const post = await prisma.post.findUnique({ where: { id: postId } });
+        if (!post) {
+            return reply.status(404).send({ error: 'Post não encontrado.' });
+        }
+
+        const currentReactions = (post.reactions as Record<string, number> | null) || {};
+        const count = currentReactions[reaction] || 0;
+        const updatedReactions = {
+            ...currentReactions,
+            [reaction]: count + 1
+        };
+
+        const updatedPost = await prisma.post.update({
+            where: { id: postId },
+            data: {
+                reactions: updatedReactions
+            }
+        });
+
+        return updatedPost;
+    });
 }
