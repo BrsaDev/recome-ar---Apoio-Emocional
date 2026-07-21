@@ -10,7 +10,7 @@ export async function paymentRoutes(fastify: FastifyInstance) {
         const schema = z.object({
             purchaseToken: z.string(),
             productId: z.string(),
-            plan: z.enum(['VIP', 'PREMIUM']),
+            plan: z.enum(['PREMIUM1', 'PREMIUM2', 'PREMIUM3']),
         });
 
         const { plan } = schema.parse(request.body);

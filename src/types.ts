@@ -14,7 +14,7 @@ export interface User {
   age?: string;
   initialMood?: Mood;
   avatarId?: string;
-  plan?: 'FREE' | 'VIP' | 'PREMIUM';
+  plan?: 'FREE' | 'PREMIUM1' | 'PREMIUM2' | 'PREMIUM3';
   supportAngels?: SupportAngel[];
   termsAccepted?: boolean;
   termsAcceptedAt?: string;
@@ -49,6 +49,7 @@ export interface Room {
   invitedAngels?: string[]; // IDs of invited SupportAngels
   invitedBy?: string; // Creator's name
   isPremiumRoom?: boolean; // Creator is Premium
+  ownerId?: string; // Creator ID for ownership checks
 }
 
 export interface ForumPost {

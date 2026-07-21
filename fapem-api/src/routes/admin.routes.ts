@@ -11,10 +11,11 @@ export async function adminRoutes(fastify: FastifyInstance) {
             _count: true
         });
 
-        // Simulated MRR calculation based on plans (Mock prices: VIP=29, PREMIUM=59)
+        // Simulated MRR calculation based on plans (Mock prices: PREMIUM1=0.99, PREMIUM2=9.90, PREMIUM3=24.99)
         const mrr = planStats.reduce((acc, stat) => {
-            if (stat.plan === 'VIP') return acc + (stat._count * 29.90);
-            if (stat.plan === 'PREMIUM') return acc + (stat._count * 59.90);
+            if (stat.plan === 'PREMIUM1') return acc + (stat._count * 0.99);
+            if (stat.plan === 'PREMIUM2') return acc + (stat._count * 9.90);
+            if (stat.plan === 'PREMIUM3') return acc + (stat._count * 24.99);
             return acc;
         }, 0);
 
@@ -34,7 +35,7 @@ export async function adminRoutes(fastify: FastifyInstance) {
 
     fastify.patch('/admin/users/:id/plan', { onRequest: [fastify.verifyAdmin] }, async (request) => {
         const paramsSchema = z.object({ id: z.string() });
-        const bodySchema = z.object({ plan: z.enum(['FREE', 'VIP', 'PREMIUM']) });
+        const bodySchema = z.object({ plan: z.enum(['FREE', 'PREMIUM1', 'PREMIUM2', 'PREMIUM3']) });
 
         const { id } = paramsSchema.parse(request.params);
         const { plan } = bodySchema.parse(request.body);
@@ -74,5 +75,26 @@ export async function adminRoutes(fastify: FastifyInstance) {
                 status: 'RESOLVED'
             }
         });
+    });
+
+    // Delete Ticket (Admin Only)
+    fastify.delete('/admin/tickets/:id', { onRequest: [fastify.verifyAdmin] }, async (request) => {
+        const { id } = z.object({ id: z.string() }).parse(request.params);
+        await prisma.supportTicket.delete({ where: { id } });
+        return { success: true };
+    });
+
+    // Delete Custom Room (Admin Only)
+    fastify.delete('/admin/rooms/:id', { onRequest: [fastify.verifyAdmin] }, async (request) => {
+        const { id } = z.object({ id: z.string() }).parse(request.params);
+        await prisma.room.delete({ where: { id } });
+        return { success: true };
+    });
+
+    // Delete Forum Topic (Admin Only)
+    fastify.delete('/admin/forum/topics/:id', { onRequest: [fastify.verifyAdmin] }, async (request) => {
+        const { id } = z.object({ id: z.string() }).parse(request.params);
+        await prisma.topic.delete({ where: { id } });
+        return { success: true };
     });
 }

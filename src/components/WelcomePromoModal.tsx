@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { X, Gift, Users, Sparkles, Sliders } from 'lucide-react';
 import { User } from '../types';
+import { apiService } from '../services/api';
 
 interface Props {
   user: User;
@@ -28,17 +29,35 @@ export default function WelcomePromoModal({
     if (isLimitReached) return;
 
     setIsRedeeming(true);
-    // Simulate slight loading for better UX feel
-    setTimeout(() => {
-      onUpdateUser({
-        ...user,
-        plan: 'FREE'
-      });
-      // Increment count
-      onUpdateUserCount(userCount + 1);
-      setRedeemed(true);
-      setIsRedeeming(false);
-    }, 1200);
+    const USE_API = (import.meta as any).env?.VITE_USE_API === 'true';
+
+    if (USE_API) {
+      apiService.profile.updatePlan('PREMIUM2')
+        .then(({ user: updatedUser, token }) => {
+          localStorage.setItem('fapem_token', token);
+          onUpdateUser(updatedUser);
+          onUpdateUserCount(userCount + 1);
+          setRedeemed(true);
+          setIsRedeeming(false);
+        })
+        .catch(err => {
+          console.error('[WelcomePromo] Redeem failed:', err);
+          alert('Falha ao resgatar o bônus no servidor de produção.');
+          setIsRedeeming(false);
+        });
+    } else {
+      // Simulate slight loading for better UX feel
+      setTimeout(() => {
+        onUpdateUser({
+          ...user,
+          plan: 'PREMIUM2'
+        });
+        // Increment count
+        onUpdateUserCount(userCount + 1);
+        setRedeemed(true);
+        setIsRedeeming(false);
+      }, 1200);
+    }
   };
 
   const handleQuickTestToggle = () => {
@@ -134,7 +153,7 @@ export default function WelcomePromoModal({
                   </p>
 
                   <p className="text-xs text-indigo-100 bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-2xl leading-relaxed font-normal text-center">
-                    Para celebrar o seu início nessa jornada de acolhimento e apoio nós liberamos o <strong>Acesso Gratuito por Tempo Limitado</strong> ao nosso plano básico (que normalmente custa apenas R$ 0,99/dia).
+                    Para celebrar o seu início nessa jornada de acolhimento e apoio nós liberamos o <strong>Acesso Gratuito por Tempo Limitado</strong> ao nosso plano <strong>PREMIUM 2 de 10 dias</strong> (que normalmente custa R$ 9,90).
                   </p>
 
                   <div className="space-y-2.5 pt-1">
@@ -220,9 +239,9 @@ export default function WelcomePromoModal({
               </div>
 
               <div className="space-y-1.5">
-                <h4 className="text-lg font-bold text-emerald-400">🎁 Acesso Grátis Resgatado!</h4>
+                <h4 className="text-lg font-bold text-emerald-400">🎁 Acesso Premium 2 Resgatado!</h4>
                 <p className="text-xs text-slate-300 leading-relaxed font-light">
-                  Seu Plano Básico foi ativado com sucesso! Você já pode desfrutar de salas de conversas sem limites, focar no fórum e muito mais, tudo totalmente gratuito por tempo limitado.
+                  Seu Plano PREMIUM 2 (10 dias de acesso com salas de voz livres e criação de salas temáticas) foi ativado com sucesso! Aproveite ao máximo.
                 </p>
               </div>
 

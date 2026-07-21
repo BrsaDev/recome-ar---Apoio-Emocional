@@ -103,7 +103,7 @@ export default function Rooms({ user, navigate }: Props) {
   };
 
   const handleTriggerCreateRoom = () => {
-    if (user?.plan === 'PREMIUM') {
+    if (user?.plan && user.plan !== 'FREE') {
       setIsCreateOpen(true);
     } else {
       setIsUpgradePromptOpen(true);
@@ -325,7 +325,7 @@ export default function Rooms({ user, navigate }: Props) {
                   Apenas assinantes do plano <strong className="text-purple-400 font-semibold text-neon-purple">PREMIUM</strong> têm permissão para criar e gerenciar salas de desabafo personalizadas na plataforma.
                 </p>
                 <div className="bg-purple-950/40 p-2.5 rounded-xl border border-purple-500/20 text-[10px] text-purple-400 font-bold uppercase tracking-wider font-mono">
-                  Seu plano atual: {user?.plan === 'VIP' ? 'VIP' : user?.plan === 'PREMIUM' ? 'Premium' : 'Grátis'}
+                  Seu plano atual: {user?.plan === 'FREE' ? 'Grátis' : `Premium (${user?.plan})`}
                 </div>
               </div>
               <div className="w-full space-y-2.5">
@@ -450,7 +450,7 @@ export default function Rooms({ user, navigate }: Props) {
                 </div>
 
                 {/* Seleção de Anjos de Apoio para convidar na criação (Recurso Premium) */}
-                {user?.plan === 'PREMIUM' && (user.supportAngels || []).length > 0 && (
+                {user?.plan && user.plan !== 'FREE' && (user.supportAngels || []).length > 0 && (
                   <div className="space-y-2.5 border-t border-white/5 pt-3.5">
                     <label className="text-[10px] uppercase font-bold text-gray-500 tracking-wider block pl-1">
                       Convidar Anjos da sua Lista (Opcional)

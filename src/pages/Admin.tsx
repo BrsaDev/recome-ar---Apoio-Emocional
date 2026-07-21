@@ -63,7 +63,7 @@ interface SimulatedUser {
   nickname: string;
   email: string;
   mood?: string;
-  plan: 'FREE' | 'VIP' | 'PREMIUM';
+  plan: 'FREE' | 'PREMIUM1' | 'PREMIUM2' | 'PREMIUM3';
   isBanned: boolean;
   role: 'USER' | 'MODERATOR' | 'ADMIN';
   createdAt: string;
@@ -141,6 +141,18 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
       } else if (activeTab === 'tickets') {
         const tks = await apiService.admin.getTickets();
         setTickets(tks);
+      } else if (activeTab === 'rooms') {
+        const rms = await apiService.rooms.fetchAll();
+        setRooms(rms.map(r => ({
+          id: r.id,
+          name: r.name,
+          description: r.description || '',
+          invitedBy: r.invitedBy || (r as any).owner?.nickname || 'Administração',
+          invitedAngels: r.invitedAngels || [],
+          type: r.type.toLowerCase() as any,
+          onlineCount: (r as any).onlineCount || 0,
+          isPremiumRoom: r.isPremiumRoom ?? ((r.type as string) === 'PREMIUM' || (r.type as string) === 'VIP')
+        })));
       }
     } catch (err) {
       console.error('[Admin API] Load data failed:', err);
@@ -179,8 +191,8 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
       }
     } else {
       const defaultUsers: SimulatedUser[] = [
-        { id: 'USR-8902', nickname: 'Carol S. Azevedo', email: 'carol.silva@gmail.com', mood: '😔 Triste', plan: 'PREMIUM', isBanned: false, role: 'USER', createdAt: '2026-05-18' },
-        { id: 'USR-3419', nickname: 'Lucas Menezes', email: 'lucas.mnez@outlook.com', mood: '😰 Ansioso', plan: 'VIP', isBanned: false, role: 'USER', createdAt: '2026-05-22' },
+        { id: 'USR-8902', nickname: 'Carol S. Azevedo', email: 'carol.silva@gmail.com', mood: '😔 Triste', plan: 'PREMIUM3', isBanned: false, role: 'USER', createdAt: '2026-05-18' },
+        { id: 'USR-3419', nickname: 'Lucas Menezes', email: 'lucas.mnez@outlook.com', mood: '😰 Ansioso', plan: 'PREMIUM2', isBanned: false, role: 'USER', createdAt: '2026-05-22' },
         { id: 'USR-7621', nickname: 'Renata Kunz', email: 'renata_k@hotmail.com', mood: '😶 Confuso', plan: 'FREE', isBanned: false, role: 'USER', createdAt: '2026-06-01' },
         { id: 'USR-1250', nickname: 'Amanda Vieira', email: 'amanda.v@gmail.com', mood: '😞 Sozinho', plan: 'FREE', isBanned: false, role: 'USER', createdAt: '2026-06-03' },
         { id: 'USR-5582', nickname: 'Mateus Ferraz', email: 'mateus.ferr12@gmail.com', mood: '😰 Ansioso', plan: 'FREE', isBanned: true, role: 'USER', createdAt: '2026-06-04' }
@@ -240,7 +252,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
     }
   };
 
-  const handleChangeUserPlan = async (userId: string, newPlan: 'FREE' | 'VIP' | 'PREMIUM') => {
+  const handleChangeUserPlan = async (userId: string, newPlan: 'FREE' | 'PREMIUM1' | 'PREMIUM2' | 'PREMIUM3') => {
     const USE_API = (import.meta as any).env?.VITE_USE_API === 'true';
     if (USE_API) {
       try {
@@ -310,26 +322,59 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
     }
   };
 
-  const handleDeleteTicket = (ticketId: string) => {
-    const updated = tickets.filter(t => t.id !== ticketId);
-    setTickets(updated);
-    localStorage.setItem('recomecar_support_tickets', JSON.stringify(updated));
-    setApiLogs(prev => [...prev, `[Suporte] Ticket ${ticketId} removido permanentemente.`]);
+  const handleDeleteTicket = async (ticketId: string) => {
+    const USE_API = (import.meta as any).env?.VITE_USE_API === 'true';
+    if (USE_API) {
+      try {
+        await apiService.admin.deleteTicket(ticketId);
+        setTickets(prev => prev.filter(t => t.id !== ticketId));
+        setApiLogs(prev => [...prev, `[Suporte API] Ticket ${ticketId} removido permanentemente no servidor.`]);
+      } catch (err: any) {
+        setApiLogs(prev => [...prev, `[Erro API] Falha ao deletar ticket ${ticketId}: ${err.message || 'Erro desconhecido'}`]);
+      }
+    } else {
+      const updated = tickets.filter(t => t.id !== ticketId);
+      setTickets(updated);
+      localStorage.setItem('recomecar_support_tickets', JSON.stringify(updated));
+      setApiLogs(prev => [...prev, `[Suporte] Ticket ${ticketId} removido permanentemente.`]);
+    }
   };
 
   // ROOMS ACTIONS
-  const handleDeleteRoom = (roomId: string) => {
-    const updated = rooms.filter(r => r.id !== roomId);
-    setRooms(updated);
-    localStorage.setItem('recomecar_custom_rooms', JSON.stringify(updated));
-    setApiLogs(prev => [...prev, `[Salas] Sala ${roomId} excluída por moderação administrativa.`]);
+  const handleDeleteRoom = async (roomId: string) => {
+    const USE_API = (import.meta as any).env?.VITE_USE_API === 'true';
+    if (USE_API) {
+      try {
+        await apiService.admin.deleteRoom(roomId);
+        setRooms(prev => prev.filter(r => r.id !== roomId));
+        setApiLogs(prev => [...prev, `[Salas API] Sala ${roomId} excluída por moderação no servidor.`]);
+      } catch (err: any) {
+        setApiLogs(prev => [...prev, `[Erro API] Falha ao deletar sala ${roomId}: ${err.message || 'Erro desconhecido'}`]);
+      }
+    } else {
+      const updated = rooms.filter(r => r.id !== roomId);
+      setRooms(updated);
+      localStorage.setItem('recomecar_custom_rooms', JSON.stringify(updated));
+      setApiLogs(prev => [...prev, `[Salas] Sala ${roomId} excluída por moderação administrativa.`]);
+    }
   };
 
   // FORUM ACTIONS
-  const handleDeleteForumTopic = (topicId: string) => {
-    const updated = forumTopics.filter(t => t.id !== topicId);
-    onUpdateForumTopics(updated);
-    setApiLogs(prev => [...prev, `[Fórum] Tópico ${topicId} removido permanentemente.`]);
+  const handleDeleteForumTopic = async (topicId: string) => {
+    const USE_API = (import.meta as any).env?.VITE_USE_API === 'true';
+    if (USE_API) {
+      try {
+        await apiService.admin.deleteForumTopic(topicId);
+        onUpdateForumTopics(forumTopics.filter(t => t.id !== topicId));
+        setApiLogs(prev => [...prev, `[Fórum API] Tópico ${topicId} removido permanentemente no servidor.`]);
+      } catch (err: any) {
+        setApiLogs(prev => [...prev, `[Erro API] Falha ao deletar tópico ${topicId}: ${err.message || 'Erro desconhecido'}`]);
+      }
+    } else {
+      const updated = forumTopics.filter(t => t.id !== topicId);
+      onUpdateForumTopics(updated);
+      setApiLogs(prev => [...prev, `[Fórum] Tópico ${topicId} removido permanentemente.`]);
+    }
   };
 
   // SUPABASE SIMULATOR HANDLER
@@ -349,11 +394,11 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
   };
 
   // Mock billing values
-  const countPremium = simulatedUsers.filter(u => u.plan === 'PREMIUM').length;
-  const countVip = simulatedUsers.filter(u => u.plan === 'VIP').length;
-  const countBasic = simulatedUsers.filter(u => u.plan === 'FREE').length;
+  const countPremium3 = simulatedUsers.filter(u => u.plan === 'PREMIUM3').length;
+  const countPremium2 = simulatedUsers.filter(u => u.plan === 'PREMIUM2').length;
+  const countPremium1 = simulatedUsers.filter(u => u.plan === 'PREMIUM1').length;
   // Use let if we are calculating local fallback MRR
-  let localMRR = (countPremium * 14.99) + (countVip * 5.99) + (countBasic * 0.99);
+  let localMRR = (countPremium3 * 24.99) + (countPremium2 * 9.90) + (countPremium1 * 0.99);
 
   // Use estimatedMRR from state if API is active, otherwise localMRR
   const displayMRR = (import.meta as any).env?.VITE_USE_API === 'true' ? estimatedMRR : localMRR;
@@ -533,16 +578,16 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
 
                 <div className="grid grid-cols-3 gap-2">
                   <div className="bg-[#020410]/40 border border-white/5 rounded-xl p-3 text-center space-y-1">
-                    <span className="text-[8px] uppercase tracking-wide text-indigo-600 font-bold col-span-3">Assinantes PREMIUM</span>
-                    <p className="text-lg font-display font-bold text-white">{countPremium}</p>
+                    <span className="text-[8px] uppercase tracking-wide text-indigo-600 font-bold col-span-3">PREMIUM 3</span>
+                    <p className="text-lg font-display font-bold text-white">{countPremium3}</p>
                   </div>
                   <div className="bg-[#020410]/40 border border-white/5 rounded-xl p-3 text-center space-y-1">
-                    <span className="text-[8px] uppercase tracking-wide text-purple-600 font-bold col-span-3">Assinantes VIP</span>
-                    <p className="text-lg font-display font-bold text-white">{countVip}</p>
+                    <span className="text-[8px] uppercase tracking-wide text-purple-600 font-bold col-span-3">PREMIUM 2</span>
+                    <p className="text-lg font-display font-bold text-white">{countPremium2}</p>
                   </div>
                   <div className="bg-[#020410]/40 border border-white/5 rounded-xl p-3 text-center space-y-1">
-                    <span className="text-[8px] uppercase tracking-wide text-violet-600 font-bold col-span-3">Assinantes BÁSICO</span>
-                    <p className="text-lg font-display font-bold text-white">{countBasic}</p>
+                    <span className="text-[8px] uppercase tracking-wide text-violet-600 font-bold col-span-3">PREMIUM 1</span>
+                    <p className="text-lg font-display font-bold text-white">{countPremium1}</p>
                   </div>
                 </div>
 
@@ -643,7 +688,7 @@ export default function Admin({ user: currentUser, navigate, forumTopics, onUpda
                       <div className="pt-2.5 border-t border-white/5 flex items-center justify-between flex-wrap gap-2 text-[10px]">
                         <div className="flex items-center space-x-1">
                           <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider select-none mr-1">Plano:</span>
-                          {(['FREE', 'VIP', 'PREMIUM'] as const).map(tier => (
+                          {(['FREE', 'PREMIUM1', 'PREMIUM2', 'PREMIUM3'] as const).map(tier => (
                             <button
                               key={tier}
                               onClick={() => handleChangeUserPlan(user.id, tier)}

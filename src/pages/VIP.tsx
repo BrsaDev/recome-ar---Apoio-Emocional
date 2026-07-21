@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { View, User } from '../types';
-import { ArrowLeft, Check, X, Sparkles, AlertCircle, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Check, X, Sparkles, AlertCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { apiService } from '../services/api';
 
 interface Props {
   user: User | null;
@@ -12,7 +13,7 @@ interface Props {
 
 const TIER_DETAILS = [
   {
-    id: 'free',
+    id: 'FREE',
     name: 'Grátis',
     duration: 'Para sempre',
     price: 'R$ 0,00',
@@ -22,62 +23,62 @@ const TIER_DETAILS = [
     buttonStyle: 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-100',
   },
   {
-    id: 'basic',
-    name: 'Básico',
-    duration: '24 horas',
+    id: 'PREMIUM1',
+    name: 'PREMIUM 1',
+    duration: '1 dia',
     price: 'R$ 0,99',
     originalPrice: null,
-    badgeColor: 'bg-purple-50 text-purple-700 border-purple-200',
-    headerBg: 'from-purple-500/5 to-purple-500/10',
-    buttonStyle: 'bg-purple-600 hover:bg-purple-700 shadow-purple-100',
+    badgeColor: 'bg-cyan-50 text-cyan-700 border-cyan-200',
+    headerBg: 'from-cyan-500/5 to-cyan-500/10',
+    buttonStyle: 'bg-cyan-600 hover:bg-cyan-700 shadow-cyan-100',
   },
   {
-    id: 'vip',
-    name: 'VIP',
+    id: 'PREMIUM2',
+    name: 'PREMIUM 2',
     duration: '10 dias',
-    price: 'R$ 5,99',
-    originalPrice: 'R$ 9,99',
-    badgeColor: 'bg-violet-50 text-violet-700 border-violet-200',
+    price: 'R$ 9,90',
+    originalPrice: null,
+    badgeColor: 'bg-violet-50 text-violet-750 border-violet-200',
     headerBg: 'from-violet-500/5 to-violet-500/10',
     buttonStyle: 'bg-violet-600 hover:bg-violet-700 shadow-violet-100',
+    isPopular: true,
   },
   {
-    id: 'premium',
-    name: 'PREMIUM',
+    id: 'PREMIUM3',
+    name: 'PREMIUM 3',
     duration: '30 dias',
-    price: 'R$ 14,99',
-    originalPrice: 'R$ 29,99',
-    badgeColor: 'bg-purple-50 text-purple-700 border-purple-200',
-    headerBg: 'from-purple-500/5 to-purple-500/10',
-    buttonStyle: 'bg-purple-600 hover:bg-purple-700 shadow-purple-100',
-    isPopular: true,
+    price: 'R$ 24,99',
+    originalPrice: 'R$ 29,70',
+    badgeColor: 'bg-[#fffaeb] text-amber-700 border-amber-200',
+    headerBg: 'from-amber-500/5 to-amber-500/10',
+    buttonStyle: 'bg-amber-600 hover:bg-amber-700 shadow-amber-100',
   }
 ];
 
 export default function VIP({ user, navigate, onUpdateUser }: Props) {
-  const [selectedPlan, setSelectedPlan] = useState<string>(user?.plan || 'premium');
+  const [selectedPlan, setSelectedPlan] = useState<string>(user?.plan || 'PREMIUM2');
   const [activeTab, setActiveTab] = useState<'cards' | 'table'>('cards');
   const [successAnimationPlan, setSuccessAnimationPlan] = useState<string | null>(null);
 
-  const userCount = (() => {
-    const saved = localStorage.getItem('recomecar_user_count');
-    if (saved) {
-      const parsed = parseInt(saved, 10);
-      if (!isNaN(parsed)) return parsed;
-    }
-    return 498;
-  })();
-
-  const isLimitReached = userCount >= 500;
-
-  const handleSubscribe = (planKey: 'FREE' | 'VIP' | 'PREMIUM', planName: string) => {
+  const handleSubscribe = async (planKey: 'FREE' | 'PREMIUM1' | 'PREMIUM2' | 'PREMIUM3', planName: string) => {
     setSuccessAnimationPlan(planName);
-    if (user && onUpdateUser) {
+    const USE_API = (import.meta as any).env?.VITE_USE_API === 'true';
+
+    if (USE_API && user) {
+      try {
+        const { user: updatedUser, token } = await apiService.profile.updatePlan(planKey);
+        localStorage.setItem('fapem_token', token);
+        onUpdateUser(updatedUser);
+      } catch (err) {
+        console.error('[VIP Purchase] Sync failed:', err);
+      }
+    } else if (user && onUpdateUser) {
       onUpdateUser({
         ...user,
         plan: planKey
       });
     }
+
     setTimeout(() => {
       setSuccessAnimationPlan(null);
     }, 4000);
@@ -122,7 +123,7 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
         {activeTab === 'cards' && (
           <div className="space-y-6">
             <div className="text-center space-y-1.5 max-w-xs mx-auto pt-2">
-              <span className="text-[10px] uppercase font-bold text-cyan-400 tracking-widest">Escolha a melhor opção</span>
+              <span className="text-[10px] uppercase font-bold text-cyan-400 tracking-widest font-mono">Escolha a melhor opção</span>
               <h3 className="text-xl font-display font-bold text-white leading-tight">Cuidado emocional sob medida</h3>
               <p className="text-xs text-gray-500 leading-normal font-light">
                 Assine de forma simples e rápida com ativação instantânea no aplicativo.
@@ -133,9 +134,6 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
             <div className="grid grid-cols-1 gap-3">
               {TIER_DETAILS.map((plan) => {
                 const isSelected = selectedPlan === plan.id;
-                const displayPrice = plan.id === 'basic' && !isLimitReached ? 'R$ 0,00' : plan.price;
-                const displayOriginalPrice = plan.id === 'basic' && !isLimitReached ? 'R$ 0,99' : plan.originalPrice;
-                const displayBadgeColor = plan.id === 'basic' && !isLimitReached ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : plan.badgeColor;
 
                 return (
                   <motion.div
@@ -144,21 +142,21 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                     className={cn(
                       "border rounded-3xl p-5 relative overflow-hidden transition-all cursor-pointer",
                       isSelected
-                        ? "bg-[#0a0f1f]/95 border-purple-500 ring-1 ring-white shadow-md"
+                        ? "bg-[#0a0f1f]/95 border-purple-500 ring-1 ring-white/10 shadow-md"
                         : "bg-[#0a0f1f]/95 border-white/10 hover:border-purple-500/30"
                     )}
                     layoutId={`plan-${plan.id}`}
                   >
                     {plan.isPopular && (
-                      <div className="absolute right-0 top-0 bg-white text-white text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
+                      <div className="absolute right-0 top-0 bg-violet-605 text-white text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider font-mono">
                         Recomendado
                       </div>
                     )}
 
                     <div className="flex justify-between items-start">
                       <div className="space-y-1">
-                        <div className="flex items-center space-x-1.5">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${displayBadgeColor}`}>
+                        <div className="flex items-center space-x-2">
+                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border uppercase font-mono ${plan.badgeColor}`}>
                             {plan.name}
                           </span>
                           <span className="text-[11px] text-gray-400 font-medium font-mono">
@@ -171,18 +169,18 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                       </div>
 
                       <div className="text-right">
-                        {displayOriginalPrice && (
-                          <div className="text-xs text-gray-400 line-through leading-none">
-                            {displayOriginalPrice}
+                        {plan.originalPrice && (
+                          <div className="text-xs text-gray-400 line-through leading-none font-mono">
+                            {plan.originalPrice}
                           </div>
                         )}
-                        <div className="text-lg font-display font-extrabold text-white">
-                          {displayPrice}
+                        <div className="text-lg font-display font-extrabold text-white font-mono">
+                          {plan.price}
                         </div>
                       </div>
                     </div>
 
-                    {/* Features list dynamic preview for selected or all cards */}
+                    {/* Features list preview */}
                     <AnimatePresence>
                       {isSelected && (
                         <motion.div
@@ -191,78 +189,52 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                           exit={{ opacity: 0, height: 0 }}
                           className="mt-4 pt-4 border-t border-white/5 space-y-2.5 overflow-hidden"
                         >
-                          {plan.id === 'free' && (
+                          {plan.id === 'FREE' && (
                             <>
-                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
-                                <Check size={14} className="text-indigo-500 shrink-0" />
-                                <span>Salas temáticas (5 minutos a cada 24 horas)</span>
-                              </div>
                               <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
                                 <Check size={14} className="text-indigo-500 shrink-0" />
                                 <span>Mensagens motivacionais diárias</span>
                               </div>
+                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
+                                <Check size={14} className="text-indigo-500 shrink-0" />
+                                <span>Acesso total ao Fórum</span>
+                              </div>
+                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
+                                <Check size={14} className="text-indigo-505 shrink-0" />
+                                <span>Salas temáticas de conversão (Apenas por chat de texto*)</span>
+                              </div>
                               <div className="flex items-center space-x-2 text-xs opacity-40 font-light line-through">
                                 <X size={14} className="text-red-400 shrink-0" />
-                                <span>Acesso ilimitado ao Fórum</span>
+                                <span>Participação em áudio/voz nas salas temáticas</span>
+                              </div>
+                              <div className="flex items-center space-x-2 text-xs opacity-40 font-light line-through">
+                                <X size={14} className="text-red-400 shrink-0" />
+                                <span>Acesso ou criação de salas virtuais personalizadas</span>
                               </div>
                             </>
                           )}
 
-                          {plan.id === 'basic' && (
+                          {plan.id !== 'FREE' && (
                             <>
                               <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
-                                <Check size={14} className="text-purple-500 shrink-0" />
-                                <span>Salas temáticas sem limite de tempo</span>
+                                <Check size={14} className="text-emerald-400 shrink-0" />
+                                <span>Salas temáticas com áudio de voz ao vivo e texto liberados</span>
                               </div>
                               <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
-                                <Check size={14} className="text-purple-500 shrink-0" />
+                                <Check size={14} className="text-emerald-400 shrink-0" />
                                 <span>Mensagens motivacionais ilimitadas</span>
                               </div>
                               <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
-                                <Check size={14} className="text-purple-500 shrink-0" />
+                                <Check size={14} className="text-emerald-400 shrink-0" />
                                 <span>Fórum integrado</span>
                               </div>
                               <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
-                                <Check size={14} className="text-purple-500 shrink-0" />
-                                <span>Pode receber convite para Sala VIP</span>
-                              </div>
-                            </>
-                          )}
-
-                          {plan.id === 'vip' && (
-                            <>
-                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
-                                <Check size={14} className="text-violet-500 shrink-0" />
-                                <span>Salas temáticas ilimitadas</span>
-                              </div>
-                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
-                                <Check size={14} className="text-violet-500 shrink-0" />
-                                <span>Acesso ao Fórum completo</span>
-                              </div>
-                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
-                                <Check size={14} className="text-violet-500 shrink-0" />
-                                <span>Pode receber convites para Sala VIP</span>
-                              </div>
-                              <div className="flex items-center space-x-2 text-xs opacity-40 font-light line-through">
-                                <X size={14} className="text-red-400 shrink-0" />
-                                <span>Criação de salas de conversas personalizadas</span>
-                              </div>
-                            </>
-                          )}
-
-                          {plan.id === 'premium' && (
-                            <>
-                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
                                 <Check size={14} className="text-emerald-400 shrink-0" />
-                                <span>Tudo liberado 24h por 30 dias</span>
+                                <span>Acesso a Salas VIPs</span>
                               </div>
                               <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
                                 <Check size={14} className="text-emerald-400 shrink-0" />
-                                <span>Acesso total ao Fórum e Salas VIP</span>
-                              </div>
-                              <div className="flex items-center space-x-2 text-xs text-white/75 font-light">
-                                <Check size={14} className="text-emerald-400 shrink-0" />
-                                <span>Permissão para criar suas próprias salas</span>
+                                <span>Criação e gerenciamento de salas temáticas customizadas</span>
                               </div>
                             </>
                           )}
@@ -276,11 +248,11 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
                               handleSubscribe(plan.id as any, plan.name);
                             }}
                             className={cn(
-                              "w-full text-white py-3.5 mt-2 rounded-2xl text-xs font-bold font-display shadow-md active:scale-95 transition-all outline-none",
+                              "w-full text-white py-3.5 mt-2 rounded-2xl text-xs font-bold font-display shadow-md active:scale-95 transition-all outline-none cursor-pointer",
                               plan.buttonStyle
                             )}
                           >
-                            Ativar Plano {plan.name}
+                            Ativar {plan.name}
                           </motion.button>
                         </motion.div>
                       )}
@@ -292,121 +264,116 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
           </div>
         )}
 
-        {/* TAB 2: DETAILED TABLE (COMPARTATIVO DOS GRANDES PLAYERS) */}
+        {/* TAB 2: DETAILED TABLE */}
         {activeTab === 'table' && (
           <div className="space-y-6">
             <div className="text-center space-y-1.5 max-w-xs mx-auto mb-2">
-              <span className="text-[10px] uppercase font-bold text-purple-400 tracking-widest">Tabela de Atributos</span>
+              <span className="text-[10px] uppercase font-bold text-purple-400 tracking-widest font-mono">Tabela de Atributos</span>
               <h3 className="text-xl font-display font-bold text-white leading-tight">Comparação Completa</h3>
             </div>
 
             {/* Design da tabela */}
             <div className="bg-[#0a0f1f]/95 border border-white/10 rounded-[2rem] overflow-hidden shadow-sm">
-              <div className="grid grid-cols-5 bg-[#12182b] border-b border-white/5 text-[9px] font-bold text-gray-500 uppercase tracking-wider py-4 px-3 text-center">
+              <div className="grid grid-cols-5 bg-[#12182b] border-b border-white/5 text-[9px] font-bold text-gray-500 uppercase tracking-wider py-4 px-3 text-center font-mono">
                 <span className="text-left font-display">Recurso</span>
                 <span className="text-indigo-600">Grátis</span>
-                <span className="text-purple-600">Básico</span>
-                <span className="text-violet-600">VIP</span>
-                <span className="text-emerald-400">Premium</span>
+                <span className="text-cyan-500">PREMIUM 1</span>
+                <span className="text-violet-600">PREMIUM 2</span>
+                <span className="text-amber-400">PREMIUM 3</span>
               </div>
 
               {/* Rows */}
               <div className="divide-y divide-white/5 text-xs text-white">
                 {/* Row 1 */}
                 <div className="grid grid-cols-5 py-3.5 px-3 items-center text-center">
-                  <span className="text-left text-[11px] font-semibold text-gray-700">Salas temáticas</span>
-                  <div className="flex justify-center text-[8.5px] leading-tight text-indigo-700 font-semibold max-w-full px-1">
-                    5 min a cada 24h*
+                  <span className="text-left text-[11px] font-semibold text-gray-400">Voz ao vivo e texto</span>
+                  <div className="flex justify-center text-[8.5px] leading-tight text-indigo-400 font-semibold px-1">
+                    somente texto*
                   </div>
-                  <div className="flex justify-center text-purple-600 font-bold">sim</div>
-                  <div className="flex justify-center text-violet-600 font-bold">sim</div>
-                  <div className="flex justify-center text-emerald-400 font-bold">sim</div>
+                  <div className="flex justify-center text-cyan-400 font-bold text-[10px]">sim</div>
+                  <div className="flex justify-center text-violet-400 font-bold text-[10px]">sim</div>
+                  <div className="flex justify-center text-amber-500 font-bold text-[10px]">sim</div>
                 </div>
 
                 {/* Row 2 */}
                 <div className="grid grid-cols-5 py-3.5 px-3 items-center text-center">
-                  <span className="text-left text-[11px] font-semibold text-gray-700">Mensagens motivacionais</span>
-                  <div className="flex justify-center text-indigo-600 font-bold">sim</div>
-                  <div className="flex justify-center text-purple-600 font-bold">sim</div>
-                  <div className="flex justify-center text-violet-600 font-bold">sim</div>
-                  <div className="flex justify-center text-emerald-400 font-bold">sim</div>
+                  <span className="text-left text-[11px] font-semibold text-gray-400">Msg Motivacionais</span>
+                  <div className="flex justify-center text-indigo-400 font-bold text-[10px]">sim</div>
+                  <div className="flex justify-center text-cyan-400 font-bold text-[10px]">sim</div>
+                  <div className="flex justify-center text-violet-400 font-bold text-[10px]">sim</div>
+                  <div className="flex justify-center text-amber-500 font-bold text-[10px]">sim</div>
                 </div>
 
                 {/* Row 3 */}
                 <div className="grid grid-cols-5 py-3.5 px-3 items-center text-center">
-                  <span className="text-left text-[11px] font-semibold text-gray-700">Fórum</span>
-                  <div className="flex justify-center text-red-400 font-bold">não</div>
-                  <div className="flex justify-center text-purple-600 font-bold">sim</div>
-                  <div className="flex justify-center text-violet-600 font-bold">sim</div>
-                  <div className="flex justify-center text-emerald-400 font-bold">sim</div>
+                  <span className="text-left text-[11px] font-semibold text-gray-400">Fórum</span>
+                  <div className="flex justify-center text-indigo-400 font-bold text-[10px]">sim</div>
+                  <div className="flex justify-center text-cyan-400 font-bold text-[10px]">sim</div>
+                  <div className="flex justify-center text-violet-400 font-bold text-[10px]">sim</div>
+                  <div className="flex justify-center text-amber-500 font-bold text-[10px]">sim</div>
                 </div>
 
                 {/* Row 4 */}
-                <div className="grid grid-cols-5 py-3.5 px-3 items-center text-center text-white">
-                  <span className="text-left text-[11px] font-semibold text-gray-700">Sala VIP</span>
-                  <div className="flex justify-center text-red-400 font-bold">não</div>
-                  <div className="flex justify-center text-purple-600 font-bold">sim**</div>
-                  <div className="flex justify-center text-violet-600 font-bold">sim**</div>
-                  <div className="flex justify-center text-emerald-400 font-bold">sim</div>
+                <div className="grid grid-cols-5 py-3.5 px-3 items-center text-center">
+                  <span className="text-left text-[11px] font-semibold text-gray-400">Sala VIP</span>
+                  <div className="flex justify-center text-red-400 font-bold text-[10px]">não</div>
+                  <div className="flex justify-center text-cyan-400 font-bold text-[10px]">sim</div>
+                  <div className="flex justify-center text-violet-400 font-bold text-[10px]">sim</div>
+                  <div className="flex justify-center text-amber-500 font-bold text-[10px]">sim</div>
                 </div>
 
                 {/* Row 5 */}
                 <div className="grid grid-cols-5 py-3.5 px-3 items-center text-center">
-                  <span className="text-left text-[11px] font-semibold text-gray-700">Criação de sala</span>
-                  <div className="flex justify-center text-red-400 font-bold">não</div>
-                  <div className="flex justify-center text-red-400 font-bold">não</div>
-                  <div className="flex justify-center text-red-400 font-bold">não</div>
-                  <div className="flex justify-center text-emerald-400 font-bold">sim</div>
+                  <span className="text-left text-[11px] font-semibold text-gray-400">Criar sala temática</span>
+                  <div className="flex justify-center text-red-400 font-bold text-[10px]">não</div>
+                  <div className="flex justify-center text-cyan-400 font-bold text-[10px]">sim</div>
+                  <div className="flex justify-center text-violet-400 font-bold text-[10px]">sim</div>
+                  <div className="flex justify-center text-amber-500 font-bold text-[10px]">sim</div>
                 </div>
 
                 {/* Row 6 / Price */}
-                <div className="grid grid-cols-5 py-4 px-3 items-center text-center bg-[#12182b]/30 font-display">
-                  <span className="text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Valor</span>
-                  <div className="font-bold text-indigo-700 text-[10px]">Grátis</div>
-                  <div className="font-bold text-purple-700 text-[10px]">{isLimitReached ? 'R$ 0,99' : 'R$ 0,00'}</div>
+                <div className="grid grid-cols-5 py-4 px-3 items-center text-center bg-[#12182b]/30 font-display font-mono">
+                  <span className="text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider font-sans">Valor</span>
+                  <span className="font-bold text-indigo-400 text-[10px]">Grátis</span>
+                  <span className="font-bold text-cyan-400 text-[10px]">R$0,99</span>
+                  <span className="font-bold text-violet-400 text-[10px]">R$9,90</span>
                   <div className="text-[10px] flex flex-col justify-center">
-                    <span className="text-[8px] text-gray-400 line-through">R$9,99</span>
-                    <span className="font-bold text-violet-750">R$5,99</span>
-                  </div>
-                  <div className="text-[10px] flex flex-col justify-center">
-                    <span className="text-[8px] text-gray-400 line-through">R$29,99</span>
-                    <span className="font-bold text-emerald-400">R$14,99</span>
+                    <span className="text-[8px] text-gray-400 line-through">R$29,70</span>
+                    <span className="font-bold text-amber-500">R$24,99</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Quick CTAs for each column below table */}
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 gap-2.5 pb-2">
               <button
                 onClick={() => handleSubscribe('FREE', 'Grátis')}
                 className="py-2.5 px-3 rounded-xl bg-indigo-600/80 border border-indigo-500/25 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
               >
                 <span>Ativar Grátis</span>
-                <span className="text-[8.5px] font-light opacity-80">R$ 0,00 (Sempre)</span>
+                <span className="text-[8.5px] font-light opacity-80 font-mono">R$ 0,00</span>
               </button>
               <button
-                onClick={() => handleSubscribe('FREE', 'Básico')}
-                className="py-2.5 px-3 rounded-xl bg-purple-600/80 border border-purple-500/25 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
+                onClick={() => handleSubscribe('PREMIUM1', 'PREMIUM 1')}
+                className="py-2.5 px-3 rounded-xl bg-cyan-600/80 border border-cyan-500/25 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
               >
-                <span>Assinar Básico</span>
-                <span className="text-[8.5px] font-light opacity-80">
-                  {isLimitReached ? 'R$ 0,99 (24 horas)' : 'Grátis (Promo)'}
-                </span>
+                <span>Assinar Premium 1</span>
+                <span className="text-[8.5px] font-light opacity-80 font-mono">R$ 0,99 (1 dia)</span>
               </button>
               <button
-                onClick={() => handleSubscribe('VIP', 'VIP')}
-                className="py-2.5 px-3 rounded-xl bg-violet-600/80 border border-violet-500/25 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
+                onClick={() => handleSubscribe('PREMIUM2', 'PREMIUM 2')}
+                className="py-2.5 px-3 rounded-xl bg-violet-650/80 border border-violet-500/25 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
               >
-                <span>Assinar VIP</span>
-                <span className="text-[8.5px] font-light opacity-80">R$ 5,99 (10 dias)</span>
+                <span>Assinar Premium 2</span>
+                <span className="text-[8.5px] font-light opacity-80 font-mono">R$ 9,90 (10 dias)</span>
               </button>
               <button
-                onClick={() => handleSubscribe('PREMIUM', 'PREMIUM')}
-                className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 border border-purple-500/25 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
+                onClick={() => handleSubscribe('PREMIUM3', 'PREMIUM 3')}
+                className="py-2.5 px-3 rounded-xl bg-amber-600/80 border border-amber-500/25 active:scale-95 text-white font-bold text-xs shadow-md transition-all outline-none text-center flex flex-col items-center justify-center cursor-pointer"
               >
-                <span>Assinar PREMIUM</span>
-                <span className="text-[8.5px] font-light opacity-80">R$ 14,99 (30 dias)</span>
+                <span>Assinar Premium 3</span>
+                <span className="text-[8.5px] font-light opacity-80 font-mono">R$ 24,99 (30 dias)</span>
               </button>
             </div>
           </div>
@@ -417,40 +384,34 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
           <div className="flex items-start space-x-2">
             <AlertCircle size={14} className="text-gray-400 mt-0.5 shrink-0" />
             <p className="text-[10px] text-gray-500 font-light leading-relaxed">
-              <strong>BÁSICO</strong>: *5 minutos a cada 24h refere-se ao limite de conversação contínua nas salas coletivas gratuitas.
-            </p>
-          </div>
-          <div className="flex items-start space-x-2">
-            <HelpCircle size={14} className="text-gray-400 mt-0.5 shrink-0" />
-            <p className="text-[10px] text-gray-500 font-light leading-relaxed">
-              <strong>VIP</strong>: **Ao assinar o plano Básico ou VIP você pode receber e aceitar link de convite direto para as salas VIPs exclusivas de moderação.
+              <strong>GRÁTIS</strong>: *O chat de voz das salas temáticas está restrito a recepção e transmissão por chat de texto. Ative qualquer plano Premium para voz ao vivo.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Success Modal animado */}
+      {/* Success Modal */}
       <AnimatePresence>
         {successAnimationPlan && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-xs">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm">
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#0a0f1f]/95 rounded-[2.5rem] p-8 max-w-sm w-full border border-yellow-200 shadow-2xl flex flex-col items-center text-center space-y-5"
+              className="bg-[#0a0f1f]/95 rounded-[2.5rem] p-8 max-w-sm w-full border border-violet-500 shadow-2xl flex flex-col items-center text-center space-y-5"
             >
-              <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center text-white text-3xl shadow-xl shadow-yellow-100 animate-pulse">
+              <div className="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center text-white text-3xl shadow-xl shadow-yellow-500/20 animate-pulse">
                 👑
               </div>
               <div className="space-y-2">
                 <h4 className="font-display font-bold text-white text-xl">Assinatura Ativada!</h4>
                 <p className="text-xs text-white/75 font-light leading-relaxed">
-                  Parabéns! Sua assinatura do Plano <strong className="text-purple-400 font-semibold">{successAnimationPlan}</strong> foi processada com sucesso via simulação offline. Todos os recursos já estão ativos no seu perfil!
+                  Parabéns! Sua assinatura do Plano <strong className="text-violet-400 font-semibold">{successAnimationPlan}</strong> foi processada com sucesso. Todos os recursos já estão ativos no seu perfil!
                 </p>
               </div>
               <button
                 onClick={() => setSuccessAnimationPlan(null)}
-                className="w-full py-4 bg-white hover:bg-white/90 active:scale-95 text-white rounded-2xl text-xs font-bold transition-all outline-none"
+                className="w-full py-4 bg-violet-600 hover:bg-violet-750 text-white rounded-2xl text-xs font-bold transition-all outline-none cursor-pointer"
               >
                 Começar a Usar
               </button>
@@ -461,4 +422,3 @@ export default function VIP({ user, navigate, onUpdateUser }: Props) {
     </div>
   );
 }
-

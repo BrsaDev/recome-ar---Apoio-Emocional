@@ -6,7 +6,7 @@ import { User, Room, ForumTopic, ForumPost } from '../types';
  * Set VITE_USE_API=true in your environment variables to route requests to your express server.
  */
 const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || '/api';
-const USE_API = true;
+const USE_API = (import.meta as any).env?.VITE_USE_API === 'true';
 
 console.log(`[API Integration] Operational. Route points to Node.js server: ${API_BASE_URL}`);
 
@@ -72,10 +72,10 @@ export const apiService = {
    * -------------------------------------------------------------
    */
   auth: {
-    async access(nickname: string, avatarId: string, email?: string): Promise<{ user: User; token: string }> {
+    async access(nickname: string, avatarId: string, email?: string, password?: string): Promise<{ user: User; token: string }> {
       return apiRequest<{ user: User; token: string }>('/auth/access', {
         method: 'POST',
-        body: JSON.stringify({ nickname, avatarId, email })
+        body: JSON.stringify({ nickname, avatarId, email, password })
       });
     },
 
@@ -112,6 +112,16 @@ export const apiService = {
         method: 'POST',
         body: JSON.stringify({ name, acceptedAt, version })
       });
+    },
+
+    /**
+     * Update user subscription plan or apply promotional campaigns
+     */
+    async updatePlan(plan: 'FREE' | 'PREMIUM1' | 'PREMIUM2' | 'PREMIUM3'): Promise<{ user: User; token: string }> {
+      return apiRequest<{ user: User; token: string }>('/user/plan', {
+        method: 'PATCH',
+        body: JSON.stringify({ plan })
+      });
     }
   },
 
@@ -145,6 +155,25 @@ export const apiService = {
       return apiRequest<void>(`/rooms/${roomId}/join`, {
         method: 'POST',
         body: JSON.stringify({ username })
+      });
+    },
+
+    /**
+     * Delete custom/VIP room from the Express database
+     */
+    async delete(roomId: string): Promise<void> {
+      return apiRequest<void>(`/rooms/${roomId}`, {
+        method: 'DELETE'
+      });
+    },
+
+    /**
+     * Update custom/VIP room details in the Express database
+     */
+    async update(roomId: string, data: Partial<Room>): Promise<Room> {
+      return apiRequest<Room>(`/rooms/${roomId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data)
       });
     }
   },
@@ -276,7 +305,22 @@ export const apiService = {
     async replyTicket(ticketId: string, reply: string): Promise<any> {
       return apiRequest<any>(`/admin/tickets/${ticketId}/reply`, {
         method: 'POST',
-        body: JSON.stringify({ reply })
+        body: JSON.stringify({ response: reply })
+      });
+    },
+    async deleteTicket(ticketId: string): Promise<void> {
+      return apiRequest<void>(`/admin/tickets/${ticketId}`, {
+        method: 'DELETE'
+      });
+    },
+    async deleteRoom(roomId: string): Promise<void> {
+      return apiRequest<void>(`/admin/rooms/${roomId}`, {
+        method: 'DELETE'
+      });
+    },
+    async deleteForumTopic(topicId: string): Promise<void> {
+      return apiRequest<void>(`/admin/forum/topics/${topicId}`, {
+        method: 'DELETE'
       });
     }
   }
